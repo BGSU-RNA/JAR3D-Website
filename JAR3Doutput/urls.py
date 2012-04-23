@@ -9,7 +9,8 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'JAR3Doutput.views.home', name='home'),
     # url(r'^JAR3Doutput/', include('JAR3Doutput.foo.urls')),
-                       
+
+    url(r'^home$', 'JAR3Dresults.views.home'),
     url(r'^JAR3Doutput/Results/(?P<query_id>\S+)/$', 'JAR3Dresults.views.results'),
     url(r'^JAR3Doutput/GroupResults/(?P<query_id>\S+)/(?P<group_num>\S+)/$', 'JAR3Dresults.views.group_results'),
 

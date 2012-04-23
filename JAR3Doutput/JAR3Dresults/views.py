@@ -1,8 +1,10 @@
-from django.shortcuts import render_to_response
+from django.http import HttpResponse
+from django.shortcuts import render_to_response, render
+from django.template import RequestContext
 from JAR3Dresults.models import Query
 from JAR3Dresults.models import Bygroup
 from JAR3Dresults.models import Bysequence
-    
+
 def results(request, query_id):
     try:
         q = Bygroup.objects.filter(id=query_id)
@@ -16,3 +18,8 @@ def group_results(request, query_id, group_num):
     except Bygroup.DoesNotExist:
         raise Http404
     return render_to_response('JAR3Doutput/group_results.html', {'query': q})
+
+def home(request):
+    return render_to_response('JAR3Doutput/homepage.html',
+                              {},
+                              context_instance=RequestContext(request))
