@@ -2,19 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>JAR3D</title>
+    <title>JAR3D | Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
 
     <!-- Le styles -->
     <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
-    <style>
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-      }
-    </style>
     <link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/jar3d.css" rel="stylesheet">
   </head>
 
   <body>
@@ -39,18 +35,122 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="container homepage">
 
-        <div class="span6 offset3">
-            <textarea id='input' class="span6" rows='20'></textarea>
+        <div class="content">
+
+            <div class="page-header">
+                <h1>
+                    Java-based Alignment of RNA 3D Structure
+                    <small>predicting RNA 3D motifs in sequences</small>
+                </h1>
+            </div>
+
+            <div class="row">
+                <div class="span8">
+                    <textarea id='input' class="span8" rows='10'
+                    placeholder="Single or aligned RNA/DNA sequences or single/multiple loops (fasta-formatted descriptions and secondary structures are optional)">
+                    </textarea>
+                </div>
+                <div class="span2">
+                    <h4>Examples</h4>
+                    <ul class="examples unstyled">
+                        <li data-input="GAAAC*GGACC"><a href='#'>Single loop</a></li>
+                        <li data-input=">seq1&#10;GAAAC*GGACC"><a href='#'>Single loop (fasta)</a></li>
+                        <li data-input="GAAAC*GGACC&#10;GAAAC*GGACC&#10;GAAAC*GGACC&#10;GAAAC*GGACC"><a href='#'>Multiple loops</a></li>
+                        <li data-input=">seq1&#10;GAAAC*GGACC&#10;>seq2&#10;GAAAC*GGACC&#10;>seq3&#10;GAAAC*GGACC&#10;>seq4&#10;GAAAC*GGACC"><a href='#'>Multiple loops (fasta)</a></li>
+                        <li data-input="AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence</a></li>
+                        <li data-input=">seq1&#10;AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence (fasta)</a></li>
+                        <li data-input="(((((............)))))&#10;AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence with secondary structure</a></li>
+                        <li data-input="(((((............)))))&#10;>seq1&#10;AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence with secondary structure (fasta)</a></li>
+                    <ul>
+                </div>
+                <div class="span2">
+                    <ul class="examples unstyled">
+                        <li data-input="AAAAAAAAAAA&#10;GGGGGGGGGGG&#10;UUUUUUUUUUU"><a href='#'>Multiple sequences</a></li>
+                        <li data-input=">seq1&#10;AAAAAAAAAAA&#10;>seq2&#10;GGGGGGGGGGG&#10;>seq3&#10;CCCCCCCCCCC"><a href='#'>Multiple sequences (fasta)</a></li>
+                        <li data-input="(((((.....)))))&#10;AAAAAUUUUUAAAAA&#10;AAAAAUUUUUAAAAA&#10;AAAAAUUUUUAAAAA"><a href='#'>Multiple sequences with secondary structure</a></li>
+                        <li data-input="(((((.....)))))&#10;>seq1&#10;AAAAAUUUUUGGGGG&#10;>seq2&#10;AAAAAUUUUUGGGGG&#10;>seq3&#10;AAAAAUUUUUGGGGG"><a href='#'>Multiple sequences with secondary structure (fasta)</a></li>
+                    <ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <button class="btn btn-large btn-primary span2" id="submit">Submit</button>
+                <button class="btn btn-danger span1" id="clear">Clear</button>
+
+                <div id="message" class="span3 alert"></div>
+            </div>
+
+            <br><br>
+
+            <div class="row">
+                <div class="span3">
+                    <h3>Goal</h3>
+                    <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+                    </p>
+                </div>
+                <div class="span3">
+                    <h3>Input</h3>
+                    <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+                    </p>
+                </div>
+                <div class="span3">
+                    <h3>Output</h3>
+                    <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+                    </p>
+                </div>
+                <div class="span3">
+                    <h3>Method</h3>
+                    <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+                    </p>
+                </div>
+            </div>
+
         </div>
 
+        <footer>
+            <p>&copy;&nbsp;BGSU, 2012</p>
+        </footer>
 
     </div> <!-- /container -->
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}js/jar3dInputValidator.js"></script>
 
 
     <script>
 
+        $('#input').val('').focus();
+
+        $('#message').css('display', 'none');
+
+        $('#submit').on('click', function() {
+            var message = jar3dInputValidator.validate( $('#input').val() );
+            var kind = (message.indexOf('nothing') < 0 ? 'alert-success' : 'alert-error');
+
+            $('#message').removeClass('alert-success alert-error')
+                         .addClass(kind)
+                         .html(message)
+                         .fadeIn();
+        });
+
+        $('#clear').on('click', function() {
+            $('#input').val('').focus();
+        });
+
+        $('#input').focusin(function() {
+            $('#message').fadeOut();
+        });
+
+        $('.examples').on('click', 'li', function() {
+            $('#message').fadeOut();
+            $('#input').val( $(this).data('input').replace(/ /g,'') );
+        });
 
     </script>
 

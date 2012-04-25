@@ -1,152 +1,441 @@
+/*
+    Javascript module for parsing JAR3D input
 
-var jar3dInputValidator = {
+    BGSU RNA Bioinformatics Lab
+    Anton I. Petrov
+*/
 
-    splitLines: function( input ) {
-        var lines;
-        if ( input.match(/\r\n|\r|\n/) ) {
-            lines = input.split(/\r\n|\r|\n/)
-        } else {
-            lines = input;
-        }
-        for (var i = 0; i < lines.length-1; i++) {
-            lines[i].trim();
-        }
-        return lines;
-    },
+var jar3dInputValidator = (function($) {
 
-    // line is a fasta-formatted description line
-    isFastaLine: function( line ) {
-        return line[0] == '>' ? true : false;
-    },
+    var Validator = {
 
-    // line is a valid loop
-    isLoopLine: function( line ) {
+        params: {
+            maxLoopLength: 25,
+            maxSequenceLength: 500,
+            closingPairs: ['AU', 'UA', 'GC', 'CG', 'GU', 'UG']
+        },
 
-        var self = this,
-            L = line.length,
-            MAX_LOOP_LENGTH = 25,
-            validChars = line.split(/A|C|G|U|T|\*/ig).length - 1,
-            chainBreaks = line.split(/\*/g).length - 1;
+        /*
+            ======================
+            Basic helper functions
+            ======================
+        */
 
-        if ( L < MAX_LOOP_LENGTH &&
-             L == validChars &&
-             chainBreaks < 2 &&
-             this.complementaryClosingBases( line ) ) {
-            return true;
-        } else {
-            return false;
-        }
-    },
 
-    complementaryClosingBases: function( line ) {
-        var self = this,
-            pairs = self.getClosingBases( line );
+        /*
+            Split on newline characters, trim whitespace from each line,
+            remove empty lines
+        */
+        splitLines: function( input ) {
+            var lines,
+                pattern = /\r\n|\r|\n/;
 
-        var valid = $.grep(pairs, function(pair, i) {
-            return self.isComplementaryPair( pair );
-        });
+            lines = ( input.match( pattern ) ) ? input.split( pattern ) : input;
 
-        return valid.length == pairs.length;
-    },
-
-    getClosingBases: function( line ) {
-        var closingBases = new Array,
-            starPosition = line.indexOf('*');
-
-        // the first and the last bases
-        closingBases.push(line[0] + line[line.length-1]);
-
-        if ( starPosition > 0 ) {
-            closingBases.push(line[starPosition-1] + line[starPosition+1]);
-        }
-        return closingBases;
-    },
-
-    isComplementaryPair: function( pair ) {
-        return $.inArray(pair, ['AU', 'UA', 'GC', 'CG', 'GU', 'UG']) < 0 ? false : true;
-    },
-
-    // line is a valid nucleotide sequence
-    isSequenceLine: function( line ) {
-        var L = line.length,
-            validChars = line.split(/A|C|G|U|T|-/ig).length - 1,
-            MAX_SEQUENCE_LENGTH = 500;
-
-        if ( L <= MAX_SEQUENCE_LENGTH &&
-             validChars.length == L) {
-            return true;
-         } else {
-            return false;
-         }
-
-    },
-
-    // line is a valid secondary structure
-    isSecondaryStructure: function( line ) {
-        var open  = line.split(/\(/g).length - 1,
-            close = line.split(/\)/g).length - 1,
-            dots  = line.split(/\./g).length - 1;
-        return open + close + dots == line.length && open == close;
-    },
-
-    // individual functions for each input case
-    isFastaSingleLoop: function( input ) {
-        var self = this,
-            lines = self.splitLines(input);
-        return lines.length == 2 &&
-               self.isFastaLine( lines[0] ) &&
-               self.isLoopLine( lines[1] );
-    },
-
-    isNoFastaSingleLoop: function( input ) {
-        var self = this,
-            loop = self.splitLines(input);
-
-        return typeof(loop) == 'string' &&
-               self.isLoopLine( loop );
-    },
-
-    /*
-        Multiple loops with fasta descriptions
-        >seq1
-        GAAAC*GUAGC
-        >seq2
-        GACUC*GUAGC
-    */
-    isFastaMultipleLoops: function( input ) {
-        var self = this,
-            lines = self.splitLines(input),
-            l = lines.length,
-            fasta = new Array(),
-            loops = new Array(),
-            badloops = new Array();
-
-        // uneven number of lines or less than 4 lines
-        if ( l % 2 != 0 || l < 4 ) {
-            return false;
-        }
-
-        $.each(lines, function(i, line) {
-            // 0, 2, 4 => fasta
-            // 1, 3, 5 => loop
-            if ( i % 2 ) {
-                loops.push(line);
-                return self.isLoopLine(line);
+            if ( typeof(lines) == 'string' ) {
+                return lines.trim();
             } else {
-                fasta.push(line);
-                return self.isFastaLine(line);
+                return $.map(lines, function(line) {
+                    var trimmed = line.trim();
+                    return trimmed.length > 0 ? trimmed : null;
+                });
             }
-        });
+        },
 
-        // all loops should be the same length
-        badLoops = $.grep(loops, function(loop, i) {
-            return loop.length != loops[0].length;
-        });
+        // line is a fasta-formatted description line
+        isFastaLine: function( line ) {
+            return line[0] == '>' ? true : false;
+        },
 
-        return fasta.length == loops.length &&
-               fasta.length == lines.length / 2 &&
-               badLoops.length == 0;
+        /*
+            <= 25 characters, internal or hairpin loops, case-insensitive,
+            A, C, G, U, T, and "*"
+            closing basepairs must be complementary
+        */
+        isLoopLine: function( line ) {
+            var self = jar3dInputValidator,
+                L = line.length,
+                validCharsNum = line.split(/A|C|G|U|T|\*/ig).length - 1,
+                chainBreaks = line.split(/\*/g).length - 1;
 
-    }
+            if ( L <= self.params.maxLoopLength &&
+                 L == validCharsNum &&
+                 chainBreaks < 2 &&
+                 self.complementaryClosingBases( line ) ) {
+                return true;
+            } else {
+                return false;
+            }
+        },
 
-};
+        complementaryClosingBases: function( line ) {
+            var self = jar3dInputValidator,
+                pairs = self.getClosingBases( line );
+
+            var valid = $.grep(pairs, function(pair, i) {
+                return self.isComplementaryPair( pair );
+            });
+
+            return valid.length == pairs.length;
+        },
+
+        getClosingBases: function( line ) {
+            var closingBases = new Array,
+                starPosition = line.indexOf('*');
+
+            // the first and the last bases
+            closingBases.push(line[0] + line[line.length-1]);
+
+            // if an internal loop
+            if ( starPosition > 0 ) {
+                closingBases.push(line[starPosition-1] + line[starPosition+1]);
+            }
+            return closingBases;
+        },
+
+        isComplementaryPair: function( pair ) {
+            return $.inArray(pair, jar3dInputValidator.params.closingPairs) < 0 ? false : true;
+        },
+
+        /*
+            case-insensitive, < 500 characters, only A, C, G, U, T, and "-"
+        */
+        isSequenceLine: function( line ) {
+
+            if ( typeof(line) != 'string' ) { return false; }
+
+            var L = line.length,
+                validCharsNum = line.split(/A|C|G|U|T|-/ig).length - 1;
+
+            if ( L <= jar3dInputValidator.params.maxSequenceLength &&
+                 validCharsNum == L) {
+                return true;
+             } else {
+                return false;
+             }
+        },
+
+        /*
+            Same number of opening and closing brackets, only "(", ")", and "."
+            No pseudoknots
+        */
+        isSecondaryStructure: function( line ) {
+
+            if ( typeof(line) != 'string' ) { return false; }
+
+            var open  = line.split( /\(/g ).length - 1,
+                close = line.split( /\)/g ).length - 1,
+                dots  = line.split( /\./g ).length - 1;
+
+            return open + close + dots == line.length && open == close;
+        },
+
+        /*
+            all lines must be valid and have the same length
+            f1 - function that parses odd lines
+            f2 - function that parses even lines
+        */
+        parseAlternatingBlock: function( lines, f1, f2 ) {
+            var self = jar3dInputValidator,
+                odd  = new Array(),
+                even = new Array();
+
+            $.each(lines, function(ind, line) {
+                if ( ind % 2 ) {
+                    even.push(line);
+                    return f2(line); // returning false breaks out of the loop
+                } else {
+                    odd.push(line);
+                    return f1(line);
+                }
+            });
+
+            // don't insist on same length for loops
+            sameLength = ( f2 === self.isLoopLine ? true : self.assertSameLength(even) );
+
+            return odd.length == even.length &&
+                   odd.length == lines.length / 2 &&
+                   sameLength;
+        },
+
+        // loops over an array of strings, returns true
+        // if all elements have the same length, false otherwise
+        assertSameLength: function( data ) {
+
+            if ( !$.isArray(data) || ( data.length==0 ) ) { return false; }
+
+            var firstElemLength = data[0].length;
+
+            for (var i=1, len=data.length; i<len; i++) {
+                if ( !typeof(data[i]) == 'string' ||
+                     data[i].length != firstElemLength ) {
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        /*
+            =====================================
+            parsing functions for each input type
+            =====================================
+        */
+
+        /*
+            >seq1
+            GAAAC*GGACC
+        */
+        isFastaSingleLoop: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input);
+            return lines.length == 2 &&
+                   self.isFastaLine( lines[0] ) &&
+                   self.isLoopLine( lines[1] );
+        },
+
+        /*
+            GAAAC*GGACC
+        */
+        isNoFastaSingleLoop: function( input ) {
+            var self = jar3dInputValidator,
+                loop = self.splitLines(input);
+
+            return typeof(loop) == 'string' &&
+                   self.isLoopLine( loop );
+        },
+
+        /*
+            >seq1
+            GAAAC*GUAGC
+            >seq2
+            GACUC*GUAGC
+        */
+        isFastaMultipleLoops: function( input ) {
+
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            // uneven number of lines or less than 4 lines
+            if ( l % 2 != 0 || l < 4 ) {
+                return false;
+            }
+
+            return self.parseAlternatingBlock(lines,
+                                              self.isFastaLine,
+                                              self.isLoopLine);
+        },
+
+        /*
+            GAAAC*GGACC
+            GAAAC*GGACC
+            GAAAC*GGACC
+            GAAAC*GGACC
+        */
+        isNoFastaMultipleLoops: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input)
+                l = lines.length;
+
+            var validLoops = $.grep(lines, function(line) {
+                return self.isLoopLine(line);
+            });
+
+            return validLoops.length == l;
+        },
+
+        /*
+            (((((............)))))
+            >seq1
+            ACGUGUCGUAGUCGAUCUGUAC
+        */
+        isFastaSingleSequenceSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input)
+                l = lines.length;
+
+            if ( l != 3 ) { return false; }
+
+            return self.isSecondaryStructure( lines[0] ) &&
+                   self.isFastaLine( lines[1] ) &&
+                   lines[0].length == lines[2].length;
+        },
+
+        /*
+            ((((((((((...))))))))))
+            AAAAAAAAAAAAAAAAAAAAAAA
+        */
+        isNoFastaSingleSequenceSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( l != 2 ) { return false; }
+
+            return self.isSecondaryStructure( lines[0] ) &&
+                   self.isSequenceLine( lines[1] ) &&
+                   lines[0].length == lines[1].length;
+        },
+
+        /*
+            >seq1
+            AAAAAAAAAAAAAAAAAAAAAA
+        */
+        isFastaSingleSequenceNoSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( l != 2 ) { return false; }
+
+            return self.isFastaLine( lines[0] ) &&
+                   self.isSequenceLine( lines[1] );
+        },
+
+        /*
+            AAAAAAAAAAAAAAAAAAAAAA
+        */
+        isNoFastaSingleSequenceNoSS: function( input ) {
+
+            if ( typeof(input) != 'string' ) {
+                return false;
+            }
+            return jar3dInputValidator.isSequenceLine(input);
+        },
+
+        /*
+            (((((.....)))))
+            > seq1
+            AAAAAUUUUUGGGGG
+            > seq2
+            AAAAAUUUUUGGGGG
+        */
+        isFastaMultipleSequencesSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( l % 2 == 0 || l < 5 ) { return false; }
+
+            return self.isSecondaryStructure( lines[0] ) &&
+                   self.parseAlternatingBlock( lines.slice(1,l),
+                                               self.isFastaLine,
+                                               self.isSequenceLine) &&
+                   lines[0].length == lines[2].length;
+        },
+
+        /*
+            (((((.....)))))
+            AAAAAUUUUUGGGGG
+            AAAAAUUUUUGGGGG
+        */
+        isNoFastaMultipleSequencesSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( l < 3 || !self.isSecondaryStructure( lines[0] ) ) { return false; }
+
+            for (var i=1; i<l; i++) {
+                if ( !self.isSequenceLine( lines[i] ) ) {
+                    return false;
+                }
+            }
+
+            return self.assertSameLength( lines );
+        },
+
+        /*
+            >seq1
+            AAAAAAAAAAAA
+            >seq2
+            CCCCCCCCCCCC
+        */
+        isFastaMultipleSequencesNoSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( l < 4 ) { return false; }
+
+            return self.parseAlternatingBlock( lines,
+                                               self.isFastaLine,
+                                               self.isSequenceLine);
+        },
+
+        /*
+            AAAAAAAAAAA
+            CCCCCCCCCCC
+            GGGGGGGGGGG
+        */
+        isNoFastaMultipleSequencesNoSS: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( typeof(lines) == 'string' || l < 2 ) { return false; }
+
+            for (var i=0; i<l; i++) {
+                if ( !self.isSequenceLine( lines[i] ) ) {
+                    return false;
+                }
+            }
+            return true;
+        },
+
+        /*
+            ========================
+            Main validation function
+            ========================
+        */
+        validate: function( input ) {
+            var self = jar3dInputValidator,
+                lines = self.splitLines(input),
+                l = lines.length;
+
+            if ( input.indexOf('>') < 0 ) {
+                // non-fasta input
+                if ( self.isNoFastaSingleLoop( input ) ) {
+                    message = 'isNoFastaSingleLoop';
+                } else if ( self.isNoFastaMultipleLoops( input ) ) {
+                    message = 'isNoFastaMultipleLoops';
+                } else if ( self.isNoFastaSingleSequenceSS( input ) ) {
+                    message = 'isNoFastaSingleSequenceSS';
+                } else if ( self.isNoFastaSingleSequenceNoSS( input ) ) {
+                    message = 'isNoFastaSingleSequenceNoSS';
+                } else if ( self.isNoFastaMultipleSequencesSS( input ) ) {
+                    message = 'isNoFastaMultipleSequencesSS';
+                } else if ( self.isNoFastaMultipleSequencesNoSS( input ) ) {
+                    message = 'isNoFastaMultipleSequencesNoSS';
+                } else {
+                    message = 'nothing matched in no fasta';
+                }
+            } else {
+                // fasta input
+                if ( self.isFastaSingleLoop( input ) ) {
+                    message = 'isFastaSingleLoop';
+                } else if ( self.isFastaMultipleLoops( input ) ) {
+                    message = 'isFastaMultipleLoops';
+                } else if ( self.isFastaSingleSequenceSS( input ) ) {
+                    message = 'isFastaSingleSequenceSS';
+                } else if ( self.isFastaMultipleSequencesSS( input ) ) {
+                    message = 'isFastaMultipleSequencesSS';
+                } else if ( self.isFastaMultipleSequencesNoSS( input ) ) {
+                    message = 'isFastaMultipleSequencesNoSS';
+                } else if ( self.isFastaSingleSequenceNoSS( input ) ) {
+                    message = 'isFastaSingleSequenceNoSS';
+                } else {
+                    message = 'nothing matched in fasta';
+                }
+            }
+
+            return message;
+
+        }
+
+
+    };
+
+    return Validator;
+
+})(jQuery);
