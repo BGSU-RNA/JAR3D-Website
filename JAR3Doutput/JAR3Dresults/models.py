@@ -47,3 +47,17 @@ class Bysequence(models.Model):
     groupnum = models.IntegerField(null=True, blank=True)
     class Meta:
         db_table = u'bysequence'
+
+class Query_info(models.Model):
+    query_id = models.CharField(max_length=36, primary_key=True)
+    loop_type = models.CharField(max_length=2)
+    group_set = models.CharField(max_length=100)
+    model_type = models.CharField(max_length=20)
+    query_type = models.IntegerField(null=True, blank=True)
+    structured = models.IntegerField(null=True, blank=True)
+    email = models.CharField(max_length=50)
+    status = models.IntegerField(null=True, blank=True)
+    time_submitted = models.DateTimeField(auto_now_add=True)
+    time_completed = models.DateTimeField(auto_now=True)
+    class Meta:
+        db_table = u'query_info'

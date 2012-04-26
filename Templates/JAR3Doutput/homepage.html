@@ -137,6 +137,15 @@
                          .addClass(kind)
                          .html(message)
                          .fadeIn();
+
+            $.ajax({
+              type: 'POST',
+              url: 'http://rna.bgsu.edu/jar3d_dev/process_input',
+              data: {key: 'value'},
+            }).done(function(data) {
+                window.location.href = 'http://rna.bgsu.edu/jar3d_dev/result/' + data['uuid'];
+            });
+
         });
 
         $('#clear').on('click', function() {

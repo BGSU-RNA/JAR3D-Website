@@ -28,4 +28,7 @@ nosetests.xml
 .mr.developer.cfg
 
 .DS_Store
+
+#JAR3D
 settings.py
+queue/jar3d_queue_config.pl
