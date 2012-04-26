@@ -55,22 +55,22 @@
                 <div class="span2">
                     <h4>Examples</h4>
                     <ul class="examples unstyled">
-                        <li data-input="GAAAC*GGACC"><a href='#'>Single loop</a></li>
-                        <li data-input=">seq1&#10;GAAAC*GGACC"><a href='#'>Single loop (fasta)</a></li>
-                        <li data-input="GAAAC*GGACC&#10;GAAAC*GGACC&#10;GAAAC*GGACC&#10;GAAAC*GGACC"><a href='#'>Multiple loops</a></li>
-                        <li data-input=">seq1&#10;GAAAC*GGACC&#10;>seq2&#10;GAAAC*GGACC&#10;>seq3&#10;GAAAC*GGACC&#10;>seq4&#10;GAAAC*GGACC"><a href='#'>Multiple loops (fasta)</a></li>
-                        <li data-input="AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence</a></li>
-                        <li data-input=">seq1&#10;AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence (fasta)</a></li>
-                        <li data-input="(((((............)))))&#10;AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence with secondary structure</a></li>
-                        <li data-input="(((((............)))))&#10;>seq1&#10;AAAAAAAAAAAAAAAAAAAAAA"><a href='#'>Single sequence with secondary structure (fasta)</a></li>
+                        <li><a href='#' id="isNoFastaSingleLoop">Single loop</a></li>
+                        <li><a href='#' id="isFastaSingleLoop">Single loop (fasta)</a></li>
+                        <li><a href='#' id="isNoFastaMultipleLoops">Multiple loops</a></li>
+                        <li><a href='#' id="isFastaMultipleLoops">Multiple loops (fasta)</a></li>
+                        <li><a href='#' id="isFastaSingleSequenceNoSS">Single sequence</a></li>
+                        <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence (fasta)</a></li>
+                        <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence with secondary structure</a></li>
+                        <li><a href='#' id="isFastaSingleSequenceSS">Single sequence with secondary structure (fasta)</a></li>
                     <ul>
                 </div>
                 <div class="span2">
                     <ul class="examples unstyled">
-                        <li data-input="AAAAAAAAAAA&#10;GGGGGGGGGGG&#10;UUUUUUUUUUU"><a href='#'>Multiple sequences</a></li>
-                        <li data-input=">seq1&#10;AAAAAAAAAAA&#10;>seq2&#10;GGGGGGGGGGG&#10;>seq3&#10;CCCCCCCCCCC"><a href='#'>Multiple sequences (fasta)</a></li>
-                        <li data-input="(((((.....)))))&#10;AAAAAUUUUUAAAAA&#10;AAAAAUUUUUAAAAA&#10;AAAAAUUUUUAAAAA"><a href='#'>Multiple sequences with secondary structure</a></li>
-                        <li data-input="(((((.....)))))&#10;>seq1&#10;AAAAAUUUUUGGGGG&#10;>seq2&#10;AAAAAUUUUUGGGGG&#10;>seq3&#10;AAAAAUUUUUGGGGG"><a href='#'>Multiple sequences with secondary structure (fasta)</a></li>
+                        <li><a href='#' id="isNoFastaMultipleSequencesNoSS">Multiple sequences</a></li>
+                        <li><a href='#' id="isFastaMultipleSequencesNoSS">Multiple sequences (fasta)</a></li>
+                        <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences with secondary structure</a></li>
+                        <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences with secondary structure (fasta)</a></li>
                     <ul>
                 </div>
             </div>
@@ -121,45 +121,9 @@
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="{{ STATIC_URL }}js/jar3dInputValidator.js"></script>
-
+    <script src="{{ STATIC_URL }}js/homepage.js"></script>
 
     <script>
-
-        $('#input').val('').focus();
-
-        $('#message').css('display', 'none');
-
-        $('#submit').on('click', function() {
-            var message = jar3dInputValidator.validate( $('#input').val() );
-            var kind = (message.indexOf('nothing') < 0 ? 'alert-success' : 'alert-error');
-
-            $('#message').removeClass('alert-success alert-error')
-                         .addClass(kind)
-                         .html(message)
-                         .fadeIn();
-
-            $.ajax({
-              type: 'POST',
-              url: 'http://rna.bgsu.edu/jar3d_dev/process_input',
-              data: {key: 'value'},
-            }).done(function(data) {
-                window.location.href = 'http://rna.bgsu.edu/jar3d_dev/result/' + data['uuid'];
-            });
-
-        });
-
-        $('#clear').on('click', function() {
-            $('#input').val('').focus();
-        });
-
-        $('#input').focusin(function() {
-            $('#message').fadeOut();
-        });
-
-        $('.examples').on('click', 'li', function() {
-            $('#message').fadeOut();
-            $('#input').val( $(this).data('input').replace(/ /g,'') );
-        });
 
     </script>
 

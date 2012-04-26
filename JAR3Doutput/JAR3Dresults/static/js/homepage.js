@@ -1,0 +1,135 @@
+var Examples = {
+
+    // extracted loops
+    isFastaSingleLoop: ['>seq1',
+                        'GAAAC*GGACC'].join('\n'),
+
+    isNoFastaSingleLoop : 'GAAAC*GGACC',
+
+    isFastaMultipleLoops: ['>seq1', 'GAAC*GGACC',
+                           '>seq2', 'GAAC*GGACC',
+                           '>seq3', 'GAAC*GGACC'].join('\n'),
+
+    isNoFastaMultipleLoops: ['GAAAC*GGACC',
+                             'GAAAC*GGACC',
+                             'GAAAC*GGACC',
+                             'GAAAC*GGACC'].join('\n'),
+
+    // one sequence
+    isFastaSingleSequenceSS: ['(((((............)))))',
+                            '>seq1',
+                            'AAAAAAAAAAAAAAAAAAAAAA'].join('\n'),
+
+    isNoFastaSingleSequenceSS: ['((((((((((...))))))))))',
+                                'AAAAAAAAAAAAAAAAAAAAAAA'].join('\n'),
+
+    isFastaSingleSequenceNoSS: ['>seq1','AAAAAAAAAAAAAAAAAAAAAA'].join('\n'),
+
+    isNoFastaSingleSequenceNoSS: 'AAAAAAAAAAAAAAAAAAAAAA',
+
+    // multiple sequences
+    isFastaMultipleSequencesSS:        ['(((((.....)))))',
+                               '>seq1', 'AAAAAUUUUUGGGGG',
+                               '>seq2', 'AAAAAUUUUUGGGGG',
+                               '>seq3', 'AAAAAUUUUUGGGGG'].join('\n'),
+
+    isNoFastaMultipleSequencesSS: ['(((((.....)))))',
+                                   'AAAAAUUUUUAAAAA',
+                                   'AAAAAUUUUUAAAAA',
+                                   'AAAAAUUUUUAAAAA'].join('\n'),
+
+    isFastaMultipleSequencesNoSS: ['>seq1','AAAAAAAAAAA',
+                                   '>seq2','GGGGGGGGGGG',
+                                   '>seq3','CCCCCCCCCCC'].join('\n'),
+
+    isNoFastaMultipleSequencesNoSS: ['AAAAAAAAAAA',
+                                     'GGGGGGGGGGG',
+                                     'UUUUUUUUUUU'].join('\n')
+
+};
+
+(function() {
+
+    var input    = $('#input'),
+        submit   = $('#submit'),
+        message  = $('#message'),
+        clear    = $('#clear'),
+        examples = $('.examples');
+
+    function init() {
+        // autofocus when the page loads
+        input.val('').focus();
+
+        bindEvents();
+    };
+
+    function bindEvents() {
+
+        clear.on('click', function() {
+            input.val('').focus();
+        });
+
+        input.focusin(function() {
+            message.fadeOut();
+        });
+
+        examples.on('click', 'a', function() {
+            message.fadeOut();
+            input.val( Examples[this.id] );
+        });
+
+        submit.on('click', function() {
+
+            var response = jar3dInputValidator.validate( input.val() );
+
+            console.log(response);
+
+            showMessage(response);
+
+            if (response.valid) {
+                submitData(response);
+            }
+        });
+
+    };
+
+    function showMessage(response) {
+        var alerts = ['alert-success', 'alert-error'],
+            msg,
+            alert_class;
+
+        if ( response.valid ) {
+            msg = response.query_type;
+            alert_class = alerts[0];
+        } else {
+            msg = 'Please check your input';
+            alert_class = alerts[1];
+        }
+
+        message.removeClass( alerts.join(' ') )
+               .addClass( alert_class )
+               .html( msg )
+               .fadeIn();
+    };
+
+    function submitData(response) {
+
+        $.ajax({
+          type: 'POST',
+          url: 'http://rna.bgsu.edu/jar3d_dev/process_input',
+          contentType: 'application/json; charset=utf-8',
+          traditional: false,
+          data: response,
+        }).done(function(data) {
+
+            if ( data['uuid'] ) {
+                window.location.href = 'http://rna.bgsu.edu/jar3d_dev/result/' + data['uuid'];
+            }
+
+        });
+
+    };
+
+    init();
+
+})();

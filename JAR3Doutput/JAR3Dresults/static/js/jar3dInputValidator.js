@@ -393,43 +393,71 @@ var jar3dInputValidator = (function($) {
                 lines = self.splitLines(input),
                 l = lines.length;
 
-            if ( input.indexOf('>') < 0 ) {
-                // non-fasta input
-                if ( self.isNoFastaSingleLoop( input ) ) {
-                    message = 'isNoFastaSingleLoop';
-                } else if ( self.isNoFastaMultipleLoops( input ) ) {
-                    message = 'isNoFastaMultipleLoops';
+            var response = {
+                valid: false,
+                query_type: null,
+                fasta: new Array(),
+                data: new Array(),
+                ss: null,
+            };
+
+            if ( l == 0 ) { return response; }
+
+            if ( self.isSecondaryStructure( lines[0] ) ) {
+                response.ss = lines.shift();
+                // SS input
+                if ( self.isFastaSingleSequenceSS( input ) ) {
+                    response.query_type = 'isFastaSingleSequenceSS';
+                } else if ( self.isFastaMultipleSequencesSS( input ) ) {
+                    response.query_type = 'isFastaMultipleSequencesSS';
                 } else if ( self.isNoFastaSingleSequenceSS( input ) ) {
-                    message = 'isNoFastaSingleSequenceSS';
-                } else if ( self.isNoFastaSingleSequenceNoSS( input ) ) {
-                    message = 'isNoFastaSingleSequenceNoSS';
+                    response.query_type = 'isNoFastaSingleSequenceSS';
                 } else if ( self.isNoFastaMultipleSequencesSS( input ) ) {
-                    message = 'isNoFastaMultipleSequencesSS';
-                } else if ( self.isNoFastaMultipleSequencesNoSS( input ) ) {
-                    message = 'isNoFastaMultipleSequencesNoSS';
-                } else {
-                    message = 'nothing matched in no fasta';
+                    response.query_type = 'isNoFastaMultipleSequencesSS';
                 }
             } else {
-                // fasta input
-                if ( self.isFastaSingleLoop( input ) ) {
-                    message = 'isFastaSingleLoop';
-                } else if ( self.isFastaMultipleLoops( input ) ) {
-                    message = 'isFastaMultipleLoops';
-                } else if ( self.isFastaSingleSequenceSS( input ) ) {
-                    message = 'isFastaSingleSequenceSS';
-                } else if ( self.isFastaMultipleSequencesSS( input ) ) {
-                    message = 'isFastaMultipleSequencesSS';
-                } else if ( self.isFastaMultipleSequencesNoSS( input ) ) {
-                    message = 'isFastaMultipleSequencesNoSS';
-                } else if ( self.isFastaSingleSequenceNoSS( input ) ) {
-                    message = 'isFastaSingleSequenceNoSS';
+                // NoSS input
+                if ( self.isFastaLine( lines[0] ) ) {
+                    // fasta input
+                    if ( self.isFastaSingleLoop( input ) ) {
+                        response.query_type = 'isFastaSingleLoop';
+                    } else if ( self.isFastaMultipleLoops( input ) ) {
+                        response.query_type = 'isFastaMultipleLoops';
+                    } else if ( self.isFastaMultipleSequencesNoSS( input ) ) {
+                        response.query_type = 'isFastaMultipleSequencesNoSS';
+                    } else if ( self.isFastaSingleSequenceNoSS( input ) ) {
+                        response.query_type = 'isFastaSingleSequenceNoSS';
+                    }
                 } else {
-                    message = 'nothing matched in fasta';
+                    // non-fasta input
+                    if ( self.isNoFastaSingleLoop( input ) ) {
+                        response.query_type = 'isNoFastaSingleLoop';
+                    } else if ( self.isNoFastaMultipleLoops( input ) ) {
+                        response.query_type = 'isNoFastaMultipleLoops';
+                    } else if ( self.isNoFastaSingleSequenceNoSS( input ) ) {
+                        response.query_type = 'isNoFastaSingleSequenceNoSS';
+                    } else if ( self.isNoFastaMultipleSequencesNoSS( input ) ) {
+                        response.query_type = 'isNoFastaMultipleSequencesNoSS';
+                    }
                 }
             }
 
-            return message;
+            if ( response.query_type ) {
+                response.valid = true;
+                if ( response.query_type.indexOf('NoFasta') < 0 ) {
+                    $.each(lines, function(ind, line) {
+                        if ( ind % 2 == 0 ) {
+                            response.fasta.push(line);
+                        } else {
+                            response.data.push(line);
+                        }
+                    });
+                } else {
+                    response.data = lines;
+                }
+            }
+
+            return response;
 
         }
 

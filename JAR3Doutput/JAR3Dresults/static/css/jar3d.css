@@ -42,3 +42,6 @@ footer {
 .homepage .alert-success, .homepage .alert-error {
     margin-bottom: 0;
 }
+.homepage #message {
+    display: none;
+}
