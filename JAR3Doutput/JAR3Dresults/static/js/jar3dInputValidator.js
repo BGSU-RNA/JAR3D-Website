@@ -60,8 +60,8 @@ var jar3dInputValidator = (function($) {
 
             return L <= self.params.maxLoopLength &&
                    L == validCharsNum &&
-                   chainBreaks < 2 &&
-                   self.complementaryClosingBases( line )
+                   chainBreaks < 2
+                   // && self.complementaryClosingBases( line )
         },
 
         complementaryClosingBases: function( line ) {
@@ -247,6 +247,8 @@ var jar3dInputValidator = (function($) {
             var self = jar3dInputValidator,
                 lines = self.splitLines(input)
                 l = lines.length;
+
+            if ( l < 2 || typeof(lines) == 'string' ) { return false; }
 
             var validLoops = $.grep(lines, function(line) {
                 return self.isLoopLine(line);
