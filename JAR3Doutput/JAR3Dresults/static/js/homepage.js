@@ -102,7 +102,11 @@ var Examples = {
             msg = response.query_type;
             alert_class = alerts[0];
         } else {
-            msg = 'Please check your input';
+            if ( response.msg ) {
+                msg = response.msg;
+            } else {
+                msg = 'Please check your input';
+            }
             alert_class = alerts[1];
         }
 
@@ -121,11 +125,15 @@ var Examples = {
           traditional: false,
           data: response,
         }).done(function(data) {
-
-            if ( data['uuid'] ) {
-                window.location.href = 'http://rna.bgsu.edu/jar3d_dev/result/' + data['uuid'];
+            data = jQuery.parseJSON(data);
+            if ( data.redirect ) {
+                window.location.href = data.redirect;
+            } else if ( data.error ) {
+                console.log(data);
+                showMessage( {valid: false, msg: data.error} );
+            } else {
+                console.log(data);
             }
-
         });
 
     };
