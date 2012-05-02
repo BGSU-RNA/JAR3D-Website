@@ -52,8 +52,8 @@ var validator = jar3dInputValidator;
 
 module( "Helper functions" );
 test( "isLoopLine", function() {
-    ok(validator.isLoopLine('CCGU*ACGUG'), 'Valid internal loop');
-    ok(validator.isLoopLine('CCGUACGUG'), 'Valid hairpin loop');
+    ok(validator.isLoopLine('CCGU*ACGUG'));
+    ok(validator.isLoopLine('CCGUACGUG'));
     equal(validator.isLoopLine('CCGUACGUGAUCGGUAUGUCUGAGUAUGUCGUAGC'), false, 'Very long loop');
     equal(validator.isLoopLine('CAGU*ACGA*G'), false, 'Extra chain break character');
     equal(validator.isLoopLine('CA&$GU*ACGAHG'), false, 'Disallowed characters');
@@ -62,7 +62,9 @@ test( "isLoopLine", function() {
 });
 
 test( "isSecondaryStructure", function() {
-    ok(validator.isSecondaryStructure('(((...)))'), 'Valid secondary structure');
+    ok(validator.isSecondaryStructure('(((...)))'));
+    ok(validator.isSecondaryStructure('<<<...>>>'));
+    ok(validator.isSecondaryStructure('<<<:::>>>'));
     equal(validator.isSecondaryStructure('(((((....))'), false, 'Unequal number of ( and )');
     equal(validator.isSecondaryStructure('(((((.N..)))))'), false, 'Disallowed characters');
     equal(validator.isSecondaryStructure('([(((.].))))'), false, 'Pseudoknot');
@@ -118,6 +120,18 @@ test( "splitLines", function() {
 });
 
 
+module( "Same loop type" );
+test( "isFastaMultipleLoops", function() {
+    ok( validator.isFastaMultipleLoops( ['>seq1','GAG*CAC','>seq2','GAG*CAC'].join('\n') ) );
+    equal( validator.isFastaMultipleLoops( ['>seq1','GAG*CAC','>seq2','GAGCAC'].join('\n') ), false );
+    equal( validator.isFastaMultipleLoops( ['>seq1','GAGCAC','>seq2','GAG*CAC'].join('\n') ), false );
+});
+
+test( "isNoFastaMultipleLoops", function() {
+    ok( validator.isNoFastaMultipleLoops( ['GAG*CAC','GAG*CAC','GAG*CAC','GAG*CAC'].join('\n') ) );
+    equal( validator.isNoFastaMultipleLoops( ['GAG*CAC','GAGCAC','GAG*CAC','GAG*CAC'].join('\n') ), false );
+    equal( validator.isNoFastaMultipleLoops( ['GAGCAC','GAG*CAC','GAG*CAC','GAG*CAC'].join('\n') ), false );
+});
 
 
 module( "Input parsing functions" );
