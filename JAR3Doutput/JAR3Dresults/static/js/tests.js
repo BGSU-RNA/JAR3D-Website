@@ -112,7 +112,7 @@ test( "complementaryClosingBases", function() {
 });
 
 test( "splitLines", function() {
-    deepEqual( validator.splitLines('test'), 'test' );
+    deepEqual( validator.splitLines('test'), ['test'] );
     deepEqual( validator.splitLines(['test1','test2','test3'].join('\n')),  ['test1','test2','test3'] );
     deepEqual( validator.splitLines(['test1','test2','test3'].join('\r')),  ['test1','test2','test3'] );
     deepEqual( validator.splitLines(['test1','test2','test3'].join('\r\n')),['test1','test2','test3'] );

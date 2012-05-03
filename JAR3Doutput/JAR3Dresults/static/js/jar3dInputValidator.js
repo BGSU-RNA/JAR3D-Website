@@ -25,6 +25,7 @@ var jar3dInputValidator = (function($) {
         /*
             Split on newline characters, trim whitespace from each line,
             remove empty lines
+            Returns an array of lines
         */
         splitLines: function( input ) {
             var lines,
@@ -33,7 +34,7 @@ var jar3dInputValidator = (function($) {
             lines = ( input.match( pattern ) ) ? input.split( pattern ) : input;
 
             if ( typeof(lines) == 'string' ) {
-                return lines.trim();
+                return [lines.trim()];
             } else {
                 return $.map(lines, function(line) {
                     var trimmed = line.trim();
@@ -206,8 +207,8 @@ var jar3dInputValidator = (function($) {
             var self = jar3dInputValidator,
                 loop = self.splitLines(input);
 
-            return typeof(loop) == 'string' &&
-                   self.isLoopLine( loop );
+            return loop.length == 1 &&
+                   self.isLoopLine( loop[0] );
         },
 
         /*
@@ -248,7 +249,7 @@ var jar3dInputValidator = (function($) {
                 lines = self.splitLines(input)
                 l = lines.length;
 
-            if ( l < 2 || typeof(lines) == 'string' ) { return false; }
+            if ( l < 2 ) { return false; }
 
             var validLoops = $.grep(lines, function(line) {
                 return self.isLoopLine(line);
@@ -388,7 +389,7 @@ var jar3dInputValidator = (function($) {
                 lines = self.splitLines(input),
                 l = lines.length;
 
-            if ( typeof(lines) == 'string' || l < 2 ) { return false; }
+            if ( l < 2 ) { return false; }
 
             for (var i=0; i<l; i++) {
                 if ( !self.isSequenceLine( lines[i] ) ) {
@@ -414,6 +415,7 @@ var jar3dInputValidator = (function($) {
                 fasta: new Array(),
                 data: new Array(),
                 ss: null,
+                parsed_input: lines.join('\n')
             };
 
             if ( l == 0 ) { return response; }
@@ -459,7 +461,7 @@ var jar3dInputValidator = (function($) {
 
             if ( response.query_type ) {
                 response.valid = true;
-                if ( response.query_type.indexOf('NoFasta') < 0 ) {
+                if ( !response.query_type.match(/NoFasta/) && lines.length > 1 ) {
                     $.each(lines, function(ind, line) {
                         if ( ind % 2 == 0 ) {
                             response.fasta.push(line);
