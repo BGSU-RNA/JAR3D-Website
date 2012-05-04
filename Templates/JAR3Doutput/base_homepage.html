@@ -21,8 +21,8 @@
                 <li><a href='#' id="isFastaSingleLoop">Single loop (fasta)</a></li>
                 <li><a href='#' id="isNoFastaMultipleLoops">Multiple loops</a></li>
                 <li><a href='#' id="isFastaMultipleLoops">Multiple loops (fasta)</a></li>
-                <li><a href='#' id="isFastaSingleSequenceNoSS">Single sequence</a></li>
-                <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence</a></li>
+                <li><a href='#' id="isFastaSingleSequenceNoSS">Single sequence (fasta)</a></li>
                 <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence with secondary structure</a></li>
                 <li><a href='#' id="isFastaSingleSequenceSS">Single sequence with secondary structure (fasta)</a></li>
             <ul>
@@ -79,7 +79,13 @@
     <script src="{{ STATIC_URL }}js/homepage.js"></script>
 
     {% if input %}
-        <script>$('#input').val('{{ input }}').focus();</script>
+        <script>
+            // input = list of strings. Join them with @@@ for javascipt
+            var input = '{{ input|join:"@@@" }}';
+            // html encode &gt; characters
+            input = $('</p>').html(input).text().split('@@@').join('\n');
+            $('#input').val( input ).focus();
+        </script>
     {% endif %}
 
 {% endblock page_specific_js %}

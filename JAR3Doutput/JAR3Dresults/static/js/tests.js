@@ -1,5 +1,4 @@
 var testCases = {
-
     // extracted loops
     isFastaSingleLoop: ['>seq1',
                         'GAAAC*GGACC'].join('\n'),
@@ -16,35 +15,35 @@ var testCases = {
                              'GAAAC*GGACC'].join('\n'),
 
     // one sequence
-    isFastaSingleSequenceSS: ['(((((............)))))',
-                            '>seq1',
-                            'AAAAAAAAAAAAAAAAAAAAAA'].join('\n'),
+    isFastaSingleSequenceSS: ['((((((((((..(((...)))...))))))))))',
+                              '>seq1',
+                              'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
 
-    isNoFastaSingleSequenceSS: ['((((((((((...))))))))))',
-                                'AAAAAAAAAAAAAAAAAAAAAAA'].join('\n'),
+    isNoFastaSingleSequenceSS: ['((((((((((..(((...)))...))))))))))',
+                                'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
 
-    isFastaSingleSequenceNoSS: ['>seq1','AAAAAAAAAAAAAAAAAAAAAAAAAA'].join('\n'),
+    isFastaSingleSequenceNoSS: ['>seq1','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
 
-    isNoFastaSingleSequenceNoSS: 'AAAAAAAAAAAAAAAAAAAAAAAAAA',
+    isNoFastaSingleSequenceNoSS: 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
 
     // multiple sequences
-    isFastaMultipleSequencesSS:        ['(((((.....)))))',
-                               '>seq1', 'AAAAAUUUUUGGGGG',
-                               '>seq2', 'AAAAAUUUUUGGGGG',
-                               '>seq3', 'AAAAAUUUUUGGGGG'].join('\n'),
+    isFastaMultipleSequencesSS:        ['((((((((((..(((...)))...))))))))))',
+                               '>seq1', 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                               '>seq2', 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                               '>seq3', 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
 
-    isNoFastaMultipleSequencesSS: ['(((((.....)))))',
-                                   'AAAAAUUUUUAAAAA',
-                                   'AAAAAUUUUUAAAAA',
-                                   'AAAAAUUUUUAAAAA'].join('\n'),
+    isNoFastaMultipleSequencesSS: ['((((((((((..(((...)))...))))))))))',
+                                   'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                                   'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                                   'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
 
-    isFastaMultipleSequencesNoSS: ['>seq1','AAAAAAAAAAAAAAAAAAAAAAAAAA',
-                                   '>seq2','GGGGGGGGGGGGGGGGGGGGGGGGGG',
-                                   '>seq3','CCCCCCCCCCCCCCCCCCCCCCCCCC'].join('\n'),
+    isFastaMultipleSequencesNoSS: ['>seq1','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                                   '>seq2','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                                   '>seq3','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
 
-    isNoFastaMultipleSequencesNoSS: ['AAAAAAAAAAAAAAAAAAAAAAAAAA',
-                                     'GGGGGGGGGGGGGGGGGGGGGGGGGG',
-                                     'UUUUUUUUUUUUUUUUUUUUUUUUUU'].join('\n')
+    isNoFastaMultipleSequencesNoSS: ['CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                                     'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+                                     'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n')
 
 };
 
