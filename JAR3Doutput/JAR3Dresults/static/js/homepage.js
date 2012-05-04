@@ -56,9 +56,7 @@ var Examples = {
         examples = $('.examples');
 
     function init() {
-        // autofocus when the page loads
-        input.val('').focus();
-
+        input.focus();
         bindEvents();
     };
 

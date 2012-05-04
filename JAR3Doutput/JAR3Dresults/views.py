@@ -18,7 +18,7 @@ import json
 import urlparse
 import requests
 import urllib2
-
+import HTMLParser
 import logging
 
 
@@ -49,7 +49,7 @@ def home(request, uuid=None):
         q = Query_info.objects.get(query_id=uuid)
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': q.parsed_input.split('\n')},
+                                      {'input': q.parsed_input},
                                       context_instance=RequestContext(request))
         else:
             return render_to_response('JAR3Doutput/base_homepage.html',
@@ -177,6 +177,7 @@ class JAR3DValidator():
             return self.respond("Unrecognized query type")
 
         # create loop objects
+        h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id = query_id,
                                 group_set = 'IL0.6/HL0.2', # change this
                                 model_type = 'default', # change this
@@ -184,7 +185,7 @@ class JAR3DValidator():
                                 structured_models_only = 0,
                                 email = '',
                                 status = 0,
-                                parsed_input = parsed_input)
+                                parsed_input = h.unescape(parsed_input))
 
         query_sequences = []
         loop_types = ['internal', 'hairpin']

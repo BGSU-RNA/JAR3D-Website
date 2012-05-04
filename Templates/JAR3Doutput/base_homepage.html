@@ -10,9 +10,9 @@
 {% block page_content %}
     <div class="row">
         <div class="span8">
-            <textarea id='input' class="span8" rows='10'
-            placeholder="Single or aligned RNA/DNA sequences or single/multiple loops (fasta-formatted descriptions and secondary structures are optional)">
-            </textarea>
+            <textarea id='input' class="span8" rows='10' tabindex="1"
+            placeholder="Single or aligned RNA/DNA sequences or single/multiple loops
+            (fasta-formatted descriptions and secondary structures are optional)">{{input|default:''}}</textarea>
         </div>
         <div class="span2">
             <h4>Examples</h4>
@@ -38,7 +38,7 @@
     </div>
 
     <div class="row">
-        <button class="btn btn-large btn-primary span2" id="submit">Submit</button>
+        <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
         <button class="btn btn-danger span1" id="clear">Clear</button>
 
         <div id="message" class="span3 alert"></div>
@@ -77,15 +77,4 @@
 {% block page_specific_js %}
     <script src="{{ STATIC_URL }}js/jar3dInputValidator.js"></script>
     <script src="{{ STATIC_URL }}js/homepage.js"></script>
-
-    {% if input %}
-        <script>
-            // input = list of strings. Join them with @@@ for javascipt
-            var input = '{{ input|join:"@@@" }}';
-            // html encode &gt; characters
-            input = $('</p>').html(input).text().split('@@@').join('\n');
-            $('#input').val( input ).focus();
-        </script>
-    {% endif %}
-
 {% endblock page_specific_js %}
