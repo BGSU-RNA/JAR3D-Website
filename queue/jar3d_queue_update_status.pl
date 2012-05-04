@@ -10,8 +10,10 @@ if ($#ARGV != 0 ) {
 	exit;
 }
 
-my $PATH = '/Users/api/apps/jar3d_dev/app/queue/';
-my %config = do $PATH . 'jar3d_queue_config.pl';
+sleep(3);
+
+my $path = '/Users/api/apps/jar3d_dev/app/queue/';
+my %config = do $path . 'jar3d_queue_config.pl';
 my $dsn = 'DBI:mysql:' . $config{db_database}. ':localhost';
 my $dbh = DBI->connect($dsn, $config{db_user_name}, $config{db_password});
 

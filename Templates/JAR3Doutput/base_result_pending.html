@@ -38,5 +38,6 @@
     $('#refine').click(function(){
         window.location.href = 'http://rna.bgsu.edu/jar3d_dev/home/' + $(this).data('id') + '/';
     });
+    setTimeout("location.reload(true);", 2000);
     </script>
 {% endblock page_specific_js %}
