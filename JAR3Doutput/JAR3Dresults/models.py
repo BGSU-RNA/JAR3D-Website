@@ -47,3 +47,31 @@ class Bysequence(models.Model):
     groupnum = models.IntegerField(null=True, blank=True)
     class Meta:
         db_table = u'bysequence'
+
+class Query_info(models.Model):
+    query_id = models.CharField(max_length=36, primary_key=True)
+    group_set = models.CharField(max_length=20, default='default') #motifs release
+    model_type = models.CharField(max_length=20, default='default') #bph_stack etc
+    query_type = models.CharField(max_length=35)
+    structured_models_only = models.IntegerField(default=0)
+    email = models.CharField(blank=True, max_length=100)
+    status = models.IntegerField(default=0)
+    parsed_input = models.TextField()
+    time_submitted = models.DateTimeField(auto_now_add=True)
+    time_completed = models.DateTimeField(blank=True, null=True)
+    class Meta:
+        db_table = u'query_info'
+
+class Query_sequences(models.Model):
+    query_id = models.CharField(max_length=36)
+    seq_id = models.SmallIntegerField()
+    loop_id = models.SmallIntegerField()
+    loop_instance_id = models.SmallIntegerField()
+    loop_type = models.CharField(max_length=2)
+    loop_sequence = models.CharField(max_length=40)
+    user_seq_id = models.TextField()
+    status = models.SmallIntegerField(default=0)
+    time_submitted = models.DateTimeField(auto_now_add=True)
+    time_completed = models.DateTimeField(blank=True, null=True)
+    class Meta:
+        db_table = u'query_sequences'
