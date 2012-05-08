@@ -1,0 +1,25 @@
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Validation test</title>
+  <link rel="stylesheet" href="qunit.css" />
+
+</head>
+<body>
+  <textarea id="input" rows="20" cols="120"></textarea>
+  <button>submit</button>
+</body>
+
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script src="jar3dInputValidator.js"></script>
+  <script src="tests.js"></script>
+
+    <script>
+        $('#input').focus();
+        $('button').click(function() {
+            console.log(jar3dInputValidator.validate( $('#input').val() ));
+        });
+    </script>
+
+</html>

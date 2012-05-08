@@ -1,0 +1,80 @@
+{% extends "JAR3Doutput/base.html" %}
+
+{% block title %}JAR3D | Home{% endblock %}
+
+{% block page_specific_css_class %}homepage{% endblock page_specific_css_class %}
+
+{% block page_header %}Java-based Alignment of RNA 3D Structure{% endblock page_header %}
+{% block page_subtitle %}predicting RNA 3D motifs in sequences{% endblock page_subtitle %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="span8">
+            <textarea id='input' class="span8" rows='10' tabindex="1"
+            placeholder="Single or aligned RNA/DNA sequences or single/multiple loops
+            (fasta-formatted descriptions and secondary structures are optional)">{{input|default:''}}</textarea>
+        </div>
+        <div class="span2">
+            <h4>Examples</h4>
+            <ul class="examples unstyled">
+                <li><a href='#' id="isNoFastaSingleLoop">Single loop</a></li>
+                <li><a href='#' id="isFastaSingleLoop">Single loop (fasta)</a></li>
+                <li><a href='#' id="isNoFastaMultipleLoops">Multiple loops</a></li>
+                <li><a href='#' id="isFastaMultipleLoops">Multiple loops (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence</a></li>
+                <li><a href='#' id="isFastaSingleSequenceNoSS">Single sequence (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence with secondary structure</a></li>
+                <li><a href='#' id="isFastaSingleSequenceSS">Single sequence with secondary structure (fasta)</a></li>
+            <ul>
+        </div>
+        <div class="span2">
+            <ul class="examples unstyled">
+                <li><a href='#' id="isNoFastaMultipleSequencesNoSS">Multiple sequences</a></li>
+                <li><a href='#' id="isFastaMultipleSequencesNoSS">Multiple sequences (fasta)</a></li>
+                <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences with secondary structure</a></li>
+                <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences with secondary structure (fasta)</a></li>
+            <ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
+        <button class="btn btn-danger span1" id="clear">Clear</button>
+
+        <div id="message" class="span3 alert"></div>
+    </div>
+
+    <br><br>
+
+    <div class="row">
+        <div class="span3">
+            <h3>Goal</h3>
+            <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+            </p>
+        </div>
+        <div class="span3">
+            <h3>Input</h3>
+            <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+            </p>
+        </div>
+        <div class="span3">
+            <h3>Output</h3>
+            <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+            </p>
+        </div>
+        <div class="span3">
+            <h3>Method</h3>
+            <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras rutrum velit in risus luctus id elementum mi sollicitudin. Cras id eros ut sem accumsan pharetra. Mauris sit amet odio rhoncus ipsum ultrices euismod vitae at felis. Vivamus in magna vitae risus sodales vehicula vitae sed dolor. Donec cursus metus a nunc ultricies mollis. Aliquam erat volutpat. Donec eget metus eu turpis luctus malesuada nec eu nibh. Mauris luctus libero in felis pretium tincidunt. Integer nisl augue, rutrum quis tincidunt nec, sagittis sed leo.
+            </p>
+        </div>
+    </div>
+{% endblock page_content %}
+
+{% block page_specific_js %}
+    <script src="{{ STATIC_URL }}js/jar3dInputValidator.js"></script>
+    <script src="{{ STATIC_URL }}js/homepage.js"></script>
+{% endblock page_specific_js %}

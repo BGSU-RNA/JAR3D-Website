@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}JAR3D{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/jar3d.css" rel="stylesheet">
+    {% block custom_css %}{% endblock custom_css %}
+  </head>
+
+  <body>
+
+    {% block navigation %}
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="{% url JAR3Dresults.views.home %}">JAR3D</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    {% endblock navigation %}
+
+    <!-- Main content -->
+    <div class="container {% block page_specific_css_class %}{% endblock page_specific_css_class %}">
+
+        <div class="content">
+
+            <div class="page-header">
+                <h1>
+                    {% block page_header %}{% endblock page_header %}
+                    <small>{% block page_subtitle %}{% endblock page_subtitle %}</small>
+                </h1>
+            </div>
+
+            {% block page_content %}
+            {% endblock page_content %}
+
+        </div>
+
+        <footer>
+            {% block footer %}<p>&copy;&nbsp;BGSU, 2012</p>{% endblock footer %}
+        </footer>
+
+    </div> <!-- /container -->
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    {% block page_specific_js %}{% endblock page_specific_js %}
+
+    {% block inline_js %}
+    {% endblock inline_js %}
+
+  </body>
+</html>
