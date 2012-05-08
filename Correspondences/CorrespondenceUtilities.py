@@ -8,7 +8,7 @@ import string
 
 # python CorrespondenceDiagnostic.py "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\diagnostic\\IL\\0.6\\bp_models\\"
 
-def readcorrespondencesfromtext(text):
+def readcorrespondencesfromtext(lines):
 
   InstanceToGroup = {}          # instance of motif to conserved group position
   InstanceToPDB = {}            # instance of motif to NTs in PDBs
@@ -18,9 +18,7 @@ def readcorrespondencesfromtext(text):
 
   SequenceToModel = {}          # sequence position to node in JAR3D model
 
-# I need help on the next line:
-
-  for line in re.finditer("[0-9]{4}",line):
+  for line in lines:
     if re.search("corresponds_to_group",line):
         m = re.match("(.*) (.*) (.*)",line)
         InstanceToGroup[m.group(1)] = m.group(3)
@@ -42,14 +40,7 @@ def readcorrespondencesfromtext(text):
 
   return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel
 
-
 def readcorrespondencesfromfile(filenamewithpath):
-
-# future plan:
-# open file
-# read lines into a text string
-# pass that text string to readcorrespondencesfromtext
-# for now, just keep it this way
 
     InstanceToGroup = {}          # instance of motif to conserved group position
     InstanceToPDB = {}            # instance of motif to NTs in PDBs
@@ -59,35 +50,14 @@ def readcorrespondencesfromfile(filenamewithpath):
 
     SequenceToModel = {}          # sequence position to node in JAR3D model
 
-    text = ""
-        
     with open(filenamewithpath,"r") as f:
-        for line in f.readlines():
-            text = text + line
-            if re.search("corresponds_to_group",line):
-                m = re.match("(.*) (.*) (.*)",line)
-                InstanceToGroup[m.group(1)] = m.group(3)
-            elif re.search("corresponds_to_PDB",line):
-                m = re.match("(.*) (.*) (.*)",line)
-                InstanceToPDB[m.group(1)] = m.group(3)
-            elif re.search("corresponds_to_JAR3D",line):
-                m = re.match("(.*) (.*) (.*)",line)
-                GroupToModel[m.group(1)] = m.group(3)
-            elif re.search("corresponds_to_sequence",line):
-                m = re.match("(.*) (.*) (.*)",line)
-                InstanceToSequence[m.group(1)] = m.group(3)
-            elif re.search("appears_in_column",line):
-                m = re.match("(.*) (.*) (.*)",line)
-                ModelToColumn[m.group(1)] = m.group(3)
-            elif re.search("aligns_to_JAR3D",line):
-                m = re.match("(.*) (.*) (.*)",line)
-                SequenceToModel[m.group(1)] = m.group(3)
+      lines = f.readlines()
 
-#   InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel = readcorrespondencesfromtext(text)
+    InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel = readcorrespondencesfromtext(lines)
 
     return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel
 
-def alignmentrows(DisplayColor,aligdata):
+def alignmentrowshtml(DisplayColor,aligdata):
 
   t = ""
 
@@ -99,7 +69,7 @@ def alignmentrows(DisplayColor,aligdata):
   
   return t
 
-def alignmentheader(ModelToColumn):
+def alignmentheaderhtml(ModelToColumn):
 
   ColumnHeader = [''] * len(ModelToColumn)
   for a in ModelToColumn.iterkeys():
@@ -123,10 +93,72 @@ def alignmentheader(ModelToColumn):
 
   return t
 
-# Use JAR3D to create a file of sequence to model correspondences
-# Next, specify a motif correspondence file and a file of sequence to model correspondences
+def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
+
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)
+  NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)
+
+  motifalig = {}
+  
+  for a in InstanceToGroup.iterkeys():
+    m = re.search("(Instance_[0-9]+)",a)
+    motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
+  
+  for a in sorted(InstanceToGroup.iterkeys()):
+    m = re.search("(Instance_[0-9]+)",a)
+    t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
+    motifalig[m.group(1)][t-1] += a[len(a)-1]
+
+  sequencealig = {}
+
+  for a in SequenceToModel.iterkeys():
+    m = re.search("(Sequence_[0-9]+)",a)
+    sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
+    
+  for a in sorted(SequenceToModel.iterkeys()):
+    m = re.search("(Sequence_[0-9]+)",a)
+    t = int(ModelToColumn[SequenceToModel[a]])
+    sequencealig[m.group(1)][t-1] += a[len(a)-1]
+
+  header = {}              # new dictionary
+  header['columnname'] = [''] * len(ModelToColumn)
+  header['nodes'] = [''] * len(ModelToColumn)
+  header['positions'] = [''] * len(ModelToColumn)
+  header['insertions'] = [''] * len(ModelToColumn)
+  
+  for a in ModelToColumn.iterkeys():
+    header['columnname'][int(ModelToColumn[a])-1] = a
+
+  for i in range(0,len(ModelToColumn)):
+    m = re.search("Node_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['nodes'][i] = a
+    m = re.search("Position_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['positions'][i] = a
+    if re.search("Insertion",header['columnname'][i]):
+      header['insertions'][i] = 'Insertion'
+
+  return header, motifalig, sequencealig
 
 def alignsequencesandinstancesfromfiles(MotifCorrespondenceFile,SequenceCorrespondenceFile):
+
+  with open(MotifCorrespondenceFile,"r") as f:
+    MotifLines = f.readlines()
+
+  with open(SequenceCorrespondenceFile,"r") as f:
+    SequenceLines = f.readlines()
+
+  header, motifalig, sequencealig = alignsequencesandinstancesfromtext(MotifLines,SequenceLines)
+
+  print header
+  print motifalig
+  print sequencealig
+
+# Use JAR3D to create a file of sequence-to-model correspondences
+# Next, specify a motif correspondence file and a file of sequence to model correspondences
+
+def alignsequencesandinstancesfromfileshtml(MotifCorrespondenceFile,SequenceCorrespondenceFile):
 
     InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromfile(MotifCorrespondenceFile)
 
@@ -169,8 +201,8 @@ def alignsequencesandinstancesfromfiles(MotifCorrespondenceFile,SequenceCorrespo
       aligdata[m.group(1)][t-1] += a[len(a)-1]
 
     t = '<table>'
-    t = t + alignmentheader(ModelToColumn)+'\n'
-    t = t + alignmentrows(DisplayColor,aligdata)
+    t = t + alignmentheaderhtml(ModelToColumn)+'\n'
+    t = t + alignmentrowshtml(DisplayColor,aligdata)
     t = t + '<table>'
   
     return t
@@ -179,5 +211,12 @@ def alignsequencesandinstancesfromfiles(MotifCorrespondenceFile,SequenceCorrespo
 # python CorrespondenceUtilities.py "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\lib\\IL\\0.6\\bp_models\\IL_01239.1_correspondences.txt" "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\diagnostic\\IL\\0.6\\bp_models\\IL_01239.1_diagnostics.txt"      
       
 if __name__ == "__main__":
-  t = alignsequencesandinstancesfromfiles(sys.argv[1],sys.argv[2])  
+  t = alignsequencesandinstancesfromfileshtml(sys.argv[1],sys.argv[2])  
   print t
+  
+  header, motifalig, sequencealig = alignsequencesandinstancesfromfiles(sys.argv[1],sys.argv[2])  
+  print header
+  print motifalig
+  print sequencealig
+
+  
