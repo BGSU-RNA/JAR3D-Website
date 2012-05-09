@@ -19,7 +19,7 @@ my $dbh = DBI->connect($dsn, $config{db_user_name}, $config{db_password});
 
 my $input = $ARGV[0];
 
-my $statement = "update query_info set status = 1 where query_id = '$input';";
+my $statement = "update jar3d_query_info set status = 1 where query_id = '$input';";
 $dbh->do($statement);
 
 $dbh->disconnect;

@@ -60,7 +60,7 @@ class Query_info(models.Model):
     time_submitted = models.DateTimeField(auto_now_add=True)
     time_completed = models.DateTimeField(blank=True, null=True)
     class Meta:
-        db_table = u'query_info'
+        db_table = u'jar3d_query_info'
 
 class Query_sequences(models.Model):
     query_id = models.CharField(max_length=36)
@@ -74,4 +74,4 @@ class Query_sequences(models.Model):
     time_submitted = models.DateTimeField(auto_now_add=True)
     time_completed = models.DateTimeField(blank=True, null=True)
     class Meta:
-        db_table = u'query_sequences'
+        db_table = u'jar3d_query_sequences'
