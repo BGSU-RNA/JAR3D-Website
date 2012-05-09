@@ -145,7 +145,7 @@ sub worker
 
 sub get_queries
 {
-    my $statement = "select query_id from query_info where status = 0;";
+    my $statement = "select query_id from jar3d_query_info where status = 0;";
 
     my $sth = $dbh->prepare($statement);
     $sth->execute();
