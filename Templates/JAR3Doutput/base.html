@@ -11,12 +11,14 @@
     <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}css/jar3d.css" rel="stylesheet">
+
     {% block custom_css %}{% endblock custom_css %}
   </head>
 
   <body>
 
     {% block navigation %}
+    {# copied as-is from source code produced by the strappress wordpress theme for the main website #}
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -25,17 +27,53 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="{% url JAR3Dresults.views.home %}">JAR3D</a>
+
+          <a class="brand" href="http://rna.bgsu.edu/main/" title="BGSU RNA Bioinformatics Lab" rel="homepage">BGSU RNA Bioinformatics Lab</a>
+
+
+
+
           <div class="nav-collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
+			   <ul id="menu-site-wide-menu" class="nav"><li id="menu-item-100" class="menu-item menu-item-type-post_type menu-item-object-page dropdown menu-item-100"><a href="http://rna.bgsu.edu/main/software/"  class="dropdown-toggle" data-toggle="dropdown">Software <b class="caret"></b></a>
+<ul class="dropdown-menu">
+	<li id="menu-item-118" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-118"><a href="http://rna.bgsu.edu/main/software/fr3d/" >FR3D</a></li>
+	<li id="menu-item-530" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-530"><a href="http://rna.bgsu.edu/main/webapps/webr3dalign/" >R3DAlign</a></li>
+</ul>
+</li>
+<li id="menu-item-98" class="menu-item menu-item-type-post_type menu-item-object-page dropdown menu-item-98"><a href="http://rna.bgsu.edu/main/webapps/"  class="dropdown-toggle" data-toggle="dropdown">Web Applications <b class="caret"></b></a>
+<ul class="dropdown-menu">
+	<li id="menu-item-103" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-103"><a href="http://rna.bgsu.edu/main/webapps/webfr3d/" >WebFR3D</a></li>
+	<li id="menu-item-377" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-377"><a href="http://rna.bgsu.edu/webfr3d/geometric.php" ><i class="icon-share-alt"></i> Geometric WebFR3D</a></li>
+	<li id="menu-item-378" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-378"><a href="http://rna.bgsu.edu/webfr3d/symbolic.php" ><i class="icon-share-alt"></i> Symbolic WebFR3D</a></li>
+	<li id="menu-item-101" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-101"><a href="http://rna.bgsu.edu/main/webapps/jar3d/" >JAR3D</a></li>
+	<li id="menu-item-102" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-102"><a href="http://rna.bgsu.edu/main/webapps/webr3dalign/" >WebR3DAlign</a></li>
+</ul>
+</li>
+<li id="menu-item-99" class="menu-item menu-item-type-post_type menu-item-object-page dropdown menu-item-99"><a href="http://rna.bgsu.edu/main/databases/"  class="dropdown-toggle" data-toggle="dropdown">Databases <b class="caret"></b></a>
+<ul class="dropdown-menu">
+	<li id="menu-item-484" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-484"><a href="http://rna.bgsu.edu/rna3dhub" >RNA 3D Hub</a></li>
+	<li id="menu-item-485" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-485"><a href="http://rna.bgsu.edu/rna3dhub/motifs" ><i class="icon-share-alt"></i>RNA 3D Motif Atlas</a></li>
+	<li id="menu-item-119" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-119"><a href="http://rna.bgsu.edu/main/databases/nrlist/" >Non-redundant Lists</a></li>
+	<li id="menu-item-120" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-120"><a href="http://rna.bgsu.edu/main/databases/triples/" >RNA Base Triple Database</a></li>
+</ul>
+</li>
+<li id="menu-item-121" class="menu-item menu-item-type-post_type menu-item-object-page dropdown menu-item-121"><a href="http://rna.bgsu.edu/main/about-us/"  class="dropdown-toggle" data-toggle="dropdown">About Us <b class="caret"></b></a>
+<ul class="dropdown-menu">
+	<li id="menu-item-436" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-436"><a href="http://rna.bgsu.edu/main/about-us/research-projects/" >Research Projects</a></li>
+	<li id="menu-item-96" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-96"><a href="http://rna.bgsu.edu/main/about-us/people/" >People</a></li>
+	<li id="menu-item-95" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-95"><a href="http://rna.bgsu.edu/main/about-us/publications/" >Publications</a></li>
+</ul>
+</li>
+<li id="menu-item-241" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-241"><a href="http://rna.bgsu.edu/main/news-2/" >News</a></li>
+<li id="menu-item-97" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-97"><a href="http://rna.bgsu.edu/main/contact-us/" >Contact us</a></li>
+</ul>            </div>
+
+
+
         </div>
-      </div>
-    </div>
+        </div>
+     </div>
+
     {% endblock navigation %}
 
     <!-- Main content -->
@@ -62,6 +100,8 @@
     </div> <!-- /container -->
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="//rna.bgsu.edu/img/jar3d/js/bootstrap-dropdown.js"></script>
+
     {% block page_specific_js %}{% endblock page_specific_js %}
 
     {% block inline_js %}
