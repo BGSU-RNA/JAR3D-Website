@@ -204,9 +204,9 @@ class JAR3DValidator():
             input: list of loop instances
             output: loopstuple(
         """
-        seq_id = loop_id = 0
+        loop_id = 0
         loops = dict()
-        for loop in enumerate(data):
+        for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
             loops[(loop_type,seq_id,loop_id)] = loop
         return loops
