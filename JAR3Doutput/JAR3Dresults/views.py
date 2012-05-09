@@ -1,17 +1,11 @@
 
 from django.shortcuts import render_to_response
-from JAR3Dresults.models import Query
-from JAR3Dresults.models import Bygroup
-from JAR3Dresults.models import Bysequence
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
-from JAR3Dresults.models import Query
-from JAR3Dresults.models import Bygroup
-from JAR3Dresults.models import Bysequence
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
 
