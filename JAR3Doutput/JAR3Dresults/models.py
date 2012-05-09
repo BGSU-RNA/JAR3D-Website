@@ -66,7 +66,6 @@ class Query_sequences(models.Model):
     query_id = models.CharField(max_length=36)
     seq_id = models.SmallIntegerField()
     loop_id = models.SmallIntegerField()
-    loop_instance_id = models.SmallIntegerField()
     loop_type = models.CharField(max_length=2)
     loop_sequence = models.CharField(max_length=40)
     user_seq_id = models.TextField()
