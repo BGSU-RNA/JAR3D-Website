@@ -180,24 +180,23 @@ class JAR3DValidator():
         query_sequences = []
         loop_types = ['internal', 'hairpin']
         for id_tuple, loop in loops.iteritems():
-            (loop_type, seq_id, loop_id, loop_instance_id) = id_tuple
+            (loop_type, seq_id, loop_id) = id_tuple
             if loop_type not in loop_types:
                 continue
             loop_type = 'IL' if loop_type == 'internal' else 'HL'
             query_sequences.append(Query_sequences(query_id = query_id,
                                                    seq_id = seq_id,
                                                    loop_id = loop_id,
-                                                   loop_instance_id = loop_instance_id,
                                                    loop_type = loop_type,
                                                    loop_sequence = loop,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id], # change this
                                                    status = 0))
 
         # persist the entries in the database starting with sequences
-#         try:
-        [seq.save() for seq in query_sequences]
-#         except:
-#             return self.respond("Couldn't save query_sequences")
+        try:
+            [seq.save() for seq in query_sequences]
+        except:
+            return self.respond("Couldn't save query_sequences")
         try:
             query_info.save()
         except:
@@ -213,9 +212,9 @@ class JAR3DValidator():
         """
         seq_id = loop_id = 0
         loops = dict()
-        for loop_instance_id, loop in enumerate(data):
+        for loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
-            loops[(loop_type,seq_id,loop_id,loop_instance_id)] = loop
+            loops[(loop_type,seq_id,loop_id)] = loop
         return loops
 
     def respond(self, value, key='error'):
@@ -226,9 +225,9 @@ class JAR3DValidator():
     def isfolded_extract_loops(self, dot_string, sequences):
         """
             Input: secondary structure + list of sequences
-            Output: list of dictionaries
-                loops[0]['internal'] => ['GAGAAC*GAGAAC']
-                loops[0]['hairpin'] => ['GAGAAC', 'GGAAAC']
+            Output:
+                results[('internal',0,0)] = 'CAG*CAAG'
+                results[('internal',1,0)] = 'CAG*CAUG'
         """
         parser = Dot.Parser(dot_string)
         results = dict()
@@ -238,7 +237,7 @@ class JAR3DValidator():
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id,seq_id)] = loop
+                    results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results
 
@@ -246,8 +245,8 @@ class JAR3DValidator():
         """
             Input: list of sequences
             Output:
-                results[('internal',0,0,0)] = 'CAG*CAAG'
-                results[('internal',1,0,1)] = 'CAG*CAUG'
+                results[('internal',0,0)] = 'CAG*CAAG'
+                results[('internal',1,0)] = 'CAG*CAUG'
         """
         folder = fold.UNAfold()
         results = dict()
@@ -258,7 +257,7 @@ class JAR3DValidator():
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id,seq_id)] = loop
+                    results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results
 
@@ -266,8 +265,8 @@ class JAR3DValidator():
         """
             Input: list of sequences
             Output:
-                results[('internal',0,0,0)] = 'CAG*CAAG'
-                results[('internal',1,0,1)] = 'CAG*CAUG'
+                results[('internal',0,0)] = 'CAG*CAAG'
+                results[('internal',1,0)] = 'CAG*CAUG'
         """
         folded = fold.RNAalifold().fold(sequences)
         results = dict()
@@ -277,6 +276,6 @@ class JAR3DValidator():
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id,seq_id)] = loop
+                    results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results
