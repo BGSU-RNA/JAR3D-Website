@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+from django.shortcuts import render_to_response
+from JAR3Dresults.models import Query
+from JAR3Dresults.models import Bygroup
+from JAR3Dresults.models import Bysequence
+    
+=======
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
@@ -27,6 +34,7 @@ logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=
 logger = logging.getLogger(__name__)
 
 # legacy code
+>>>>>>> baa6710e023651728528714839852af6588835d0
 def results(request, query_id):
     try:
         q = Bygroup.objects.filter(id=query_id)
@@ -34,13 +42,18 @@ def results(request, query_id):
         raise Http404
     return render_to_response('JAR3Doutput/results.html', {'query': q})
 
+<<<<<<< HEAD
+=======
 # legacy code
+>>>>>>> baa6710e023651728528714839852af6588835d0
 def group_results(request, query_id, group_num):
     try:
         q = Bysequence.objects.filter(id=query_id, groupnum=group_num)
     except Bygroup.DoesNotExist:
         raise Http404
     return render_to_response('JAR3Doutput/group_results.html', {'query': q})
+<<<<<<< HEAD
+=======
 
 def home(request, uuid=None):
     """
@@ -290,3 +303,4 @@ class JAR3DValidator():
                     results[(loop_type,seq_id,loop_id,seq_id)] = loop
                     loop_id += 1
         return results
+>>>>>>> baa6710e023651728528714839852af6588835d0
