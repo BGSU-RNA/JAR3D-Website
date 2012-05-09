@@ -32,6 +32,7 @@ nosetests.xml
 #JAR3D
 settings.py
 queue/jar3d_queue_config.pl
+*.cfg
 
 # VIM swap files
 *.swp
