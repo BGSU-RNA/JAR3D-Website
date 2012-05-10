@@ -1,14 +1,3 @@
-{% extends "JAR3Doutput/base.html" %}
+{% extends "JAR3Doutput/base_result.html" %}
 
-{% block title %}JAR3D Results{% endblock %}
-
-{% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
-
-{% block page_header %}Failed{% endblock page_header %}
-{% block page_subtitle %} {{query_id}} {% endblock page_subtitle %}
-
-{% block page_content %}
-
-Results
-
-{% endblock page_content %}
+{% block page_subtitle %}Failed {{query_id}} {% endblock page_subtitle %}

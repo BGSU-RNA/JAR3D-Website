@@ -56,7 +56,7 @@ def result(request, uuid):
 
     if q.status == 1:
         return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_id': uuid},
+                                  {'query_info': q, 'num': num},
                                   context_instance=RequestContext(request))
     elif q.status == 0:
         return render_to_response('JAR3Doutput/base_result_pending.html',

@@ -6,13 +6,11 @@ from django.conf.urls.defaults import patterns, include, url
 # test comment
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'JAR3Doutput.views.home', name='home'),
-    # url(r'^JAR3Doutput/', include('JAR3Doutput.foo.urls')),
 
     url(r'^process_input$', 'JAR3Dresults.views.process_input'),
     url(r'^result/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', 'JAR3Dresults.views.result'),
-    url(r'^home(/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/)?$', 'JAR3Dresults.views.home'),
+    url(r'^refine/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', 'JAR3Dresults.views.home', name='refine'),
+    url(r'^$', 'JAR3Dresults.views.home', name='home'),
 
     url(r'^test_for_blake$', 'JAR3Dresults.views.test_for_blake'),
 
