@@ -173,16 +173,19 @@ class JAR3DValidator():
 
         query_sequences = []
         loop_types = ['internal', 'hairpin']
+        internal_id = 0
         for id_tuple, loop in loops.iteritems():
             (loop_type, seq_id, loop_id) = id_tuple
             if loop_type not in loop_types:
                 continue
             loop_type = 'IL' if loop_type == 'internal' else 'HL'
+            internal_id += 1
             query_sequences.append(Query_sequences(query_id = query_id,
                                                    seq_id = seq_id,
                                                    loop_id = loop_id,
                                                    loop_type = loop_type,
                                                    loop_sequence = loop,
+                                                   internal_id = '>seq%i' % internal_id,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id], # change this
                                                    status = 0))
 

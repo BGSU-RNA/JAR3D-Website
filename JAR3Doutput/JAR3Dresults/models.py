@@ -29,6 +29,7 @@ class Query_sequences(models.Model):
     loop_id = models.SmallIntegerField()
     loop_type = models.CharField(max_length=2)
     loop_sequence = models.CharField(max_length=40)
+    internal_id = models.CharField(max_length=8)
     user_seq_id = models.TextField()
     status = models.SmallIntegerField(default=0)
     time_submitted = models.DateTimeField(auto_now_add=True)
