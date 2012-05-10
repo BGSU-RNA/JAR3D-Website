@@ -1,0 +1,41 @@
+{% extends "JAR3Doutput/base.html" %}
+
+{% block title %}JAR3D Results{% endblock %}
+
+{% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
+
+{% block page_subtitle %}Pending {{query_info.query_id}} {% endblock page_subtitle %}
+
+{% block page_content %}
+
+<button id='refine' class='btn btn-primary' data-id="{{query_info.query_id}}">Refine query</button>
+
+<h4>Query interpretation</h4>
+<dl>
+    <dt>Query type</dt>
+    <dd>{{query_info.query_type}}</dd>
+
+    <dt>Number of sequences</dt>
+    <dd>{{num.seq}}</dd>
+
+    <dt>Number of loops</dt>
+    <dd>{{num.loops}}</dd>
+
+    <dt>Total number of loop instances</dt>
+    <dd>{{num.loop_instances}}</dd>
+
+    <dt>Parsed input</dt>
+    <dd>{{query_info.parsed_input|linebreaks}}</dd>
+</dl>
+
+
+{% endblock page_content %}
+
+
+{% block page_specific_js %}
+    <script>
+    $('#refine').click(function(){
+        window.location.href = '{% url refine query_info.query_id %}';
+    });
+    </script>
+{% endblock page_specific_js %}
