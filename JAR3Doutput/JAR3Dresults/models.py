@@ -10,7 +10,7 @@
 from django.db import models
 
 class Query_info(models.Model):
-    query_id = models.CharField(max_length=36, primary_key=True)
+    query_id = models.CharField(max_length=36, primary_key=True, db_index=True)
     group_set = models.CharField(max_length=20, default='default') #motifs release
     model_type = models.CharField(max_length=20, default='default') #bph_stack etc
     query_type = models.CharField(max_length=35)
@@ -24,7 +24,7 @@ class Query_info(models.Model):
         db_table = u'jar3d_query_info'
 
 class Query_sequences(models.Model):
-    query_id = models.CharField(max_length=36)
+    query_id = models.CharField(max_length=36, db_index=True)
     seq_id = models.SmallIntegerField()
     loop_id = models.SmallIntegerField()
     loop_type = models.CharField(max_length=2)
@@ -35,3 +35,31 @@ class Query_sequences(models.Model):
     time_completed = models.DateTimeField(blank=True, null=True)
     class Meta:
         db_table = u'jar3d_query_sequences'
+
+class Results_by_loop_instance(models.Model):
+    query_id = models.CharField(max_length=36, db_index=True)
+    seq_id = models.SmallIntegerField()
+    loop_id = models.SmallIntegerField()
+    motif_id = models.CharField(max_length=11)
+    score = models.DecimalField(max_digits=10, decimal_places=6)
+    percentile = models.DecimalField(max_digits=10, decimal_places=6)
+    editdist = models.SmallIntegerField()
+    rotation = models.SmallIntegerField()
+    class Meta:
+        db_table = u'jar3d_results_by_loop_instance'
+
+class Results_by_loop(models.Model):
+    query_id = models.CharField(max_length=36, db_index=True)
+    loop_id = models.SmallIntegerField()
+    motif_id = models.CharField(max_length=11)
+    meanscore = models.DecimalField(max_digits=10, decimal_places=6)
+    meanpercentile = models.DecimalField(max_digits=10, decimal_places=6)
+    meaneditdist = models.DecimalField(max_digits=10, decimal_places=6)
+    medianscore = models.DecimalField(max_digits=10, decimal_places=6)
+    medianpercentile = models.DecimalField(max_digits=10, decimal_places=6)
+    medianeditdist = models.DecimalField(max_digits=10, decimal_places=6)
+    signature = models.CharField(max_length=150)
+    rotation = models.SmallIntegerField()
+    correspondences = models.TextField()
+    class Meta:
+        db_table = u'jar3d_results_by_loop'
