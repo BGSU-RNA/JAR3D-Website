@@ -7,7 +7,7 @@ use threads;
 use threads::shared;
 use Thread::Queue;
 use DBI;
-use Cwd 'abs_path';
+use FindBin qw($RealBin);
 
 ### Global Variables ###
 
@@ -28,8 +28,8 @@ my $TIMEOUT = 1800;
 my $SLEEP = 5;
 
 ### Database Connection ###
-my $PATH = '/Users/api/apps/jar3d_dev/app/queue/';
-my %config = do $PATH . 'jar3d_queue_config.pl';
+# $RealBin contains the location of the script
+my %config = do $RealBin . '/jar3d_queue_config.pl';
 my $dsn = 'DBI:mysql:' . $config{db_database}. ':localhost';
 my $dbh = DBI->connect($dsn, $config{db_user_name}, $config{db_password});
 
@@ -84,7 +84,7 @@ MAIN:
             # Give the thread some work to do
             my $query_id = pop(@queries);
 
-            my $work = "ulimit -t $TIMEOUT; perl $PATH/jar3d_queue_update_status.pl $query_id";
+            my $work = "ulimit -t $TIMEOUT; perl $RealBin/jar3d_queue_update_status.pl $query_id";
             $work_queues{$tid}->enqueue($work);
         }
         sleep($SLEEP);
