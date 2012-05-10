@@ -85,7 +85,9 @@
 
             <div class="page-header">
                 <h1>
-                    {% block page_header %}{% endblock page_header %}
+                    {% block page_header %}
+                    <a href="{% url home %}">JAR3D</a>
+                    {% endblock page_header %}
                     <small>{% block page_subtitle %}{% endblock page_subtitle %}</small>
                 </h1>
             </div>
