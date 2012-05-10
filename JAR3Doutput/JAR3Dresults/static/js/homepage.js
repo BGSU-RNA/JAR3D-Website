@@ -117,7 +117,7 @@ var Examples = {
 
         $.ajax({
           type: 'POST',
-          url: 'http://rna.bgsu.edu/jar3d_dev/process_input',
+          url: document.URL.replace('#','') + '/process_input',
           contentType: 'application/json; charset=utf-8',
           traditional: false,
           data: response,
