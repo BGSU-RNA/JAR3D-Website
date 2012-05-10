@@ -117,7 +117,7 @@ var Examples = {
 
         $.ajax({
           type: 'POST',
-          url: document.URL.replace('#','') + '/process_input',
+          url: document.URL.replace(/\/?#$/,'') + '/process_input',
           contentType: 'application/json; charset=utf-8',
           traditional: false,
           data: response,
