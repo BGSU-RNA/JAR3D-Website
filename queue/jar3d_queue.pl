@@ -84,7 +84,7 @@ MAIN:
             # Give the thread some work to do
             my $query_id = pop(@queries);
 
-            my $work = "ulimit -t $TIMEOUT; perl $RealBin/jar3d_queue_update_status.pl $query_id";
+            my $work = "ulimit -t $TIMEOUT; java  -jar $RealBin/webJAR3D_server.jar /Users/anton/Dropbox/BGSURNA/Motifs/lib/ $query_id $config{db_user_name} $config{db_password} $config{db_database}";
             $work_queues{$tid}->enqueue($work);
         }
         sleep($SLEEP);
