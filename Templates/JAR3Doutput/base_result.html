@@ -4,11 +4,12 @@
 
 {% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
 
-{% block page_subtitle %}Pending {{query_info.query_id}} {% endblock page_subtitle %}
+{% block page_subtitle %}
+  <button id='refine' class='btn btn-primary pull-right' data-id="{{query_info.query_id}}">Refine query</button>
+{% endblock page_subtitle %}
 
 {% block page_content %}
 
-<button id='refine' class='btn btn-primary' data-id="{{query_info.query_id}}">Refine query</button>
 
 <h4>Query interpretation</h4>
 <dl>
@@ -24,10 +25,9 @@
     <dt>Total number of loop instances</dt>
     <dd>{{num.loop_instances}}</dd>
 
-    <dt>Parsed input</dt>
-    <dd>{{query_info.parsed_input|linebreaks}}</dd>
+    <dt>Input</dt>
+    <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
 </dl>
-
 
 {% endblock page_content %}
 
