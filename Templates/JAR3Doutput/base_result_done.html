@@ -1,3 +1,60 @@
 {% extends "JAR3Doutput/base_result.html" %}
 
-{% block page_subtitle %}Done {{query_info.query_id}} {% endblock page_subtitle %}
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{ query_info.query_id }} completed
+{% endblock page_subtitle %}
+
+
+{% block page_content %}
+
+{{ block.super }}
+
+<div class="row">
+{% for loop in loops %}
+    <div class="well span7">
+    <strong>Loop {{ forloop.counter }}</strong>
+    <table class="table table-condensed">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Motif</th>
+          <th>Mean Score</th>
+          <th>Median Score</th>
+          <th>Mean Percentile</th>
+          <th>Median Percentile</th>
+          <th>Mean Edit Distance</th>
+          <th>Median Edit Distance</th>
+          <th>Signature</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for result in loop %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><a href="{{ result.motif_url }}" target="_blank">{{ result.motif_id }}</a></td>
+        <td>{{ result.meanscore|floatformat:4 }}</td>
+        <td>{{ result.medianscore|floatformat:4 }}</td>
+        <td>{{ result.meanpercentile|floatformat:2 }}</td>
+        <td>{{ result.medianpercentile|floatformat:2 }}</td>
+        <td>{{ result.meaneditdist|floatformat }}</td>
+        <td>{{ result.medianeditdist|floatformat }}</td>
+        <td>{{ result.signature }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock page_content%}
+
+{% block page_specific_js %}
+    <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $("table").tablesorter();
+    });
+    </script>
+{% endblock page_specific_js %}

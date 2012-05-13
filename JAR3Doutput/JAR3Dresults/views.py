@@ -8,6 +8,8 @@ from django.core.urlresolvers import reverse
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
+from JAR3Dresults.models import Results_by_loop
+from JAR3Dresults.models import Results_by_loop_instance
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
@@ -20,6 +22,7 @@ import requests
 import urllib2
 import HTMLParser
 import logging
+import pdb
 
 
 logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
@@ -54,9 +57,12 @@ def result(request, uuid):
     s = Query_sequences.objects.filter(query_id__exact=uuid)
     num['loop_instances'] = s.count
 
+    results = ResultsMaker(query_id=uuid)
+    results.get_loop_results()
+
     if q.status == 1:
         return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_info': q, 'num': num},
+                                  {'query_info': q, 'num': num, 'loops': results.loops},
                                   context_instance=RequestContext(request))
     elif q.status == 0:
         return render_to_response('JAR3Doutput/base_result_pending.html',
@@ -204,8 +210,10 @@ class JAR3DValidator():
 
     def format_extracted_loops(self, data):
         """
-            input: list of loop instances
-            output: loopstuple(
+            Input: list of loop instances
+            Output:
+                results[('internal',0,0)] = 'CAG*CAAG'
+                results[('internal',1,0)] = 'CAG*CAUG'
         """
         loop_id = 0
         loops = dict()
@@ -276,3 +284,43 @@ class JAR3DValidator():
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results
+
+
+class ResultsMaker():
+    """
+        Class for producing html of JAR3D results
+    """
+    def __init__(self, query_id=None):
+        self.query_id = query_id
+        self.loops = []
+        self.TOPRESULTS = 10
+        self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
+
+    def get_loop_results(self):
+        results = Results_by_loop.objects.filter(query_id=self.query_id) \
+                                         .order_by('loop_id', '-meanscore')
+        if results:
+            """
+            build a 2d list
+            loops[0][0] = result 0 for loop 0
+            loops[0][1] = result 1 for loop 0
+            """
+
+            for result in results:
+                result.motif_url = self.RNA3DHUBURL + result.motif_id
+                if len(self.loops) <= result.loop_id:
+                    self.loops.append([result])
+                else:
+                    if len(self.loops[-1]) < self.TOPRESULTS:
+                        self.loops[-1].append(result)
+        else:
+            pass
+
+    def get_loop_instance_results(self):
+        q = Query_info.objects.get(query_id=self.query_id)
+        if q:
+            pass
+        else:
+            pass
+
+
