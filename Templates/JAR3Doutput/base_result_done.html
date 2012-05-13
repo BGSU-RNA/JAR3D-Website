@@ -51,6 +51,7 @@
 {% endblock page_content%}
 
 {% block page_specific_js %}
+    {{ block.super }}
     <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
     <script>
     $(document).ready(function() {
