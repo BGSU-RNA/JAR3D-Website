@@ -115,9 +115,11 @@ var Examples = {
 
     function submitData(response) {
 
+        url = document.URL.match(/^http:\/\/127\.0\.0\.1:8000/) ||
+              document.URL.match(/^http:\/\/rna.bgsu.edu\/\w+/);
         $.ajax({
           type: 'POST',
-          url: document.URL.match(/^http:\/\/rna.bgsu.edu\/\w+/) + '/process_input',
+          url: url + '/process_input',
           contentType: 'application/json; charset=utf-8',
           traditional: false,
           data: response,

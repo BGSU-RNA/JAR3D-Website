@@ -31,9 +31,11 @@ logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
     """
+        If a query_id is passed in, then input sequences are retrieved,
+        otherwise the usual homepage is shown
     """
     if uuid:
-        q = Query_info.objects.get(query_id=uuid)
+        q = Query_info.objects.filter(query_id=uuid)
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
                                       {'input': q.parsed_input},
@@ -48,25 +50,26 @@ def home(request, uuid=None):
                                   context_instance=RequestContext(request))
 
 def result(request, uuid):
-    q = Query_info.objects.get(query_id=uuid)
-    num = dict()
-    s  = Query_sequences.objects.filter(query_id__exact=uuid).order_by('-seq_id')[0]
-    num['seq'] = s.seq_id + 1
-    s = Query_sequences.objects.filter(query_id__exact=uuid).order_by('-loop_id')[0]
-    num['loops'] = s.loop_id + 1
-    s = Query_sequences.objects.filter(query_id__exact=uuid)
-    num['loop_instances'] = s.count
+
+    q = Query_info.objects.filter(query_id=uuid)
+    if q:
+        q = q[0] #we are interested only in the first one
+    else:
+        return render_to_response('JAR3Doutput/base_result_not_found.html',
+                                  {'query_id': uuid},
+                                  context_instance=RequestContext(request))
 
     results = ResultsMaker(query_id=uuid)
     results.get_loop_results()
+    results.get_input_stats()
 
     if q.status == 1:
         return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_info': q, 'num': num, 'loops': results.loops},
+                                  {'query_info': q, 'num': results.input_stats, 'loops': results.loops},
                                   context_instance=RequestContext(request))
     elif q.status == 0:
         return render_to_response('JAR3Doutput/base_result_pending.html',
-                                  {'query_info': q, 'num': num},
+                                  {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
     else:
         return render_to_response('JAR3Doutput/base_result_failed.html',
@@ -293,6 +296,7 @@ class ResultsMaker():
     def __init__(self, query_id=None):
         self.query_id = query_id
         self.loops = []
+        self.input_stats = dict()
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
 
@@ -315,6 +319,17 @@ class ResultsMaker():
                         self.loops[-1].append(result)
         else:
             pass
+
+    def get_input_stats(self):
+        """
+            Get information about input sequences and loops
+        """
+        s  = Query_sequences.objects.filter(query_id=self.query_id).order_by('-seq_id')[0]
+        self.input_stats['seq'] = s.seq_id + 1
+        s = Query_sequences.objects.filter(query_id=self.query_id).order_by('-loop_id')[0]
+        self.input_stats['loops'] = s.loop_id + 1
+        s = Query_sequences.objects.filter(query_id=self.query_id)
+        self.input_stats['loop_instances'] = s.count
 
     def get_loop_instance_results(self):
         q = Query_info.objects.get(query_id=self.query_id)
