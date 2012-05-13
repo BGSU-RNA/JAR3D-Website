@@ -8,8 +8,6 @@
 
 {% block page_content %}
 
-{{ block.super }}
-
 <div class="row">
 {% for loop in loops %}
     <div class="well span7">
@@ -47,6 +45,8 @@
     </div>
 {% endfor %}
 </div>
+
+{{ block.super }}
 
 {% endblock page_content%}
 
