@@ -5,6 +5,14 @@
   Query {{query_info.query_id}} has been added to the queue
 {% endblock page_subtitle %}
 
+{% block page_content %}
+
+  Your query has been successfully added to the queue. You can bookmark this page,
+  the results will be kept on the server indefinitely.
+  {{ block.super }}
+
+{% endblock page_content %}
+
 {% block page_specific_js %}
     {{ block.super }}
     <script>
