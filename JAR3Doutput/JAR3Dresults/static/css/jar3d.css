@@ -110,3 +110,6 @@ table .headerSortUp:after {
     margin-right: 10px;
     margin-top: 7px;
 }
+#query-interpretation {
+    margin-top: 1em;
+}
