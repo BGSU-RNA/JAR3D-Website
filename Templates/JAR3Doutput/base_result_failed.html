@@ -2,10 +2,10 @@
 
 {% block page_subtitle %}
   {{ block.super }}
-  Query {{ query_id }} failed
+  Query {{ query_info.query_id }} failed
 {% endblock page_subtitle %}
 
 {% block page_content %}
-There was a problem with your query. It has been logged.
+There was a problem with your query. The error has been logged and we will look into it.
 {{ block.super }}
 {% endblock page_content %}
