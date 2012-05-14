@@ -102,7 +102,7 @@ var jar3dInputValidator = (function($) {
             if ( typeof(line) != 'string' ) { return false; }
 
             var L = line.length,
-                validCharsNum = line.split(/A|C|G|U|T|-/ig).length - 1;
+                validCharsNum = line.split(/A|C|G|U|T|-|\./ig).length - 1;
 
             return L <= jar3dInputValidator.params.maxSequenceLength &&
                    validCharsNum == L
