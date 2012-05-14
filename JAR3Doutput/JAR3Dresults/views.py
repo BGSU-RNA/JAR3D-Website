@@ -81,7 +81,7 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
     else:
         return render_to_response('JAR3Doutput/base_result_failed.html',
-                                  {'query_id': uuid},
+                                  {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
 
 @csrf_exempt
