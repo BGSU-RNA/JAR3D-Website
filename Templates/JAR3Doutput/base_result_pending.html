@@ -1,6 +1,9 @@
 {% extends "JAR3Doutput/base_result.html" %}
 
-{% block page_subtitle %}Pending {{query_info.query_id}} {% endblock page_subtitle %}
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{query_info.query_id}} has been added to the queue
+{% endblock page_subtitle %}
 
 {% block page_specific_js %}
     {{ block.super }}
