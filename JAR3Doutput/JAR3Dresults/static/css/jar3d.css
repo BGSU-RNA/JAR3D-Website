@@ -84,7 +84,7 @@ table .headerSortUp:after {
   opacity: 0.6;
 }
 
-.monospace {
+.monospace, .monospace p {
     font-family: monospace;
 }
 
