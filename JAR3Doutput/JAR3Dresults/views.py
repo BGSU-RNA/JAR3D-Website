@@ -189,7 +189,7 @@ class JAR3DValidator():
                                 parsed_input = h.unescape(parsed_input))
 
         query_sequences = []
-        loop_types = ['internal', 'hairpin']
+        loop_types = ['internal'] #['internal', 'hairpin']
         internal_id = 0
         for id_tuple, loop in loops.iteritems():
             (loop_type, seq_id, loop_id) = id_tuple
@@ -205,6 +205,9 @@ class JAR3DValidator():
                                                    internal_id = '>seq%i' % internal_id,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id], # change this
                                                    status = 0))
+        # don't proceed unless there are internal loops
+        if not query_sequences:
+            return self.respond("No internal loops found in the input")
 
         # persist the entries in the database starting with sequences
         try:
