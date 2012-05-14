@@ -23,6 +23,7 @@ import urllib2
 import HTMLParser
 import logging
 import pdb
+import re
 
 
 logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
@@ -190,6 +191,7 @@ class JAR3DValidator():
 
         query_sequences = []
         loop_types = ['internal'] #['internal', 'hairpin']
+        loop_pattern = '^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])$'
         internal_id = 0
         for id_tuple, loop in loops.iteritems():
             (loop_type, seq_id, loop_id) = id_tuple
@@ -203,8 +205,8 @@ class JAR3DValidator():
                                                    loop_type = loop_type,
                                                    loop_sequence = loop,
                                                    internal_id = '>seq%i' % internal_id,
-                                                   user_seq_id = '' if len(fasta)==0 else fasta[seq_id], # change this
-                                                   status = 0))
+                                                   user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
+                                                   status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
