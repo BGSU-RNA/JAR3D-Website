@@ -23,13 +23,14 @@
         <tr>
           <th>#</th>
           <th>Motif</th>
-          <th>Mean Score</th>
-          <th>Median Score</th>
+          <th>Mean Alignment Score</th>
+          <th>Median Alignment Score</th>
           <th>Mean Percentile</th>
           <th>Median Percentile</th>
           <th>Mean Edit Distance</th>
           <th>Median Edit Distance</th>
-          <th>Signature</th>
+          <th>Basepair Signature</th>
+          <th>2D Diagram</th>
         </tr>
       </thead>
       <tbody>
@@ -51,26 +52,26 @@
         <td>{{ result.meaneditdist|floatformat }}</td>
         <td>{{ result.medianeditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
+        <td><img class="ss-thumbnail" src="{{ result.ssurl }}"></img></td>
       </tr>
       {% endfor %}
       </tbody>
     </table>
     </div>
 {% endfor %}
+</div>
 
-    <div class="span4">
-        <script type="text/javascript">
-            jmolInitialize(" http://rna.bgsu.edu/img/jmol");
-            jmolSetAppletColor("#ffffff");
-            jmolApplet(340, "javascript appletLoaded()");
-        </script>
-        <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
-        <input type='button' id='stereo' class='btn' value="Show stereo">
-        <input type='button' id='prev' class='btn' value='Previous'>
-        <input type='button' id='next' class='btn' value="Next">
-        <label><input type="checkbox" id="showNtNums">Numbers</label>
-    </div>
-
+<div class="span4" id="jmol">
+    <script type="text/javascript">
+        jmolInitialize(" http://rna.bgsu.edu/img/jmol");
+        jmolSetAppletColor("#ffffff");
+        jmolApplet(340, "javascript appletLoaded()");
+    </script>
+    <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
+    <input type='button' id='stereo' class='btn' value="Show stereo">
+    <input type='button' id='prev' class='btn' value='Previous'>
+    <input type='button' id='next' class='btn' value="Next">
+    <label><input type="checkbox" id="showNtNums">Numbers</label>
 </div>
 
 {{ block.super }}
@@ -98,5 +99,17 @@
     function appletLoaded (){
         $('.jmolInline').first().jmolToggle();
     }
+
+    // position jmol
+    (function(){
+        var reference = $('table').first();
+        var offset_left = reference.offset().left + 700;
+        var offset_top  = reference.offset().top;
+        $('#jmol').css('position','fixed')
+                  .css('left',offset_left)
+                  .css('top',offset_top);
+    })();
+
     </script>
+
 {% endblock page_specific_js %}
