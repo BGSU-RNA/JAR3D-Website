@@ -96,7 +96,7 @@ var Examples = {
             alert_class;
 
         if ( response.valid ) {
-            msg = response.query_type;
+            msg = 'Your query has been submitted. You will be redirected to the results page shortly.';
             alert_class = alerts[0];
         } else {
             if ( response.msg ) {
