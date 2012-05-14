@@ -16,7 +16,7 @@
 
 <div class="row">
 {% for loop in loops %}
-    <div class="span7">
+    <div class="span8">
     <strong>Loop {{ forloop.counter }}</strong>
     <table class="table table-striped table-condensed table-bordered">
       <thead>
@@ -38,9 +38,9 @@
       <tr>
         <td>{{ forloop.counter }}</td>
         <td class="hover-link">
-          <input type='radio' name="group" id='s{{ forloop.counter }}'
+          <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
                  class='jmolInline' data-coord='{{ result.motif_id }}'>
-          <label for='s{{ forloop.counter }}'>{{ result.motif_id }}</label>
+          <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
           <span class="hover-link-icon">
             <a href="{{ result.motif_url }}" target="_blank">&rarr;</a>
           </span>
