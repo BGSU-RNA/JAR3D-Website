@@ -35,7 +35,7 @@ def home(request, uuid=None):
         otherwise the usual homepage is shown
     """
     if uuid:
-        q = Query_info.objects.filter(query_id=uuid)
+        q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
                                       {'input': q.parsed_input},
