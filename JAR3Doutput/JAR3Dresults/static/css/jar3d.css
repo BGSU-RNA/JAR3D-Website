@@ -106,3 +106,7 @@ table .headerSortUp:after {
 .results-done label {
     display:inline;
 }
+.addthis_toolbox {
+    margin-right: 10px;
+    margin-top: 7px;
+}
