@@ -422,6 +422,7 @@ var jar3dInputValidator = (function($) {
 
             if ( self.isSecondaryStructure( lines[0] ) ) {
                 response.ss = lines.shift();
+                response.ss = response.ss.replace(/-/g,".");
                 // SS input
                 if ( self.isFastaSingleSequenceSS( input ) ) {
                     response.query_type = 'isFastaSingleSequenceSS';
