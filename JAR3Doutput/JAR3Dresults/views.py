@@ -211,6 +211,8 @@ class JAR3DValidator():
         if not query_sequences:
             return self.respond("No internal loops found in the input")
 
+        # todo: if all loops have status = -1, then set query_info.status to 1
+
         # persist the entries in the database starting with sequences
         try:
             [seq.save() for seq in query_sequences]
@@ -310,6 +312,7 @@ class ResultsMaker():
         self.query_id = query_id
         self.loops = []
         self.input_stats = dict()
+        self.problem_loops = []
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
 
@@ -332,6 +335,13 @@ class ResultsMaker():
                         self.loops[-1].append(result)
         else:
             pass
+
+    def get_problem_loops(self):
+        """
+            Get information about loops with status equal to -1
+            These loops haven't been submitted to JAR3D
+        """
+        pass
 
     def get_input_stats(self):
         """
