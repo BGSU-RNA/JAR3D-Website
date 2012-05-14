@@ -1,3 +1,11 @@
 {% extends "JAR3Doutput/base_result.html" %}
 
-{% block page_subtitle %}Failed {{query_id}} {% endblock page_subtitle %}
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{ query_id }} failed
+{% endblock page_subtitle %}
+
+{% block page_content %}
+There was a problem with your query. It has been logged.
+{{ block.super }}
+{% endblock page_content %}
