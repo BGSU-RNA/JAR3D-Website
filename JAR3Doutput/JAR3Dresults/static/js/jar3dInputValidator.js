@@ -118,7 +118,7 @@ var jar3dInputValidator = (function($) {
 
             var open  = line.split( /\(|</g ).length - 1,
                 close = line.split( /\)|>/g ).length - 1,
-                dots  = line.split( /\.|:/g ).length - 1;
+                dots  = line.split( /\.|:|-/g ).length - 1;
 
             return open + close + dots == line.length && open == close;
         },
