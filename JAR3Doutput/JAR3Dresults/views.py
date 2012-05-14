@@ -63,11 +63,19 @@ def result(request, uuid):
     results.get_loop_results()
     results.get_input_stats()
 
+    """
+        status codes:
+        -1 - failed
+        0  - submitted to the queue
+        1  - done
+        2  - submitted to JAR3D
+    """
+
     if q.status == 1:
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats, 'loops': results.loops},
                                   context_instance=RequestContext(request))
-    elif q.status == 0:
+    elif q.status == 0 or q.status == 2:
         return render_to_response('JAR3Doutput/base_result_pending.html',
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
