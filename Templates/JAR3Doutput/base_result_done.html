@@ -103,7 +103,7 @@
     // position jmol
     (function(){
         var reference = $('table').first();
-        var offset_left = reference.offset().left + 700;
+        var offset_left = reference.offset().left + reference.width();
         var offset_top  = reference.offset().top;
         $('#jmol').css('position','fixed')
                   .css('left',offset_left)
