@@ -3,7 +3,9 @@
 {% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
 
 {% block custom_css %}
+<link rel="stylesheet" href="{{ STATIC_URL }}js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
 <script src="http://rna.bgsu.edu/img/jmol/jmol.js"></script>
+<script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
 {% endblock custom_css %}
 
 {% block page_subtitle %}
@@ -86,9 +88,7 @@
 {% block page_specific_js %}
     {{ block.super }}
     <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
-    <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
     <script src="{{ STATIC_URL }}js/fancybox/jquery.fancybox.pack.js"></script>
-    <link rel="stylesheet" href="{{ STATIC_URL }}js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
 
     <script>
     $(document).ready(function() {
