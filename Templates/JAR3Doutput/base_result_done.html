@@ -52,7 +52,12 @@
         <td>{{ result.meaneditdist|floatformat }}</td>
         <td>{{ result.medianeditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
-        <td><img class="ss-thumbnail" src="{{ result.ssurl }}"></img></td>
+        <td>
+            <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
+               title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+                <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+            </a>
+        </td>
       </tr>
       {% endfor %}
       </tbody>
@@ -82,6 +87,9 @@
     {{ block.super }}
     <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
     <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
+    <script src="{{ STATIC_URL }}js/fancybox/jquery.fancybox.pack.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+
     <script>
     $(document).ready(function() {
         $("table").tablesorter();
@@ -109,6 +117,12 @@
                   .css('left',offset_left)
                   .css('top',offset_top);
     })();
+
+    // fancybox integration
+	$(".fancybox").fancybox({
+		openEffect	: 'none',
+		closeEffect	: 'none'
+	});
 
     </script>
 
