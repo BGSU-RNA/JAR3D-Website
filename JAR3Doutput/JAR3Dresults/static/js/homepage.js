@@ -1,18 +1,17 @@
 var Examples = {
     // extracted loops
     isFastaSingleLoop: ['>seq1',
-                        'GAAAC*GGACC'].join('\n'),
+                        'CGCAG*UCAGG'].join('\n'),
 
-    isNoFastaSingleLoop : 'GAAAC*GGACC',
+    isNoFastaSingleLoop : 'CGCAG*UCAGG',
 
-    isFastaMultipleLoops: ['>seq1', 'GAAC*GGACC',
-                           '>seq2', 'GAAC*GGACC',
-                           '>seq3', 'GAAC*GGACC'].join('\n'),
+    isFastaMultipleLoops: ['>sarcin 1', 'CUCAGUAU*AGAACCG',
+                           '>sarcin 2', 'CUCAGUAC*GGAACCG',
+                           '>sarcin 3', 'GGAACUG*CUCAGUAC'].join('\n'),
 
-    isNoFastaMultipleLoops: ['GAAAC*GGACC',
-                             'GAAAC*GGACC',
-                             'GAAAC*GGACC',
-                             'GAAAC*GGACC'].join('\n'),
+    isNoFastaMultipleLoops: ['CUCAGUAU*AGAACCG',
+                             'CUCAGUAC*GGAACCG',
+                             'GGAACUG*CUCAGUAC'].join('\n'),
 
     // one sequence
     isFastaSingleSequenceSS: ['((((((((((..(((...)))...))))))))))',
