@@ -7,7 +7,7 @@ var Examples = {
 
     isFastaMultipleLoops: ['>sarcin 1', 'CUCAGUAU*AGAACCG',
                            '>sarcin 2', 'CUCAGUAC*GGAACCG',
-                           '>sarcin 3', 'CUCAGUAC*GGAACUG'].join('\n'),
+                           '>sarcin 3', 'GGAACUG*CUCAGUAC'].join('\n'),
 
     isNoFastaMultipleLoops: ['CUCAGUAU*AGAACCG',
                              'CUCAGUAC*GGAACCG',
