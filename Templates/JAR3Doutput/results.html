@@ -14,15 +14,15 @@
 <th>Median Log<br>Probability</th>
 <th>Mean<br>Percentile</th>
 <th>Median<br>Percentile</th>
-<th>Mean Minimum<br>Edit Distance</th>
-<th>Median Minimum<br>Edit Distance</th>
+<th>Mean Interior<br>Edit Distance</th>
+<th>Mean Full<br>Edit Distance</th>
 <th width="30%">Signature</th>
 
 {% for r in query %}
 <tr><td><a href="/JAR3Doutput/GroupResults/{{ r.id }}/{{ r.groupnum }}/">Group {{ r.groupnum }}</a></td>
 <td>{{ r.meanscore }}</td><td>{{ r.medianscore }}</td>
-<td>{{ r.meanpercentile }}</td><td>{{ r.medianpercentile }}</td><td>{{ r.meaneditdist }}</td>
-<td>{{ r.medianeditdist }}</td><td>{{ r.signature }}</td></tr>
+<td>{{ r.meanpercentile }}</td><td>{{ r.medianpercentile }}</td><td>{{ r.meaninterioreditdist }}</td>
+<td>{{ r.meanfulleditdist }}</td><td>{{ r.signature }}</td></tr>
 {% endfor %} 
 
 </table>
