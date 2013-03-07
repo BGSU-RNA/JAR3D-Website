@@ -57,7 +57,7 @@ var Examples = {
     function init() {
         input.focus();
         bindEvents();
-    };
+    }
 
     function bindEvents() {
 
@@ -87,7 +87,7 @@ var Examples = {
             }
         });
 
-    };
+    }
 
     function showMessage(response) {
         var alerts = ['alert-success', 'alert-error'],
@@ -110,15 +110,17 @@ var Examples = {
                .addClass( alert_class )
                .html( msg )
                .fadeIn();
-    };
+    }
 
     function submitData(response) {
 
-        url = document.URL.match(/^http:\/\/127\.0\.0\.1:8000/) ||
-              document.URL.match(/^http:\/\/rna.bgsu.edu\/\w+/);
+        var url = document.URL.match(/^http:\/\/127\.0\.0\.1:8000/) ||
+              document.URL.match(/^http:\/\/rna.bgsu.edu\/\w+/),
+            postURL = url[0] + '/process_input';
+
         $.ajax({
           type: 'POST',
-          url: url + '/process_input',
+          url: postURL,
           contentType: 'application/json; charset=utf-8',
           traditional: false,
           data: response,
@@ -134,8 +136,8 @@ var Examples = {
             }
         });
 
-    };
+    }
 
     init();
 
-})();
+}());
