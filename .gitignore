@@ -36,3 +36,5 @@ queue/jar3d_queue_config.pl
 
 # VIM swap files
 *.swp
+
+db/
