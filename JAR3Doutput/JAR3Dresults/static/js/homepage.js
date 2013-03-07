@@ -121,7 +121,6 @@ var Examples = {
         $.ajax({
           type: 'POST',
           url: postURL,
-          contentType: 'application/json; charset=utf-8',
           traditional: false,
           data: response,
         }).done(function(data) {
