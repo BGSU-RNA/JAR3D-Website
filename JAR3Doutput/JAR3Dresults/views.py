@@ -6,10 +6,10 @@ from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
-from JAR3Dresults.models import Query_info
-from JAR3Dresults.models import Query_sequences
-from JAR3Dresults.models import Results_by_loop
-from JAR3Dresults.models import Results_by_loop_instance
+from JAR3Dresults.models import QueryInfo
+from JAR3Dresults.models import QuerySequences
+from JAR3Dresults.models import ResultsByLoop
+from JAR3Dresults.models import ResultsByLoopInstance
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
@@ -18,17 +18,14 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 import json
 import urlparse
-import requests
-import urllib2
 import HTMLParser
 import logging
-import pdb
 import re
 
 
-logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
+#logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
 # logging.setLevel(logging.DEBUG)
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
     """
@@ -36,7 +33,7 @@ def home(request, uuid=None):
         otherwise the usual homepage is shown
     """
     if uuid:
-        q = Query_info.objects.filter(query_id=uuid)[0]
+        q = QueryInfo.objects.filter(query_id=uuid)[0]
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
                                       {'input': q.parsed_input},
@@ -52,7 +49,7 @@ def home(request, uuid=None):
 
 def result(request, uuid):
 
-    q = Query_info.objects.filter(query_id=uuid)
+    q = QueryInfo.objects.filter(query_id=uuid)
     if q:
         q = q[0] #we are interested only in the first one
     else:
@@ -94,21 +91,6 @@ def pre_request_hook(req):
     if 'Host' not in req.headers:
         hostname = urlparse(req.full_url)[1]
         req.headers['Host'] = hostname
-
-@csrf_exempt
-def test_for_blake(request):
-    hooks = {'pre_request': pre_request_hook}
-    proxies = { "http": "129.1.149.201:3030" }
-    req = requests.Request('http://rna.bgsu.edu')
-    logging.error(req)
-    logging.error(req.headers)
-    resp = requests.get("http://rna.bgsu.edu", proxies=proxies, hooks=hooks)
-    print(resp)
-    return resp
-    # url = 'http://www.google.com'
-    # req = urllib2.Request(url=url)
-    # return urllib2.urlopen(req).read()
-
 
 
 class JAR3DValidator():
@@ -180,7 +162,7 @@ class JAR3DValidator():
 
         # create loop objects
         h = HTMLParser.HTMLParser()
-        query_info = Query_info(query_id = query_id,
+        query_info = QueryInfo(query_id = query_id,
                                 group_set = 'IL0.6/HL0.2', # change this
                                 model_type = 'default', # change this
                                 query_type = query_type,
@@ -199,7 +181,7 @@ class JAR3DValidator():
                 continue
             loop_type = 'IL' if loop_type == 'internal' else 'HL'
             internal_id += 1
-            query_sequences.append(Query_sequences(query_id = query_id,
+            query_sequences.append(QuerySequences(query_id = query_id,
                                                    seq_id = seq_id,
                                                    loop_id = loop_id,
                                                    loop_type = loop_type,
@@ -318,7 +300,7 @@ class ResultsMaker():
         self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/IL0.6/'
 
     def get_loop_results(self):
-        results = Results_by_loop.objects.filter(query_id=self.query_id) \
+        results = ResultsByLoop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id', '-meanscore')
         if results:
             """
@@ -349,15 +331,15 @@ class ResultsMaker():
         """
             Get information about input sequences and loops
         """
-        s  = Query_sequences.objects.filter(query_id=self.query_id).order_by('-seq_id')[0]
+        s  = QuerySequences.objects.filter(query_id=self.query_id).order_by('-seq_id')[0]
         self.input_stats['seq'] = s.seq_id + 1
-        s = Query_sequences.objects.filter(query_id=self.query_id).order_by('-loop_id')[0]
+        s = QuerySequences.objects.filter(query_id=self.query_id).order_by('-loop_id')[0]
         self.input_stats['loops'] = s.loop_id + 1
-        s = Query_sequences.objects.filter(query_id=self.query_id)
+        s = QuerySequences.objects.filter(query_id=self.query_id)
         self.input_stats['loop_instances'] = s.count
 
     def get_loop_instance_results(self):
-        q = Query_info.objects.get(query_id=self.query_id)
+        q = QueryInfo.objects.get(query_id=self.query_id)
         if q:
             pass
         else:
