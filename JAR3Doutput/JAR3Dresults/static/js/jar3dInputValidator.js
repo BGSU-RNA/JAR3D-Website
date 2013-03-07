@@ -6,6 +6,7 @@
 */
 
 var jar3dInputValidator = (function($) {
+  'use strict';
 
     var Validator = {
 
@@ -33,19 +34,18 @@ var jar3dInputValidator = (function($) {
 
             lines = ( input.match( pattern ) ) ? input.split( pattern ) : input;
 
-            if ( typeof(lines) == 'string' ) {
+            if ( typeof(lines) === 'string' ) {
                 return [lines.trim()];
-            } else {
-                return $.map(lines, function(line) {
-                    var trimmed = line.trim();
-                    return trimmed.length > 0 ? trimmed : null;
-                });
             }
+            return $.map(lines, function(line) {
+                var trimmed = line.trim();
+                return trimmed.length > 0 ? trimmed : null;
+            });
         },
 
         // line is a fasta-formatted description line
         isFastaLine: function( line ) {
-            return line[0] == '>'
+            return line[0] === '>';
         },
 
         /*
@@ -60,8 +60,8 @@ var jar3dInputValidator = (function($) {
                 chainBreaks = line.split(/\*/g).length - 1;
 
             return L <= self.params.maxLoopLength &&
-                   L == validCharsNum &&
-                   chainBreaks < 2
+                   L === validCharsNum &&
+                   chainBreaks < 2;
                    // && self.complementaryClosingBases( line )
         },
 
@@ -73,11 +73,11 @@ var jar3dInputValidator = (function($) {
                 return self.isComplementaryPair( pair );
             });
 
-            return valid.length == pairs.length;
+            return valid.length === pairs.length;
         },
 
         getClosingBases: function( line ) {
-            var closingBases = new Array,
+            var closingBases = [],
                 starPosition = line.indexOf('*');
 
             // the first and the last bases
@@ -99,13 +99,13 @@ var jar3dInputValidator = (function($) {
         */
         isSequenceLine: function( line ) {
 
-            if ( typeof(line) != 'string' ) { return false; }
+            if ( typeof(line) !== 'string' ) { return false; }
 
             var L = line.length,
                 validCharsNum = line.split(/A|C|G|U|T|-|\./ig).length - 1;
 
             return L <= jar3dInputValidator.params.maxSequenceLength &&
-                   validCharsNum == L
+                   validCharsNum === L;
         },
 
         /*
@@ -114,13 +114,13 @@ var jar3dInputValidator = (function($) {
         */
         isSecondaryStructure: function( line ) {
 
-            if ( typeof(line) != 'string' ) { return false; }
+            if ( typeof(line) !== 'string' ) { return false; }
 
             var open  = line.split( /\(|</g ).length - 1,
                 close = line.split( /\)|>/g ).length - 1,
                 dots  = line.split( /\.|:|-/g ).length - 1;
 
-            return open + close + dots == line.length && open == close;
+            return open + close + dots === line.length && open === close;
         },
 
         /*
@@ -130,24 +130,23 @@ var jar3dInputValidator = (function($) {
         */
         parseAlternatingBlock: function( lines, oddFunc, evenFunc ) {
             var self = jar3dInputValidator,
-                odd  = new Array(),
-                even = new Array();
+                odd  = [],
+                even = [];
 
             $.each(lines, function(ind, line) {
                 if ( ind % 2 ) {
                     even.push(line);
                     return evenFunc(line); // returning false breaks out of the loop
-                } else {
-                    odd.push(line);
-                    return oddFunc(line);
-                }
+                } 
+                odd.push(line);
+                return oddFunc(line);
             });
 
             // don't insist on same length for loops
-            sameLength = ( evenFunc === self.isLoopLine ? true : self.assertSameLength(even) );
+            var sameLength = ( evenFunc === self.isLoopLine ? true : self.assertSameLength(even) );
 
-            return odd.length == even.length &&
-                   odd.length == lines.length / 2 &&
+            return odd.length === even.length &&
+                   odd.length === lines.length / 2 &&
                    sameLength;
         },
 
@@ -155,13 +154,14 @@ var jar3dInputValidator = (function($) {
         // if all elements have the same length, false otherwise
         assertSameLength: function( data ) {
 
-            if ( !$.isArray(data) || ( data.length==0 ) ) { return false; }
+            if ( !$.isArray(data) || ( data.length === 0 ) ) { return false; }
 
-            var firstElemLength = data[0].length;
+            var firstElemLength = data[0].length,
+                i = 1;
 
-            for (var i=1, len=data.length; i<len; i++) {
-                if ( !typeof(data[i]) == 'string' ||
-                     data[i].length != firstElemLength ) {
+            for (i=1; i<data.length; i++) {
+                if ( typeof(data[i]) !== 'string' ||
+                     data[i].length !== firstElemLength ) {
                     return false;
                 }
             }
@@ -172,10 +172,11 @@ var jar3dInputValidator = (function($) {
         // have the same number of "*" characters
         assertSameLoopType: function( data ) {
             var pattern = /\*/g,
-                starsCount  = data[0].split( pattern ).length - 1;
+                starsCount  = data[0].split( pattern ).length - 1,
+                i = 1;
 
-            for (var i=1, len=data.length; i<len; i++) {
-                if ( data[i].split( pattern ).length - 1 != starsCount ) {
+            for (i=1; i<data.length; i++) {
+                if ( data[i].split( pattern ).length - 1 !== starsCount ) {
                     return false;
                 }
             }
@@ -195,7 +196,7 @@ var jar3dInputValidator = (function($) {
         isFastaSingleLoop: function( input ) {
             var self = jar3dInputValidator,
                 lines = self.splitLines(input);
-            return lines.length == 2 &&
+            return lines.length === 2 &&
                    self.isFastaLine( lines[0] ) &&
                    self.isLoopLine( lines[1] );
         },
@@ -207,7 +208,7 @@ var jar3dInputValidator = (function($) {
             var self = jar3dInputValidator,
                 loop = self.splitLines(input);
 
-            return loop.length == 1 &&
+            return loop.length === 1 &&
                    self.isLoopLine( loop[0] );
         },
 
@@ -224,12 +225,12 @@ var jar3dInputValidator = (function($) {
                 l = lines.length;
 
             // uneven number of lines or less than 4 lines
-            if ( l % 2 != 0 || l < 4 ) {
+            if ( l % 2 !== 0 || l < 4 ) {
                 return false;
             }
 
             var loop_lines = $.grep(lines, function(line, i) {
-                return i % 2 != 0;
+                return i % 2 !== 0;
             });
 
             return self.parseAlternatingBlock(lines,
@@ -246,7 +247,7 @@ var jar3dInputValidator = (function($) {
         */
         isNoFastaMultipleLoops: function( input ) {
             var self = jar3dInputValidator,
-                lines = self.splitLines(input)
+                lines = self.splitLines(input),
                 l = lines.length;
 
             if ( l < 2 ) { return false; }
@@ -255,7 +256,7 @@ var jar3dInputValidator = (function($) {
                 return self.isLoopLine(line);
             });
 
-            return validLoops.length == l &&
+            return validLoops.length === l &&
                    self.assertSameLoopType(lines);
         },
 
@@ -266,15 +267,15 @@ var jar3dInputValidator = (function($) {
         */
         isFastaSingleSequenceSS: function( input ) {
             var self = jar3dInputValidator,
-                lines = self.splitLines(input)
+                lines = self.splitLines(input),
                 l = lines.length;
 
-            if ( l != 3 ) { return false; }
+            if ( l !== 3 ) { return false; }
 
             return self.isSecondaryStructure( lines[0] ) &&
                    self.isFastaLine( lines[1] ) &&
                    self.isSequenceLine( lines[2] ) &&
-                   lines[0].length == lines[2].length;
+                   lines[0].length === lines[2].length;
         },
 
         /*
@@ -286,11 +287,11 @@ var jar3dInputValidator = (function($) {
                 lines = self.splitLines(input),
                 l = lines.length;
 
-            if ( l != 2 ) { return false; }
+            if ( l !== 2 ) { return false; }
 
             return self.isSecondaryStructure( lines[0] ) &&
                    self.isSequenceLine( lines[1] ) &&
-                   lines[0].length == lines[1].length;
+                   lines[0].length === lines[1].length;
         },
 
         /*
@@ -302,7 +303,7 @@ var jar3dInputValidator = (function($) {
                 lines = self.splitLines(input),
                 l = lines.length;
 
-            if ( l != 2 ) { return false; }
+            if ( l !== 2 ) { return false; }
 
             return self.isFastaLine( lines[0] ) &&
                    self.isSequenceLine( lines[1] );
@@ -313,7 +314,7 @@ var jar3dInputValidator = (function($) {
         */
         isNoFastaSingleSequenceNoSS: function( input ) {
 
-            if ( typeof(input) != 'string' ) {
+            if ( typeof(input) !== 'string' ) {
                 return false;
             }
             return jar3dInputValidator.isSequenceLine(input);
@@ -331,13 +332,13 @@ var jar3dInputValidator = (function($) {
                 lines = self.splitLines(input),
                 l = lines.length;
 
-            if ( l % 2 == 0 || l < 5 ) { return false; }
+            if ( l % 2 === 0 || l < 5 ) { return false; }
 
             return self.isSecondaryStructure( lines[0] ) &&
                    self.parseAlternatingBlock( lines.slice(1,l),
                                                self.isFastaLine,
                                                self.isSequenceLine) &&
-                   lines[0].length == lines[2].length;
+                   lines[0].length === lines[2].length;
         },
 
         /*
@@ -348,11 +349,12 @@ var jar3dInputValidator = (function($) {
         isNoFastaMultipleSequencesSS: function( input ) {
             var self = jar3dInputValidator,
                 lines = self.splitLines(input),
-                l = lines.length;
+                l = lines.length,
+                i = 1;
 
             if ( l < 3 || !self.isSecondaryStructure( lines[0] ) ) { return false; }
 
-            for (var i=1; i<l; i++) {
+            for (i=1; i<l; i++) {
                 if ( !self.isSequenceLine( lines[i] ) ) {
                     return false;
                 }
@@ -387,11 +389,12 @@ var jar3dInputValidator = (function($) {
         isNoFastaMultipleSequencesNoSS: function( input ) {
             var self = jar3dInputValidator,
                 lines = self.splitLines(input),
-                l = lines.length;
+                l = lines.length,
+                i = 0;
 
             if ( l < 2 ) { return false; }
 
-            for (var i=0; i<l; i++) {
+            for (i=0; i<l; i++) {
                 if ( !self.isSequenceLine( lines[i] ) ) {
                     return false;
                 }
@@ -412,13 +415,13 @@ var jar3dInputValidator = (function($) {
             var response = {
                 valid: false,
                 query_type: null,
-                fasta: new Array(),
-                data: new Array(),
+                fasta: [],
+                data: [],
                 ss: null,
                 parsed_input: lines.join('\n')
             };
 
-            if ( l == 0 ) { return response; }
+            if ( l === 0 ) { return response; }
 
             if ( self.isSecondaryStructure( lines[0] ) ) {
                 response.ss = lines.shift();
@@ -464,7 +467,7 @@ var jar3dInputValidator = (function($) {
                 response.valid = true;
                 if ( !response.query_type.match(/NoFasta/) && lines.length > 1 ) {
                     $.each(lines, function(ind, line) {
-                        if ( ind % 2 == 0 ) {
+                        if ( ind % 2 === 0 ) {
                             response.fasta.push(line);
                         } else {
                             response.data.push(line);
@@ -484,4 +487,4 @@ var jar3dInputValidator = (function($) {
 
     return Validator;
 
-})(jQuery);
+}(jQuery));
