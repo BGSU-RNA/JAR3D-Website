@@ -31,8 +31,8 @@
     <td>{{ result.medianscore|floatformat:4 }}</td>
     <td>{{ result.meanpercentile|floatformat:2 }}</td>
     <td>{{ result.medianpercentile|floatformat:2 }}</td>
-    <td>{{ result.meaneditdist|floatformat }}</td>
-    <td>{{ result.medianeditdist|floatformat }}</td>
+    <td>{{ result.meaneditdist|floatformat|default:"Not Computed" }}</td>
+    <td>{{ result.medianeditdist|floatformat|default:"Not Computed" }}</td>
   </tr>
   {% endfor %}
   </tbody>
