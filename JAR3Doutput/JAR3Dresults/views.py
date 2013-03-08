@@ -78,10 +78,11 @@ def pre_request_hook(req):
         req.headers['Host'] = hostname
 
 
-class JAR3DValidator():
+class JAR3DValidator(object):
     """
     Input processing and validation
     """
+
     def __init__(self):
         self.query_types = {
             'loops':                    ['isFastaSingleLoop',
@@ -290,10 +291,11 @@ class JAR3DValidator():
         return results
 
 
-class ResultsMaker():
+class ResultsMaker(object):
     """
         Class for producing html of JAR3D results
     """
+
     def __init__(self, query_id=None):
         self.query_id = query_id
         self.loops = []
