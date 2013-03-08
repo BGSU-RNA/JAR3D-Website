@@ -104,7 +104,7 @@ class JAR3DValidator():
         fasta = request.POST.getlist('fasta[]')
         # uppercase all strings and translate DNA to RNA
         data = request.POST.getlist('data[]')
-        data = [x.upper().replace('T','U') for x in data]
+        data = [x.upper().replace('T', 'U') for x in data]
         query_type = request.POST.get('query_type')
         ss = request.POST.get('ss', None)
         parsed_input = request.POST.get('parsed_input')
@@ -147,38 +147,57 @@ class JAR3DValidator():
 
         # create loop objects
         h = HTMLParser.HTMLParser()
-        query_info = QueryInfo(query_id = query_id,
-                                group_set = 'IL0.6/HL0.2', # change this
-                                model_type = 'default', # change this
-                                query_type = query_type,
-                                structured_models_only = 0,
-                                email = '',
-                                status = 0,
-                                parsed_input = h.unescape(parsed_input))
+        query_info = QueryInfo(query_id=query_id,
+                               group_set='IL0.6/HL0.2',  # TODO: Change this
+                               model_type='default',  # TODO: Change this
+                               query_type=query_type,
+                               structured_models_only=0,
+                               email='',
+                               status=0,
+                               parsed_input=h.unescape(parsed_input))
 
         query_sequences = []
-        loop_types = ['internal'] #['internal', 'hairpin']
+        loop_types = ['internal']  # TODO: ['internal', 'hairpin']
         loop_pattern = '^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])$'
         internal_id = 0
+        all_invalid = True
+
         for id_tuple, loop in loops.iteritems():
             (loop_type, seq_id, loop_id) = id_tuple
+
             if loop_type not in loop_types:
                 continue
             loop_type = 'IL' if loop_type == 'internal' else 'HL'
+
             internal_id += 1
-            query_sequences.append(QuerySequences(query_id = query_id,
-                                                   seq_id = seq_id,
-                                                   loop_id = loop_id,
-                                                   loop_type = loop_type,
-                                                   loop_sequence = loop,
-                                                   internal_id = '>seq%i' % internal_id,
-                                                   user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
-                                                   status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
+            id_string = '>seq%i' % internal_id
+
+            status = -1
+            if re.match(loop_pattern, loop, flags=re.IGNORECASE):
+                status = 0
+
+            if status == 0:
+                all_invalid = False
+
+            user_id = ''
+            if len(fasta) != 0:
+                user_id = fasta[seq_id]
+
+            query_sequences.append(QuerySequences(query_id=query_id,
+                                                  seq_id=seq_id,
+                                                  loop_id=loop_id,
+                                                  loop_type=loop_type,
+                                                  loop_sequence=loop,
+                                                  internal_id=id_string,
+                                                  user_seq_id=user_id,
+                                                  status=status))
+
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
 
-        # todo: if all loops have status = -1, then set query_info.status to 1
+        if all_invalid:
+            query_info.status = 1
 
         # persist the entries in the database starting with sequences
         try:
@@ -204,13 +223,13 @@ class JAR3DValidator():
         loops = dict()
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
-            loops[(loop_type,seq_id,loop_id)] = loop
+            loops[(loop_type, seq_id, loop_id)] = loop
         return loops
 
     def respond(self, value, key='error'):
         """convenience function
            if key == error, the message will be shown to the user"""
-        return HttpResponse( json.dumps({key: value}) )
+        return HttpResponse(json.dumps({key: value}))
 
     def isfolded_extract_loops(self, dot_string, sequences):
         """
@@ -225,9 +244,9 @@ class JAR3DValidator():
         for seq_id, seq in enumerate(sequences):
             loops = parser.loops(seq, flanking=True)
             loop_id = 0
-            for loop_type, loop_instances in loops.iteritems(): # HL or IL
+            for loop_type, loop_instances in loops.iteritems():  # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id)] = loop
+                    results[(loop_type, seq_id, loop_id)] = loop
                     loop_id += 1
         return results
 
@@ -245,9 +264,9 @@ class JAR3DValidator():
             folded = folder.fold(seq)
             loops = folded[0].loops(flanking=True)
             loop_id = 0
-            for loop_type, loop_instances in loops.iteritems(): # HL or IL
+            for loop_type, loop_instances in loops.iteritems():  # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id)] = loop
+                    results[(loop_type, seq_id, loop_id)] = loop
                     loop_id += 1
         return results
 
@@ -264,9 +283,9 @@ class JAR3DValidator():
         for seq_id, seq in enumerate(sequences):
             loops = folded[0].loops(seq, flanking=True)
             loop_id = 0
-            for loop_type, loop_instances in loops.iteritems(): # HL or IL
+            for loop_type, loop_instances in loops.iteritems():  # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id)] = loop
+                    results[(loop_type, seq_id, loop_id)] = loop
                     loop_id += 1
         return results
 
@@ -314,9 +333,11 @@ class ResultsMaker():
         """
             Get information about input sequences and loops
         """
-        s  = QuerySequences.objects.filter(query_id=self.query_id).order_by('-seq_id')[0]
+        s = QuerySequences.objects.filter(query_id=self.query_id) \
+                                  .order_by('-seq_id')[0]
         self.input_stats['seq'] = s.seq_id + 1
-        s = QuerySequences.objects.filter(query_id=self.query_id).order_by('-loop_id')[0]
+        s = QuerySequences.objects.filter(query_id=self.query_id) \
+                                  .order_by('-loop_id')[0]
         self.input_stats['loops'] = s.loop_id + 1
         s = QuerySequences.objects.filter(query_id=self.query_id)
         self.input_stats['loop_instances'] = s.count
