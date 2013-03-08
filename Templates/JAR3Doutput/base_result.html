@@ -17,16 +17,17 @@
 
 {% block page_content %}
 
-<div id='query-interpretation'>
-    <h4>Query interpretation</h4>
+<div id='query-interpretation' class='row'>
+  <div class="span8">
+    <h3>Query interpretation</h3>
     <dl>
-        <dt>Query type</dt>
-        <dd>{{query_info.query_type}}</dd>
+        <!--<dt>Query type</dt>-->
+        <!--<dd>{{query_info.query_type}}</dd>-->
 
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
 
-        <dt>Number of loops</dt>
+        <dt>Number of extracted loops</dt>
         <dd>{{num.loops}}</dd>
 
         <dt>Total number of loop instances</dt>
@@ -35,6 +36,7 @@
         <dt>Input</dt>
         <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
     </dl>
+  </div>
 </div>
 
 {% endblock page_content %}
@@ -43,7 +45,7 @@
 {% block page_specific_js %}
     <script>
     $('#refine').click(function(){
-        window.location.href = '{% url refine query_info.query_id %}';
+        window.location.href = '{% url "refine" query_info.query_id %}';
     });
     </script>
 {% endblock page_specific_js %}
