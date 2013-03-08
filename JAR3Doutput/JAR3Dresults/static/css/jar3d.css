@@ -114,5 +114,8 @@ table .headerSortUp:after {
     margin-top: 1em;
 }
 .ss-thumbnail {
-    width: 80px;
+    width: 120px;
+}
+.loop-result {
+  margin-bottom: 5px;
 }

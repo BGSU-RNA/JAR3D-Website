@@ -3,6 +3,7 @@ import json
 import uuid
 import urlparse
 import HTMLParser
+from collections import defaultdict
 
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -45,6 +46,7 @@ def result(request, uuid):
     results = ResultsMaker(query_id=uuid)
     results.get_loop_results()
     results.get_input_stats()
+    results.get_loop_sequences()
 
     """
         status codes:
@@ -58,7 +60,12 @@ def result(request, uuid):
     data = {'query_info': q, 'num': results.input_stats}
 
     if q.status == 1:
-        data['loops'] = results.loops
+        data['loops'] = []
+        for index, matches in enumerate(results.loops):
+            info = {'matches': matches,
+                    'sequence': results.sequences[index]}
+            data['loops'].append(info)
+
         page = 'JAR3Doutput/base_result_done.html'
     elif q.status == 0 or q.status == 2:
         page = 'JAR3Doutput/base_result_pending.html'
@@ -301,9 +308,29 @@ class ResultsMaker(object):
         self.loops = []
         self.input_stats = dict()
         self.problem_loops = []
+        self.sequences = []
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
         self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/IL0.6/'
+
+    def get_loop_sequences(self):
+        """
+            Generate an array of the form:
+                sequences[0] = "AAAA\nCCCC\nGGGG"
+            where the index is the loop id for that query. Must be run after
+            get_loop_results.
+        """
+        results = QuerySequences.objects.filter(query_id=self.query_id) \
+                                        .order_by('loop_id', 'seq_id')
+
+        container = defaultdict(list)
+        for result in results.all():
+            container[result.loop_id].append(result.loop_sequence)
+
+        for loop_id in sorted(container.keys()):
+            sequences = container[loop_id]
+            self.sequences.append('\n'.join(sequences))
+        print(self.sequences)
 
     def get_loop_results(self):
         results = ResultsByLoop.objects.filter(query_id=self.query_id) \

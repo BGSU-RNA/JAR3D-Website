@@ -16,8 +16,12 @@
 
 <div class="row">
 {% for loop in loops %}
-    <div class="span8">
-      <h3>Loop {{ forloop.counter }}</h3>
+    <div class="span7">
+        <h3>Loop {{ forloop.counter }}</h3>
+        <div class="span4 offset1">
+          <strong>Sequence</strong>
+          <span>{{ loop.sequence|linebreaks }}</span>
+        </div>
       {% if num.loop_instances == 1 %}
         {% include "JAR3Doutput/single_sequence_loop_table.html" %}
       {% else %}
@@ -25,7 +29,6 @@
       {% endif %}
     </div>
 {% endfor %}
-</div>
 
 <div class="span4" id="jmol">
     <script type="text/javascript">
@@ -38,6 +41,8 @@
     <input type='button' id='prev' class='btn' value='Previous'>
     <input type='button' id='next' class='btn' value="Next">
     <label><input type="checkbox" id="showNtNums">Numbers</label>
+</div>
+
 </div>
 
 {{ block.super }}
@@ -74,7 +79,7 @@
     <script>
     // position jmol
     (function(){
-        var reference = $('table').first();
+        var reference = $('.loop-result').first();
         var offset_left = reference.offset().left + reference.width();
         var offset_top  = reference.offset().top;
         $('#jmol').css('position','fixed')
@@ -83,10 +88,10 @@
     })();
 
     // fancybox integration
-	$(".fancybox").fancybox({
-		openEffect	: 'none',
-		closeEffect	: 'none'
-	});
+    $(".fancybox").fancybox({
+      openEffect	: 'none',
+      closeEffect	: 'none'
+    });
 
     </script>
 

@@ -1,3 +1,4 @@
+{% comment %}
 <table class="table table-striped table-condensed table-bordered">
   <thead>
     <tr>
@@ -31,6 +32,62 @@
   {% endfor %}
   </tbody>
 </table>
+{% endcomment %}
+
+{% for result in loop.matches %}
+
+{% if forloop.counter|divisibleby:2 %}
+<div class="loop-result odd-loop row span7">
+{% else %}
+<div class="loop-result even-loop row span7">
+{% endif %}
+
+  <div class="hover-link">
+    <h4>{{ result.motif_id }}
+      <a class="hover-link-icon" href="{{ result.motif_url }}" target="_blank">&rarr;</a>
+    </h4>
+  </div>
+
+  <div class="span2">
+    <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
+       title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+        <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+    </a>
+  </div>
+
+  <div class="span4">
+    <span>
+      <strong class="span2">Rank</strong>
+      {{ forloop.counter }}
+    </span>
+  </div>
+
+  <div class="span4">
+    <span>
+      <strong class="span2">Score</strong>
+      {{ result.meanscore|floatformat:4 }}
+    </span>
+  </div>
+
+  <div class="span4">
+    <span>
+      <strong class="span2">Percentile</strong>
+      {{ result.meanpercentile|floatformat:2 }}
+    </span>
+  </div>
+
+  {% if result.meaneditdist != None %}
+  <div class="span4">
+    <span>
+      <strong class="span2">Edit Distance</strong>
+      {{ result.meaneditdist }}
+    </span>
+  </div>
+  {% endif %}
+
+</div>
+
+{% endfor %}
 
 {% comment %}
   vim: ft=htmldjango
