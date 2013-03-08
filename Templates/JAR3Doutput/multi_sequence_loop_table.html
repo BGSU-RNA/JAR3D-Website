@@ -9,7 +9,6 @@
       <th>Median Percentile</th>
       <th>Mean Edit Distance</th>
       <th>Median Edit Distance</th>
-      <th>Basepair Signature</th>
       <th>2D Diagram</th>
     </tr>
   </thead>
@@ -31,7 +30,6 @@
     <td>{{ result.medianpercentile|floatformat:2 }}</td>
     <td>{{ result.meaneditdist|floatformat }}</td>
     <td>{{ result.medianeditdist|floatformat }}</td>
-    <td>{{ result.signature }}</td>
     <td>
         <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
            title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
