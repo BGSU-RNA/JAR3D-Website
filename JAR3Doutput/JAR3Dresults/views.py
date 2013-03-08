@@ -120,9 +120,9 @@ class JAR3DValidator():
         fasta = request.POST.getlist('fasta[]')
         # uppercase all strings and translate DNA to RNA
         data = [ x.upper().replace('T','U') for x in request.POST.getlist('data[]') ]
-        query_type = request.POST['query_type']
-        ss = request.POST['ss']
-        parsed_input = request.POST['parsed_input']
+        query_type = request.POST.get('query_type')
+        ss = request.POST.get('ss', None)
+        parsed_input = request.POST.get('parsed_input')
 
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
