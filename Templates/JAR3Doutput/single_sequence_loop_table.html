@@ -6,7 +6,6 @@
       <th>Mean Alignment Score</th>
       <th>Mean Percentile</th>
       <th>Mean Edit Distance</th>
-      <th>2D Diagram</th>
     </tr>
   </thead>
   <tbody>
@@ -20,16 +19,14 @@
       <span class="hover-link-icon">
         <a href="{{ result.motif_url }}" target="_blank">&rarr;</a>
       </span>
+      <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
+         title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+          <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+      </a>
     </td>
     <td>{{ result.meanscore|floatformat:4 }}</td>
     <td>{{ result.meanpercentile|floatformat:2 }}</td>
     <td>{{ result.meaneditdist|floatformat }}</td>
-    <td>
-        <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
-           title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
-            <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
-        </a>
-    </td>
   </tr>
   {% endfor %}
   </tbody>
