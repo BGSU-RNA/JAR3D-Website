@@ -1,61 +1,46 @@
+import re
+import json
+import uuid
+import urlparse
+import HTMLParser
 
-from django.shortcuts import render_to_response
-
-from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response, render
-from django.template import RequestContext
+from django.http import HttpResponse
+from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from JAR3Dresults.models import QueryInfo
 from JAR3Dresults.models import QuerySequences
 from JAR3Dresults.models import ResultsByLoop
-from JAR3Dresults.models import ResultsByLoopInstance
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
 
-from django.views.decorators.csrf import csrf_exempt
-import uuid
-import json
-import urlparse
-import HTMLParser
-import logging
-import re
-
-
-#logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
-# logging.setLevel(logging.DEBUG)
-#logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
     """
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
+    data = {}
     if uuid:
         q = QueryInfo.objects.filter(query_id=uuid)[0]
         if q:
-            return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': q.parsed_input},
-                                      context_instance=RequestContext(request))
+            data = {'input': q.parsed_input}
         else:
-            return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': 'query id not found'},
-                                      context_instance=RequestContext(request))
-    else:
-        return render_to_response('JAR3Doutput/base_homepage.html',
-                                  {},
-                                  context_instance=RequestContext(request))
+            data = {'input': 'query id not found'}
+    return render(request, 'JAR3Doutput/base_homepage.html', data)
+
 
 def result(request, uuid):
 
     q = QueryInfo.objects.filter(query_id=uuid)
-    if q:
-        q = q[0] #we are interested only in the first one
-    else:
-        return render_to_response('JAR3Doutput/base_result_not_found.html',
-                                  {'query_id': uuid},
-                                  context_instance=RequestContext(request))
+
+    if not q:
+        return render(request, 'JAR3Doutput/base_result_not_found.html',
+                      {'query_id': uuid})
+
+    q = q[0]  # We are interested only in the first one
 
     results = ResultsMaker(query_id=uuid)
     results.get_loop_results()
@@ -69,23 +54,23 @@ def result(request, uuid):
         2  - submitted to JAR3D
     """
 
+    page = 'JAR3Doutput/base_result_failed.html'
+    data = {'query_info': q, 'num': results.input_stats}
+
     if q.status == 1:
-        return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_info': q, 'num': results.input_stats, 'loops': results.loops},
-                                  context_instance=RequestContext(request))
+        data['loops'] = results.loops
+        page = 'JAR3Doutput/base_result_done.html'
     elif q.status == 0 or q.status == 2:
-        return render_to_response('JAR3Doutput/base_result_pending.html',
-                                  {'query_info': q, 'num': results.input_stats},
-                                  context_instance=RequestContext(request))
-    else:
-        return render_to_response('JAR3Doutput/base_result_failed.html',
-                                  {'query_info': q, 'num': results.input_stats},
-                                  context_instance=RequestContext(request))
+        page = 'JAR3Doutput/base_result_pending.html'
+
+    return render(request, page, data)
+
 
 @csrf_exempt
 def process_input(request):
     validator = JAR3DValidator()
     return validator.validate(request)
+
 
 def pre_request_hook(req):
     if 'Host' not in req.headers:
@@ -113,13 +98,13 @@ class JAR3DValidator():
                                          'isNoFastaMultipleSequencesSS'],
         }
 
-
     def validate(self, request):
-        query_id = str( uuid.uuid4() )
+        query_id = str(uuid.uuid4())
         redirect_url = reverse('JAR3Dresults.views.result', args=[query_id])
         fasta = request.POST.getlist('fasta[]')
         # uppercase all strings and translate DNA to RNA
-        data = [ x.upper().replace('T','U') for x in request.POST.getlist('data[]') ]
+        data = request.POST.getlist('data[]')
+        data = [x.upper().replace('T','U') for x in data]
         query_type = request.POST.get('query_type')
         ss = request.POST.get('ss', None)
         parsed_input = request.POST.get('parsed_input')
@@ -151,7 +136,7 @@ class JAR3DValidator():
             try:
                 loops = self.RNAalifold_extract_loops(data)
             except fold.FoldingTimeOutError:
-                return respond("Folding timed out")
+                return self.respond("Folding timed out")
             except fold.FoldingFailedError:
                 return self.respond("Folding failed")
             except:
@@ -301,24 +286,22 @@ class ResultsMaker():
 
     def get_loop_results(self):
         results = ResultsByLoop.objects.filter(query_id=self.query_id) \
-                                         .order_by('loop_id', '-meanscore')
-        if results:
-            """
-            build a 2d list
-            loops[0][0] = result 0 for loop 0
-            loops[0][1] = result 1 for loop 0
-            """
+                                       .order_by('loop_id', '-meanscore')
+        """
+        build a 2d list
+        loops[0][0] = result 0 for loop 0
+        loops[0][1] = result 1 for loop 0
+        """
 
-            for result in results:
-                result.motif_url = self.RNA3DHUBURL + result.motif_id
-                result.ssurl = self.SSURL + result.motif_id + '.png'
-                if len(self.loops) <= result.loop_id:
-                    self.loops.append([result])
-                else:
-                    if len(self.loops[-1]) < self.TOPRESULTS:
-                        self.loops[-1].append(result)
-        else:
-            pass
+        for result in results:
+            result.motif_url = self.RNA3DHUBURL + result.motif_id
+            result.ssurl = self.SSURL + result.motif_id + '.png'
+
+            if len(self.loops) <= result.loop_id:
+                self.loops.append([result])
+            else:
+                if len(self.loops[-1]) < self.TOPRESULTS:
+                    self.loops[-1].append(result)
 
     def get_problem_loops(self):
         """
@@ -344,5 +327,3 @@ class ResultsMaker():
             pass
         else:
             pass
-
-
