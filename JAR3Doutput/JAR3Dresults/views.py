@@ -330,7 +330,6 @@ class ResultsMaker(object):
         for loop_id in sorted(container.keys()):
             sequences = container[loop_id]
             self.sequences.append('\n'.join(sequences))
-        print(self.sequences)
 
     def get_loop_results(self):
         results = ResultsByLoop.objects.filter(query_id=self.query_id) \

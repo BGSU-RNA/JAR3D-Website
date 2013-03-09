@@ -42,7 +42,12 @@
 
 {% for result in loop.matches %}
 
-<div class="loop-result row span7">
+{% if forloop.counter|divisibleby:2 %}
+<div class="loop-result even-result row span7">
+{% else %}
+<div class="loop-result odd-result row span7">
+{% endif %}
+
   <div class="hover-link">
     <h4>{{ result.motif_id }}
       <a class="hover-link-icon" href="{{ result.motif_url }}" target="_blank">&rarr;</a>

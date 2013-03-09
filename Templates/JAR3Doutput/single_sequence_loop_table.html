@@ -37,9 +37,9 @@
 {% for result in loop.matches %}
 
 {% if forloop.counter|divisibleby:2 %}
-<div class="loop-result odd-loop row span7">
+<div class="loop-result even-result row span7">
 {% else %}
-<div class="loop-result even-loop row span7">
+<div class="loop-result odd-result row span7">
 {% endif %}
 
   <div class="hover-link">
