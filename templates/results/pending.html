@@ -1,0 +1,24 @@
+{% extends "results/base.html" %}
+
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{query_info.query_id}} is in the queue
+{% endblock page_subtitle %}
+
+{% block query_pane_class %}active{% endblock query_pane_class %}
+
+{% block query_note %}
+  <div class="span5 alert">
+    Your query has been successfully added to the queue.
+    The page will refresh every 5 seconds until the results become available.
+    You can bookmark this page, and check back later.
+    The results will be kept on the server indefinitely.
+  </div>
+{% endblock query_note %}
+
+{% block page_specific_js %}
+    {{ block.super }}
+    <script>
+        //setTimeout("location.reload(true);", 5000);
+    </script>
+{% endblock page_specific_js %}

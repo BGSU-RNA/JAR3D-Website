@@ -1,4 +1,4 @@
-{% extends "JAR3Doutput/base_result.html" %}
+{% extends "results/base.html" %}
 
 {% block custom_css %}
   {{ block.super }}
@@ -12,53 +12,49 @@
   Query {{ query_info.query_id }} completed
 {% endblock page_subtitle %}
 
-{% block page_content %}
+{% block tabs %}
+  <li><a href="#query" data-toggle="tab">Query</a></li>
+  <li class="active"><a href="#results" data-toggle="tab">Results</a></li>
+{% endblock tabs %}
 
-<div class="row">
-{% for loop in loops %}
-    <div class="span7">
-      <h3>Loop {{ forloop.counter }}</h3>
-      <div class="span4 offset1">
-        <strong>Sequence</strong>
-        <span>{{ loop.sequence|linebreaks }}</span>
-      </div>
+{% block results %}
 
-      <div class="span1">
-          {% if num.loop_instances == 1 %}
-            {% include "JAR3Doutput/single_sort.html" %}
-          {% else %}
-            {% include "JAR3Doutput/multi_sort.html" %}
-          {% endif %}
-      </div>
+  <div id="results" class="tab-pane row active">
+    <div id="model-results" class="span7">
+      {% for loop in loops %}
+          <div class="span7">
+            <h3>Loop {{ forloop.counter }}</h3>
+            <div class="span4 offset1">
+              <strong>Sequence</strong>
+              <span>{{ loop.sequence|linebreaks }}</span>
+            </div>
 
-      <div id="results" class="span7">
-        {% if num.loop_instances == 1 %}
-          {% include "JAR3Doutput/single_sequence_loop_table.html" %}
-        {% else %}
-          {% include "JAR3Doutput/multi_sequence_loop_table.html" %}
-        {% endif %}
+            <div id="loop-{{ forloop.counter }}-results" class="span7">
+              {% if num.loop_instances == 1 %}
+                {% include "results/single_sequence.html" %}
+              {% else %}
+                {% include "results/multi_sequence.html" %}
+              {% endif %}
+            </div>
+          </div>
+      {% endfor %}
+
+      <div class="span4" id="jmol">
+          <script type="text/javascript">
+              jmolInitialize(" http://rna.bgsu.edu/img/jmol");
+              jmolSetAppletColor("#ffffff");
+              jmolApplet(340, "javascript appletLoaded()");
+          </script>
+          <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
+          <input type='button' id='stereo' class='btn' value="Show stereo">
+          <input type='button' id='prev' class='btn' value='Previous'>
+          <input type='button' id='next' class='btn' value="Next">
+          <label><input type="checkbox" id="showNtNums">Numbers</label>
       </div>
     </div>
-{% endfor %}
+  </div>
 
-<div class="span4" id="jmol">
-    <script type="text/javascript">
-        jmolInitialize(" http://rna.bgsu.edu/img/jmol");
-        jmolSetAppletColor("#ffffff");
-        jmolApplet(340, "javascript appletLoaded()");
-    </script>
-    <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
-    <input type='button' id='stereo' class='btn' value="Show stereo">
-    <input type='button' id='prev' class='btn' value='Previous'>
-    <input type='button' id='next' class='btn' value="Next">
-    <label><input type="checkbox" id="showNtNums">Numbers</label>
-</div>
-
-</div>
-
-{{ block.super }}
-
-{% endblock page_content%}
+{% endblock results %}
 
 {% block page_specific_js %}
     {{ block.super }}
@@ -70,9 +66,6 @@
 {% block inline_js %}
     {{ block.super }}
     <script>
-      $(document).ready(function() {
-          $("table").tablesorter();
-      });
       // initialize jmolTools
       $('.jmolInline').jmolTools({
           showStereoId: 'stereo',

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}JAR3D Results{% endblock %}
+
+{% block custom_js %}
+  <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
+  <script src="http://rna.bgsu.edu/img/jmol/jmol.js"></script>
+{% endblock custom_js %}
+
+{% block page_subtitle %}
+  <button id='refine' class='btn btn-primary pull-right' data-id="{{query_info.query_id}}">Refine query</button>
+
+  <!-- AddThis Button BEGIN -->
+  <span class="addthis_toolbox addthis_default_style pull-right">
+  <a href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=ra-4fb19f2d543502ad" class="addthis_button_compact">Share</a>
+  </span>
+  <script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+  <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4fb19f2d543502ad"></script>
+   <!--AddThis Button END -->
+
+{% endblock page_subtitle %}
+
+{% block page_content %}
+  <div class="row">
+
+    <div class="tabbable">
+      <div id="tabs">
+        <ul class="nav nav-tabs">
+          {% block tabs %}
+            <li class="active"><a href="#query">Query</a></li>
+            <li class="disabled"><a href="#results">Results</a></li>
+          {% endblock tabs %}
+        </ul>
+      </div>
+
+      <div class="tab-content">
+        <div id='query' class="tab-pane {% block query_pane_class %}{% endblock query_pane_class %} span12 row">
+          <div class="span6">
+          <h3>Query interpretation</h3>
+          <dl>
+            <dt>Number of sequences</dt>
+            <dd>{{num.seq}}</dd>
+
+            <dt>Number of processed loops</dt>
+            <dd>{{num.loops}}</dd>
+
+            <dt>Total number of loop instances</dt>
+            <dd>{{num.loop_instances}}</dd>
+
+            <dt>Input</dt>
+            <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
+          </dl>
+          </div>
+
+          {% block query_note %}
+          {% endblock query_note %}
+        </div>
+
+        {% block results %}
+        {% endblock results %}
+      </div>
+    </div>
+  </div>
+{% endblock page_content %}
+
+{% block inline_js %}
+  {{ block.super }}
+  <script>
+  {% if query_info.query_id != None %}
+  $('#refine').click(function(){
+      window.location.href = '{% url "refine" query_info.query_id %}';
+  });
+  {% endif %}
+  </script>
+{% endblock inline_js %}

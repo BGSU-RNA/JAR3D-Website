@@ -16,42 +16,38 @@
     {% endblock custom_css %}
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
-    <script src="http://rna.bgsu.edu/img/jmol/jmol.js"></script>
+    <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
+
+    {% block custom_js %}
+    {% endblock custom_js %}
   </head>
 
   <body>
 
     {% block navigation %}
-      {% include "JAR3Doutput/sitewide_menu.html" %}
+      {% include "nav_bar.html" %}
     {% endblock navigation %}
 
-    <!-- Main content -->
     <div class="container {% block page_specific_css_class %}{% endblock page_specific_css_class %}">
 
-        <div class="content">
-
-            <div class="page-header">
-                <h1>
-                    {% block page_header %}
-                    <a href="{% url 'home' %}">JAR3D</a>
-                    {% endblock page_header %}
-                    <small>{% block page_subtitle %}{% endblock page_subtitle %}</small>
-                </h1>
-            </div>
-
-            {% block page_content %}
-            {% endblock page_content %}
-
+      <div class="content">
+        <div class="page-header">
+          <h2>
+            {% block page_header %}
+            <a href="{% url 'home' %}">JAR3D</a>
+            {% endblock page_header %}
+            <small>{% block page_subtitle %}{% endblock page_subtitle %}</small>
+          </h2>
         </div>
 
-        <footer>
-          {% block footer %}<p>&copy;&nbsp;BGSU, {% now "Y" %}</p>{% endblock footer %}
-        </footer>
+        {% block page_content %}
+        {% endblock page_content %}
+      </div>
 
-    </div> <!-- /container -->
-
-    <script src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
+      <footer>
+        {% block footer %}<p>&copy;&nbsp;BGSU, {% now "Y" %}</p>{% endblock footer %}
+      </footer>
+    </div>
 
     {% block page_specific_js %}
     {% endblock page_specific_js %}

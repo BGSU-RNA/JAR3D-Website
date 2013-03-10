@@ -1,0 +1,13 @@
+<select id='loop-{{ forloop.counter }}-sorter' class='sorter'
+        data-div-sort="loop-{{ forloop.counter }}-results" 
+        class="span2 pull-right">
+  <option value="rank">⬇ Rank</option>
+  <option value="mean-score">⬇ Mean Score</option>
+  <option value="median-score">⬇ Median Score</option>
+  <option value="median-percentile">⬇ Median Percentile</option>
+  <option value="mean-percentile">⬇ Mean Percentile</option>
+</select>
+
+{% comment %}
+  vim: ft=htmldjango
+{% endcomment %}

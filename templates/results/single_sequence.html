@@ -11,6 +11,7 @@
       <a class="hover-link-icon" href="{{ result.motif_url }}" target="_blank">&rarr;</a>
     </h4>
   </div>
+
   <div class="span2">
     <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
        title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
@@ -21,50 +22,29 @@
   <div class="span4">
     <span>
       <strong class="span2">Rank</strong>
-      <div id="rank">{{ forloop.counter }}</div>
+      <div class="rank">{{ forloop.counter }}</div>
     </span>
   </div>
 
   <div class="span4">
     <span>
-      <strong class="span2">Mean Score</strong>
-      <div id="mean-score">{{ result.meanscore|floatformat:4 }}</div>
+      <strong class="span2">Score</strong>
+      <div class="score">{{ result.meanscore|floatformat:4 }}</div>
     </span>
   </div>
 
   <div class="span4">
     <span>
-      <strong class="span2">Median Score</strong>
-      <div id="median-score">{{ result.medianscore|floatformat:4 }}</div>
-    </span>
-  </div>
-
-  <div class="span4">
-    <span>
-      <strong class="span2">Mean Percentile</strong>
-      <div id="mean-percentile">{{ result.meanpercentile|floatformat:2 }}</div>
-    </span>
-  </div>
-
-  <div class="span4">
-    <span>
-      <strong class="span2">Median Percentile</strong>
-      <div id="median-percentile">{{ result.medianpercentile|floatformat:2 }}</div>
+      <strong class="span2">Percentile</strong>
+      <div class="percentile">{{ result.meanpercentile|floatformat:2 }}</div>
     </span>
   </div>
 
   {% if result.meaneditdist != None %}
   <div class="span4">
     <span>
-      <strong class="span2">Mean Edit Distance</strong>
-      <div id="mean-edit-distance">{{ result.meaneditdist|default:0 }}</div>
-    </span>
-  </div>
-
-  <div class="span4">
-    <span>
-      <strong class="span2">Media Edit Distance</strong>
-      <div id="median-edit-distance">{{ result.medianeditdist|default:0 }}</div>
+      <strong class="span2">Edit Distance</strong>
+      <div class="edit-distance">{{ result.meaneditdist }}</div>
     </span>
   </div>
   {% endif %}

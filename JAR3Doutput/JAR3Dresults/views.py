@@ -30,7 +30,7 @@ def home(request, uuid=None):
             data = {'input': q.parsed_input}
         else:
             data = {'input': 'query id not found'}
-    return render(request, 'JAR3Doutput/base_homepage.html', data)
+    return render(request, 'homepage.html', data)
 
 
 def result(request, uuid):
@@ -38,7 +38,7 @@ def result(request, uuid):
     q = QueryInfo.objects.filter(query_id=uuid)
 
     if not q:
-        return render(request, 'JAR3Doutput/base_result_not_found.html',
+        return render(request, 'results/not_found.html',
                       {'query_id': uuid})
 
     q = q[0]  # We are interested only in the first one
@@ -56,7 +56,7 @@ def result(request, uuid):
         2  - submitted to JAR3D
     """
 
-    page = 'JAR3Doutput/base_result_failed.html'
+    page = 'results/failed.html'
     data = {'query_info': q, 'num': results.input_stats}
 
     if q.status == 1:
@@ -66,9 +66,9 @@ def result(request, uuid):
                     'sequence': results.sequences[index]}
             data['loops'].append(info)
 
-        page = 'JAR3Doutput/base_result_done.html'
+        page = 'results/done.html'
     elif q.status == 0 or q.status == 2:
-        page = 'JAR3Doutput/base_result_pending.html'
+        page = 'results/pending.html'
 
     return render(request, page, data)
 
