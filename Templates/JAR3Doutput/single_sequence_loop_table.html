@@ -22,21 +22,21 @@
   <div class="span4">
     <span>
       <strong class="span2">Rank</strong>
-      {{ forloop.counter }}
+      <div id="rank">{{ forloop.counter }}</div>
     </span>
   </div>
 
   <div class="span4">
     <span>
       <strong class="span2">Score</strong>
-      {{ result.meanscore|floatformat:4 }}
+      <div id="score">{{ result.meanscore|floatformat:4 }}</div>
     </span>
   </div>
 
   <div class="span4">
     <span>
       <strong class="span2">Percentile</strong>
-      {{ result.meanpercentile|floatformat:2 }}
+      <div id="percentile">{{ result.meanpercentile|floatformat:2 }}</div>
     </span>
   </div>
 
@@ -44,7 +44,7 @@
   <div class="span4">
     <span>
       <strong class="span2">Edit Distance</strong>
-      {{ result.meaneditdist }}
+      <div id="edit-distance">{{ result.meaneditdist }}</div>
     </span>
   </div>
   {% endif %}
