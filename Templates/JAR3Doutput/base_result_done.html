@@ -1,12 +1,16 @@
 {% extends "JAR3Doutput/base_result.html" %}
 
+{% block custom_css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{{ STATIC_URL }}fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+{% endblock custom_css %}
+
 {% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
 
 {% block page_subtitle %}
   {{ block.super }}
   Query {{ query_info.query_id }} completed
 {% endblock page_subtitle %}
-
 
 {% block page_content %}
 
@@ -60,6 +64,7 @@
     {{ block.super }}
     <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
     <script src="{{ STATIC_URL }}js/jar3d.js"></script>
+    <script src="{{ STATIC_URL }}fancybox/jquery.fancybox.pack.js"></script>
 {% endblock page_specific_js %}
 
 {% block inline_js %}
@@ -82,9 +87,6 @@
           $('.jmolInline').first().jmolToggle();
       }
       </script>
-
-      <script src="{{ STATIC_URL }}js/jquery.fancybox.pack.js"></script>
-      <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.fancybox.css" type="text/css" media="screen" />
 
       <script>
       // position jmol
