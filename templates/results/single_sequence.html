@@ -1,20 +1,20 @@
 <div class="span4">
   <span>
-    <strong class="span2">Rank</strong>
+    <strong class="span3">Rank</strong>
     <div class="rank">{{ forloop.counter }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Score</strong>
+    <strong class="span3">Score</strong>
     <div class="score">{{ result.meanscore|floatformat:4 }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Percentile</strong>
+    <strong class="span3">Percentile</strong>
     <div class="percentile">{{ result.meanpercentile|floatformat:2 }}</div>
   </span>
 </div>
@@ -22,8 +22,8 @@
 {% if result.meaneditdist != None %}
 <div class="span4">
   <span>
-    <strong class="span2">Edit Distance</strong>
-    <div class="edit-distance">{{ result.meaneditdist }}</div>
+    <strong class="span3">Edit Distance</strong>
+    <div class="edit-distance">{{ result.meaneditdist|default:"NC" }}</div>
   </span>
 </div>
 {% endif %}

@@ -33,35 +33,39 @@
 
               {% for result in loop.matches %}
 
-              <div class="loop-result row span7
+              <div class="loop-result span7
                 {% if forloop.counter|divisibleby:2 %}even-result
                 {% else %}odd-result
                 {% endif %}">
 
-                  <div class="hover-link span5">
+                  <div class="hover-link span2">
                     <label class="radio ">
                       <input type="radio" name="group"
-                             id="s{{ forloop.parent.counter }}-{{ forloop.counter }}"
-                             class="jmolInline"
-                             data-coord={{ result.motif_id }}>
+                      id="s{{ forloop.parent.counter }}-{{ forloop.counter }}"
+                      class="jmolInline"
+                      data-coord={{ result.motif_id }}>
                       <strong>{{ result.motif_id }}</strong>
                       <a class="hover-link-icon" href="{{ result.motif_url }}" target="_blank">&rarr;</a>
-                      
-                   </label>
+
+                    </label>
                   </div>
 
+                <div class="span7">
                   <div class="span2">
                     <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
-                       title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
-                        <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+                      title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+                      <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
                     </a>
                   </div>
 
-                {% if num.loop_instances == 1 %}
-                  {% include "results/single_sequence.html" %}
-                {% else %}
-                  {% include "results/multi_sequence.html" %}
-                {% endif %}
+                  <div class="span4">
+                    {% if num.loop_instances == 1 %}
+                      {% include "results/single_sequence.html" %}
+                    {% else %}
+                      {% include "results/multi_sequence.html" %}
+                    {% endif %}
+                  </div>
+                </div>
               </div>
 
             {% endfor %}

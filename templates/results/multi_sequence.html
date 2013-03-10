@@ -1,34 +1,34 @@
 <div class="span4">
   <span>
-    <strong class="span2">Rank</strong>
+    <strong class="span3">Rank</strong>
     <div class="rank">{{ forloop.counter }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Mean Score</strong>
+    <strong class="span3">Mean Score</strong>
     <div class="mean-score">{{ result.meanscore|floatformat:4 }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Median Score</strong>
+    <strong class="span3">Median Score</strong>
     <div class="median-score">{{ result.medianscore|floatformat:4 }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Mean Percentile</strong>
+    <strong class="span3">Mean Percentile</strong>
     <div class="mean-percentile">{{ result.meanpercentile|floatformat:2 }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Median Percentile</strong>
+    <strong class="span3">Median Percentile</strong>
     <div class="median-percentile">{{ result.medianpercentile|floatformat:2 }}</div>
   </span>
 </div>
@@ -36,15 +36,15 @@
 {% if result.meaneditdist != None %}
 <div class="span4">
   <span>
-    <strong class="span2">Mean Edit Distance</strong>
+    <strong class="span3">Mean Edit Distance</strong>
     <div class="mean-edit-distance">{{ result.meaneditdist|default:0 }}</div>
   </span>
 </div>
 
 <div class="span4">
   <span>
-    <strong class="span2">Median Edit Distance</strong>
-    <div class="median-edit-distance">{{ result.medianeditdist|default:0 }}</div>
+    <strong class="span3">Median Edit Distance</strong>
+    <div class="median-edit-distance">{{ result.medianeditdist|default:"NC" }}</div>
   </span>
 </div>
 {% endif %}
