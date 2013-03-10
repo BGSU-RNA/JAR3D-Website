@@ -50,6 +50,13 @@
                    </label>
                   </div>
 
+                  <div class="span2">
+                    <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
+                       title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+                        <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+                    </a>
+                  </div>
+
                 {% if num.loop_instances == 1 %}
                   {% include "results/single_sequence.html" %}
                 {% else %}
