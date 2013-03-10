@@ -2,10 +2,6 @@
 
 {% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
 
-{% block custom_css %}
-<script src="http://rna.bgsu.edu/img/jmol/jmol.js"></script>
-{% endblock custom_css %}
-
 {% block page_subtitle %}
   {{ block.super }}
   Query {{ query_info.query_id }} completed
@@ -17,16 +13,27 @@
 <div class="row">
 {% for loop in loops %}
     <div class="span7">
-        <h3>Loop {{ forloop.counter }}</h3>
-        <div class="span4 offset1">
-          <strong>Sequence</strong>
-          <span>{{ loop.sequence|linebreaks }}</span>
-        </div>
-      {% if num.loop_instances == 1 %}
-        {% include "JAR3Doutput/single_sequence_loop_table.html" %}
-      {% else %}
-        {% include "JAR3Doutput/multi_sequence_loop_table.html" %}
-      {% endif %}
+      <h3>Loop {{ forloop.counter }}</h3>
+      <div class="span4 offset1">
+        <strong>Sequence</strong>
+        <span>{{ loop.sequence|linebreaks }}</span>
+      </div>
+
+      <div class="span1">
+          {% if num.loop_instances == 1 %}
+            {% include "JAR3Doutput/single_sort.html" %}
+          {% else %}
+            {% include "JAR3Doutput/multi_sort.html" %}
+          {% endif %}
+      </div>
+
+      <div id="results" class="span7">
+        {% if num.loop_instances == 1 %}
+          {% include "JAR3Doutput/single_sequence_loop_table.html" %}
+        {% else %}
+          {% include "JAR3Doutput/multi_sequence_loop_table.html" %}
+        {% endif %}
+      </div>
     </div>
 {% endfor %}
 
@@ -52,47 +59,49 @@
 {% block page_specific_js %}
     {{ block.super }}
     <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
-    <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
-
-    <script>
-    $(document).ready(function() {
-        $("table").tablesorter();
-    });
-    // initialize jmolTools
-    $('.jmolInline').jmolTools({
-        showStereoId: 'stereo',
-        showNeighborhoodId: 'neighborhood',
-        showNumbersId: 'showNtNums',
-        showNextId: 'next',
-        showPrevId: 'prev'
-    });
-
-    // make sure that jmol is ready
-    function appletLoaded (){
-        $('.jmolInline').first().jmolToggle();
-    }
-    </script>
-
-    <script src="{{ STATIC_URL }}js/fancybox/jquery.fancybox.pack.js"></script>
-    <link rel="stylesheet" href="{{ STATIC_URL }}js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
-
-    <script>
-    // position jmol
-    (function(){
-        var reference = $('.loop-result').first();
-        var offset_left = reference.offset().left + reference.width();
-        var offset_top  = reference.offset().top;
-        $('#jmol').css('position','fixed')
-                  .css('left',offset_left)
-                  .css('top',offset_top);
-    })();
-
-    // fancybox integration
-    $(".fancybox").fancybox({
-      openEffect	: 'none',
-      closeEffect	: 'none'
-    });
-
-    </script>
-
+    <script src="{{ STATIC_URL }}js/jar3d.js"></script>
 {% endblock page_specific_js %}
+
+{% block inline_js %}
+    {{ block.super }}
+    <script>
+      $(document).ready(function() {
+          $("table").tablesorter();
+      });
+      // initialize jmolTools
+      $('.jmolInline').jmolTools({
+          showStereoId: 'stereo',
+          showNeighborhoodId: 'neighborhood',
+          showNumbersId: 'showNtNums',
+          showNextId: 'next',
+          showPrevId: 'prev'
+      });
+
+      // make sure that jmol is ready
+      function appletLoaded (){
+          $('.jmolInline').first().jmolToggle();
+      }
+      </script>
+
+      <script src="{{ STATIC_URL }}js/jquery.fancybox.pack.js"></script>
+      <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.fancybox.css" type="text/css" media="screen" />
+
+      <script>
+      // position jmol
+      (function(){
+          var reference = $('.loop-result').first();
+          var offset_left = reference.offset().left + reference.width();
+          var offset_top  = reference.offset().top;
+          $('#jmol').css('position','fixed')
+                    .css('left',offset_left)
+                    .css('top',offset_top);
+      })();
+
+      // fancybox integration
+      $(".fancybox").fancybox({
+        openEffect	: 'none',
+        closeEffect	: 'none'
+      });
+
+    </script>
+{% endblock inline_js %}

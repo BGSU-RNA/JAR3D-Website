@@ -8,11 +8,16 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/bootstrap-responsive.min.css" rel="stylesheet">
     <link href="{{ STATIC_URL }}css/jar3d.css" rel="stylesheet">
 
-    {% block custom_css %}{% endblock custom_css %}
+    {% block custom_css %}
+    {% endblock custom_css %}
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
+    <script src="http://rna.bgsu.edu/img/jmol/jmol.js"></script>
   </head>
 
   <body>
@@ -46,10 +51,10 @@
 
     </div> <!-- /container -->
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="{{ STATIC_URL }}js/bootstrap-dropdown.js"></script>
 
-    {% block page_specific_js %}{% endblock page_specific_js %}
+    {% block page_specific_js %}
+    {% endblock page_specific_js %}
 
     {% block inline_js %}
     {% endblock inline_js %}
