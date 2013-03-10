@@ -30,11 +30,34 @@
             </div>
 
             <div id="loop-{{ forloop.counter }}-results" class="span7">
-              {% if num.loop_instances == 1 %}
-                {% include "results/single_sequence.html" %}
-              {% else %}
-                {% include "results/multi_sequence.html" %}
-              {% endif %}
+
+              {% for result in loop.matches %}
+
+              <div class="loop-result row span7
+                {% if forloop.counter|divisibleby:2 %}even-result
+                {% else %}odd-result
+                {% endif %}">
+
+                  <div class="hover-link span5">
+                    <label class="radio ">
+                      <input type="radio" name="group"
+                             id="s{{ forloop.parent.counter }}-{{ forloop.counter }}"
+                             class="jmolInline"
+                             data-coord={{ result.motif_id }}>
+                      <strong>{{ result.motif_id }}</strong>
+                      <a class="hover-link-icon" href="{{ result.motif_url }}" target="_blank">&rarr;</a>
+                      
+                   </label>
+                  </div>
+
+                {% if num.loop_instances == 1 %}
+                  {% include "results/single_sequence.html" %}
+                {% else %}
+                  {% include "results/multi_sequence.html" %}
+                {% endif %}
+              </div>
+
+            {% endfor %}
             </div>
           </div>
       {% endfor %}

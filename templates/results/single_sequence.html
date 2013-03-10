@@ -1,63 +1,39 @@
-{% for result in loop.matches %}
-
-{% if forloop.counter|divisibleby:2 %}
-<div class="loop-result even-result row span7">
-{% else %}
-<div class="loop-result odd-result row span7">
-{% endif %}
-
-  <div class="hover-link span5">
-    <label class="radio ">
-      <input type="radio" name="group"
-             id="s{{ forloop.parent.counter }}-{{ forloop.counter }}"
-             class="jmolInline"
-             data-coord={{ result.motif_id }}>
-      <h4>{{ result.motif_id }}
-        <a class="hover-link-icon" href="{{ result.motif_url }}" target="_blank">&rarr;</a>
-      </h4>
-   </label>
-  </div>
-
-  <div class="span2">
-    <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
-       title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
-        <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
-    </a>
-  </div>
-
-  <div class="span4">
-    <span>
-      <strong class="span2">Rank</strong>
-      <div class="rank">{{ forloop.counter }}</div>
-    </span>
-  </div>
-
-  <div class="span4">
-    <span>
-      <strong class="span2">Score</strong>
-      <div class="score">{{ result.meanscore|floatformat:4 }}</div>
-    </span>
-  </div>
-
-  <div class="span4">
-    <span>
-      <strong class="span2">Percentile</strong>
-      <div class="percentile">{{ result.meanpercentile|floatformat:2 }}</div>
-    </span>
-  </div>
-
-  {% if result.meaneditdist != None %}
-  <div class="span4">
-    <span>
-      <strong class="span2">Edit Distance</strong>
-      <div class="edit-distance">{{ result.meaneditdist }}</div>
-    </span>
-  </div>
-  {% endif %}
-
+<div class="span2">
+  <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
+     title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+      <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+  </a>
 </div>
 
-{% endfor %}
+<div class="span4">
+  <span>
+    <strong class="span2">Rank</strong>
+    <div class="rank">{{ forloop.counter }}</div>
+  </span>
+</div>
+
+<div class="span4">
+  <span>
+    <strong class="span2">Score</strong>
+    <div class="score">{{ result.meanscore|floatformat:4 }}</div>
+  </span>
+</div>
+
+<div class="span4">
+  <span>
+    <strong class="span2">Percentile</strong>
+    <div class="percentile">{{ result.meanpercentile|floatformat:2 }}</div>
+  </span>
+</div>
+
+{% if result.meaneditdist != None %}
+<div class="span4">
+  <span>
+    <strong class="span2">Edit Distance</strong>
+    <div class="edit-distance">{{ result.meaneditdist }}</div>
+  </span>
+</div>
+{% endif %}
 
 {% comment %}
   vim: ft=htmldjango
