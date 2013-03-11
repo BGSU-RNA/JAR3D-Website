@@ -22,42 +22,44 @@
 
 {% block page_content %}
   <div class="row">
+    <div class="span12">
 
-    <div class="tabbable">
-      <div id="tabs">
-        <ul class="nav nav-tabs">
-          {% block tabs %}
+      <div class="tabbable">
+        <div id="tabs">
+          <ul class="nav nav-tabs">
+            {% block tabs %}
             <li class="active"><a href="#query">Query</a></li>
             <li class="disabled"><a href="#results">Results</a></li>
-          {% endblock tabs %}
-        </ul>
-      </div>
-
-      <div class="tab-content">
-        <div id='query' class="tab-pane {% block query_pane_class %}{% endblock query_pane_class %} span12 row">
-          <div class="span6">
-          <h3>Query interpretation</h3>
-          <dl>
-            <dt>Number of sequences</dt>
-            <dd>{{num.seq}}</dd>
-
-            <dt>Number of processed loops</dt>
-            <dd>{{num.loops}}</dd>
-
-            <dt>Total number of loop instances</dt>
-            <dd>{{num.loop_instances}}</dd>
-
-            <dt>Input</dt>
-            <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
-          </dl>
-          </div>
-
-          {% block query_note %}
-          {% endblock query_note %}
+            {% endblock tabs %}
+          </ul>
         </div>
 
-        {% block results %}
-        {% endblock results %}
+        <div class="tab-content">
+          <div id='query' class="tab-pane {% block query_pane_class %}{% endblock query_pane_class %} span12 row">
+            <div class="span6">
+              <h3>Query interpretation</h3>
+              <dl>
+                <dt>Number of sequences</dt>
+                <dd>{{num.seq}}</dd>
+
+                <dt>Number of processed loops</dt>
+                <dd>{{num.loops}}</dd>
+
+                <dt>Total number of loop instances</dt>
+                <dd>{{num.loop_instances}}</dd>
+
+                <dt>Input</dt>
+                <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
+              </dl>
+            </div>
+
+            {% block query_note %}
+            {% endblock query_note %}
+          </div>
+
+          {% block results %}
+          {% endblock results %}
+        </div>
       </div>
     </div>
   </div>
