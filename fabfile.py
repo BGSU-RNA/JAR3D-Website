@@ -34,7 +34,7 @@ def deploy():
     local("git stash")
     local("git push origin %s" % env.branch)
 
-    with run("source ~/.pyenvs/%s/bin/activate" % env.virtualenv):
+    with run("source /Users/api/.pyenvs/%s/bin/activate" % env.virtualenv):
         with cd(env.app):
             run("git pull origin %s" % env.branch)
             run("python JAR3Doutput/manage.py collectstatic --noinput")
