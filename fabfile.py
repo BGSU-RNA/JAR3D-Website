@@ -7,16 +7,12 @@ from fabric.api import env
 
 env.hosts = ["api@rna.bgsu.edu"]
 env.virtualenv = "api"
+env.branch = 'develop'
+env.deploy = "~/apps/jar3d_dev"
 
 
 def common():
     env.app = env.deploy + "/app"
-
-
-@task
-def dev():
-    env.branch = 'develop'
-    env.deploy = "~/apps/jar3d_dev"
 
 
 @task
@@ -33,6 +29,8 @@ def merge():
 
 @task
 def deploy():
+    common()
+
     local("git stash")
     local("git push origin %s" % env.branch)
 
