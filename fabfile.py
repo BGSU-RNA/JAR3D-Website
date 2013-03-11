@@ -3,6 +3,7 @@ from fabric.api import run
 from fabric.api import local
 from fabric.api import cd
 from fabric.api import env
+from fabric.api import prefix
 
 
 env.hosts = ["api@rna.bgsu.edu"]
@@ -34,8 +35,8 @@ def deploy():
     local("git stash")
     local("git push origin %s" % env.branch)
 
-    with run("source /Users/api/.pyenvs/%s/bin/activate" % env.virtualenv):
-        with cd(env.app):
+    with cd(env.app):
+        with prefix("workon %s" % env.virtualenv):
             run("git pull origin %s" % env.branch)
             run("python JAR3Doutput/manage.py collectstatic --noinput")
             run("wsgid restart --app-path=%s" % env.deploy)
