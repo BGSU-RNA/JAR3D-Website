@@ -92,7 +92,7 @@ class JAR3DValidator(object):
 
     def __init__(self):
         self.query_types = {
-            'loops':                    ['isFastaSingleLoop',
+            'format_extracted_loops':   ['isFastaSingleLoop',
                                          'isNoFastaSingleLoop',
                                          'isFastaMultipleLoops',
                                          'isNoFastaMultipleLoops'],
@@ -111,46 +111,31 @@ class JAR3DValidator(object):
         redirect_url = reverse('JAR3Dresults.views.result', args=[query_id])
         fasta = request.POST.getlist('fasta[]')
         # uppercase all strings and translate DNA to RNA
-        data = request.POST.getlist('data[]')
-        data = [x.upper().replace('T', 'U') for x in data]
+        sequences = request.POST.getlist('data[]')
+        sequences = [x.upper().replace('T', 'U') for x in sequences]
         query_type = request.POST.get('query_type')
         ss = request.POST.get('ss', None)
         parsed_input = request.POST.get('parsed_input')
 
-        if query_type in self.query_types['UNAfold_extract_loops']:
-            try:
-                loops = self.UNAfold_extract_loops(data)
-            except fold.FoldingTimeOutError:
-                return self.respond("Folding timed out")
-            except fold.FoldingFailedError:
-                return self.respond("Folding failed")
-            except:
-                return self.respond("Couldn't fold and extract loops")
+        fold_order = ['UNAfold_extract_loops', 'isfolded_extract_loops',
+                      'loops', 'RNAalifold_extract_loops']
 
-        elif query_type in self.query_types['isfolded_extract_loops']:
-            try:
-                loops = self.isfolded_extract_loops(ss, data)
-            except fold.FoldingTimeOutError:
-                return self.respond("Folding timed out")
-            except fold.FoldingFailedError:
-                return self.respond("Folding failed")
-            except:
-                return self.respond("Couldn't extract loops")
+        loops = None
 
-        elif query_type in self.query_types['loops']:
-            loops = self.format_extracted_loops(data)
+        for fold_type in fold_order:
+            if query_type in self.query_types[fold_type]:
+                try:
+                    func = getattr(self, fold_type)
+                    loops = func(sequences=sequences, ss=ss)
+                    break
+                except fold.FoldingTimeOutError:
+                    return self.respond("Folding timed out")
+                except fold.FoldingFailedError:
+                    return self.respond("Folding failed")
+                except Exception:
+                    return self.respond("Couldn't fold and extract loops")
 
-        elif query_type in self.query_types['RNAalifold_extract_loops']:
-            try:
-                loops = self.RNAalifold_extract_loops(data)
-            except fold.FoldingTimeOutError:
-                return self.respond("Folding timed out")
-            except fold.FoldingFailedError:
-                return self.respond("Folding failed")
-            except:
-                return self.respond("Couldn't extract loops")
-
-        else:
+        if loops is None:
             return self.respond("Unrecognized query type")
 
         # create loop objects
@@ -220,7 +205,7 @@ class JAR3DValidator(object):
         # everything went well, return redirect url
         return self.respond(redirect_url, 'redirect')
 
-    def format_extracted_loops(self, data):
+    def format_extracted_loops(self, sequences=[], **kwargs):
         """
             Input: list of loop instances
             Output:
@@ -229,7 +214,7 @@ class JAR3DValidator(object):
         """
         loop_id = 0
         loops = dict()
-        for seq_id, loop in enumerate(data):
+        for seq_id, loop in enumerate(sequences):
             loop_type = 'internal' if '*' in loop else 'hairpin'
             loops[(loop_type, seq_id, loop_id)] = loop
         return loops
@@ -239,14 +224,14 @@ class JAR3DValidator(object):
            if key == error, the message will be shown to the user"""
         return HttpResponse(json.dumps({key: value}))
 
-    def isfolded_extract_loops(self, dot_string, sequences):
+    def isfolded_extract_loops(self, ss='', sequences=[]):
         """
             Input: secondary structure + list of sequences
             Output:
                 results[('internal',0,0)] = 'CAG*CAAG'
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
-        parser = Dot.Parser(dot_string)
+        parser = Dot.Parser(ss)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
@@ -258,18 +243,18 @@ class JAR3DValidator(object):
                     loop_id += 1
         return results
 
-    def UNAfold_extract_loops(self, sequences):
+    def UNAfold_extract_loops(self, sequences=[], ss=None):
         """
             Input: list of sequences
             Output:
                 results[('internal',0,0)] = 'CAG*CAAG'
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
-        folder = fold.UNAfold()
+        folder = fold.UNAFold()
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
-            folded = folder.fold(seq)
+            folded = folder(seq)
             loops = folded[0].loops(flanking=True)
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems():  # HL or IL
@@ -278,14 +263,14 @@ class JAR3DValidator(object):
                     loop_id += 1
         return results
 
-    def RNAalifold_extract_loops(self, sequences):
+    def RNAalifold_extract_loops(self, sequences=[], **kwargs):
         """
             Input: list of sequences
             Output:
                 results[('internal',0,0)] = 'CAG*CAAG'
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
-        folded = fold.RNAalifold().fold(sequences)
+        folded = fold.RNAalifold()(sequences)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
