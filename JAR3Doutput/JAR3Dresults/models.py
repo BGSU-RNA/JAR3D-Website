@@ -18,6 +18,7 @@ class QueryInfo(Model):
     parsed_input = TextField()
     time_submitted = DateTimeField(auto_now_add=True)
     time_completed = DateTimeField(blank=True, null=True)
+    airport = TextField()
 
     class Meta:
         db_table = u'jar3d_query_info'
