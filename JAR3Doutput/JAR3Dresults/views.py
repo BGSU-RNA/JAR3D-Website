@@ -58,6 +58,8 @@ def result(request, uuid):
 
     page = 'results/failed.html'
     data = {'query_info': q, 'num': results.input_stats}
+    data['locations'] = q.airport or "[]"
+    data['pairs'] = q.pairs or "[]"
 
     if q.status == 1:
         data['loops'] = []
@@ -118,9 +120,11 @@ class JAR3DValidator(object):
         parsed_input = request.POST.get('parsed_input')
 
         fold_order = ['UNAfold_extract_loops', 'isfolded_extract_loops',
-                      'loops', 'RNAalifold_extract_loops']
+                      'format_extracted_loops', 'RNAalifold_extract_loops']
 
         loops = None
+        airport = None
+        pairs = []
 
         for fold_type in fold_order:
             if query_type in self.query_types[fold_type]:
@@ -138,6 +142,12 @@ class JAR3DValidator(object):
         if loops is None:
             return self.respond("Unrecognized query type")
 
+        if '__locations' in loops:
+            airport = loops['__locations']
+            pairs = loops['__pairs']
+            del loops['__locations']
+            del loops['__pairs']
+
         # create loop objects
         h = HTMLParser.HTMLParser()
         query_info = QueryInfo(query_id=query_id,
@@ -147,7 +157,9 @@ class JAR3DValidator(object):
                                structured_models_only=0,
                                email='',
                                status=0,
-                               parsed_input=h.unescape(parsed_input))
+                               parsed_input=h.unescape(parsed_input),
+                               airport=json.dumps(airport),
+                               pairs=json.dumps(pairs))
 
         query_sequences = []
         loop_types = ['internal']  # TODO: ['internal', 'hairpin']
@@ -272,9 +284,30 @@ class JAR3DValidator(object):
         """
         folded = fold.RNAalifold()(sequences)
         results = dict()
+        nt_id = lambda index: 'nt-%s' % index
 
         for seq_id, seq in enumerate(sequences):
             loops = folded[0].loops(seq, flanking=True)
+            results['__locations'] = []
+            results['__pairs'] = []
+            for index, pair in enumerate(folded[0].locations):
+                data = {
+                    'x': pair[0],
+                    'y': pair[1],
+                    'sequence': folded[0].sequence[index],
+                    'id': nt_id(index)
+                }
+                results['__locations'].append(data)
+
+            pairs = folded[0]._pairs
+            for index, pair_index in enumerate(pairs):
+                data = {
+                    'nt1': nt_id(index),
+                    'nt2': nt_id(pair_index),
+                    'family': 'cWW'
+                }
+                results['__pairs'].append(data)
+
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems():  # HL or IL
                 for loop in loop_instances:

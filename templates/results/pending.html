@@ -17,8 +17,14 @@
 {% endblock query_note %}
 
 {% block page_specific_js %}
+  <script src="{{ STATIC_URL }}js/2d.js"></script>
+{% endblock page_specific_js %}
+
+{% block inline_js %}
     {{ block.super }}
     <script>
         setTimeout("location.reload(true);", 5000);
+        LOCATIONS = {{ locations|safe }};
+        PAIRS = {{ pairs|safe }};
     </script>
-{% endblock page_specific_js %}
+{% endblock inline_js %}

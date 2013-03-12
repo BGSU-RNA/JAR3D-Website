@@ -128,3 +128,8 @@ table .headerSortUp:after {
 .odd-result {
   background-color: #f9f9f9;
 }
+.frame {
+  fill: #fff;
+  fill-opacity: 0;
+  stroke: #aaa;
+}

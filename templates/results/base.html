@@ -5,6 +5,10 @@
 {% block custom_js %}
   <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
   <script src="http://rna.bgsu.edu/img/jmol/jmol.js"></script>
+  <script src="{{ STATIC_URL }}js/sizzle.js"></script>
+  <script src="{{ STATIC_URL }}js/d3.min.js"></script>
+  <script src="{{ STATIC_URL }}js/rna2d.min.js"></script>
+  <script src="{{ STATIC_URL }}js/jar3d.js"></script>
 {% endblock custom_js %}
 
 {% block page_subtitle %}
@@ -35,8 +39,8 @@
         </div>
 
         <div class="tab-content">
-          <div id='query' class="tab-pane {% block query_pane_class %}{% endblock query_pane_class %} span10 row">
-            <div class="span5">
+          <div id='query' class="tab-pane {% block query_pane_class %}{% endblock query_pane_class %} span11">
+            <div class="span4">
               <h3>Query interpretation</h3>
               <dl>
                 <dt>Number of sequences</dt>
@@ -51,6 +55,12 @@
                 <dt>Input</dt>
                 <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
               </dl>
+            </div>
+
+            <div class="span3">
+              <h3>Folded Structure</h3>
+              <div id="query-2d">
+              </div>
             </div>
 
             <div class="span3">
