@@ -1,4 +1,4 @@
 Django==1.5
--e git://github.com/BGSU-RNA/RNA-Structure-utils.git@b53846b541e02a4969bb725f72a14dcc10e5b711#egg=RNAStructure-dev
+-e git://github.com/BGSU-RNA/RNA-Structure-utils.git@ff1e42d1a2eda69a8259943a982dd92330624cfb#egg=RNAStructure-dev
 simplejson==3.1.0
 wsgiref==0.1.2
