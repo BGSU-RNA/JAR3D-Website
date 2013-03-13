@@ -18,8 +18,6 @@ class QueryInfo(Model):
     parsed_input = TextField()
     time_submitted = DateTimeField(auto_now_add=True)
     time_completed = DateTimeField(blank=True, null=True)
-    airport = TextField()
-    pairs = TextField()
 
     class Meta:
         db_table = u'jar3d_query_info'
@@ -39,6 +37,16 @@ class QuerySequences(Model):
 
     class Meta:
         db_table = u'jar3d_query_sequences'
+
+
+class QueryStructure(Model):
+    query_id = CharField(max_length=36)
+    dot_bracket = TextField()
+    json_airport = TextField()
+    json_pairs = TextField()
+
+    class Meta:
+        db_table = u'jar3d_query_structure'
 
 
 class ResultsByLoopInstance(Model):
