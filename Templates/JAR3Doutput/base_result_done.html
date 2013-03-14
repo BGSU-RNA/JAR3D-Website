@@ -27,8 +27,8 @@
           <th>Median Alignment Score</th>
           <th>Mean Percentile</th>
           <th>Median Percentile</th>
-          <th>Mean Edit Distance</th>
-          <th>Median Edit Distance</th>
+          <th>Full Edit Distance</th>
+          <th>Interior Edit Distance</th>
           <th>Basepair Signature</th>
           <th>2D Diagram</th>
         </tr>
@@ -49,8 +49,8 @@
         <td>{{ result.medianscore|floatformat:4 }}</td>
         <td>{{ result.meanpercentile|floatformat:2 }}</td>
         <td>{{ result.medianpercentile|floatformat:2 }}</td>
-        <td>{{ result.meaneditdist|floatformat }}</td>
-        <td>{{ result.medianeditdist|floatformat }}</td>
+        <td>{{ result.fulleditdist|floatformat }}</td>
+        <td>{{ result.interioreditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
         <td>
             <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
