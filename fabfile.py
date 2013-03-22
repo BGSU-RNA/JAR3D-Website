@@ -32,7 +32,6 @@ def merge():
 def deploy():
     common()
 
-    local("git stash")
     local("git push origin %s" % env.branch)
 
     with cd(env.app):
@@ -40,5 +39,3 @@ def deploy():
             run("git pull origin %s" % env.branch)
             run("python JAR3Doutput/manage.py collectstatic --noinput")
             run("wsgid restart --app-path=%s" % env.deploy)
-
-    local("git stash pop")
