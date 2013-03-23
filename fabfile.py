@@ -19,6 +19,14 @@ def common():
 
 
 @task
+def stop():
+    common()
+    with cd(env.app):
+        with prefix("workon %s" % env.virtualenv):
+            run("wsgid stop --app-path=%s" % env.deploy)
+
+
+@task
 def prod():
     env.branch = 'master'
     env.deploy = "~/apps/jar3d"
