@@ -181,7 +181,7 @@ class JAR3DValidator():
         # create loop objects
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id = query_id,
-                                group_set = 'IL0.6/HL0.2', # change this
+                                group_set = 'IL1.0/HL1.0', # change this
                                 model_type = 'default', # change this
                                 query_type = query_type,
                                 structured_models_only = 0,
@@ -315,7 +315,7 @@ class ResultsMaker():
         self.problem_loops = []
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
-        self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/IL0.6/'
+        self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/IL1.0/'
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
