@@ -42,7 +42,7 @@ def merge():
 def deploy():
     common()
 
-    local("git push origin %s" % env.branch)
+#    local("git push origin %s" % env.branch)
 
     with cd(env.app):
         with prefix("workon %s" % env.virtualenv):
