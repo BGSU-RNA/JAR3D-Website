@@ -190,8 +190,8 @@ class JAR3DValidator():
                                 parsed_input = h.unescape(parsed_input))
 
         query_sequences = []
-        loop_types = ['internal'] #['internal', 'hairpin']
-        loop_pattern = '^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])$'
+        loop_types = ['internal', 'hairpin']
+        loop_pattern_i = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])$)|(^[acgu](.+)?[acgu]$)'
         internal_id = 0
         for id_tuple, loop in loops.iteritems():
             (loop_type, seq_id, loop_id) = id_tuple
