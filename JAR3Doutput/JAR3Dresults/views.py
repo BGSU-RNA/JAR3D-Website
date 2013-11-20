@@ -329,7 +329,7 @@ class ResultsMaker():
 
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
-                result.ssurl = self.SSURL + result.motif_id[0:2] + '1.0/' + result.motif_id + '.png'
+                result.ssurl = self.SSURL + result.motif_id[0:2] + '1.8/' + result.motif_id + '.png'
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
