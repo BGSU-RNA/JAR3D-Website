@@ -332,9 +332,9 @@ class ResultsMaker():
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.8/' + result.motif_id + '.png'
                 query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=result.loop_id)
-                results.seqs = []
+                result.seqs = []
                 for entries in query_seqs:
-                    results.seqs.append(entries.loop_id)
+                    result.seqs.append(entries.loop_id)
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
