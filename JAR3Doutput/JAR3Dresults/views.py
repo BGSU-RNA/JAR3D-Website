@@ -181,7 +181,7 @@ class JAR3DValidator():
         # create loop objects
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id = query_id,
-                                group_set = 'IL1.0/HL1.0', # change this
+                                group_set = 'IL1.8/HL1.8', # change this
                                 model_type = 'default', # change this
                                 query_type = query_type,
                                 structured_models_only = 0,
@@ -320,6 +320,7 @@ class ResultsMaker():
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id', '-meanscore')
+
         if results:
             """
             build a 2d list
@@ -330,6 +331,7 @@ class ResultsMaker():
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.8/' + result.motif_id + '.png'
+                result.firstSeq = Query_sequences.objects.filter(query_id=self.query_id,loop_id=result.loop_id,seq_id=0).loop_sequence
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
