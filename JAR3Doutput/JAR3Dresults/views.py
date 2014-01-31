@@ -334,7 +334,7 @@ class ResultsMaker():
                 query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=result.loop_id)
                 result.seqs = []
                 for entries in query_seqs:
-                    result.seqs.append(entries.loop_id)
+                    result.seqs.append(entries.loop_sequence)
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
