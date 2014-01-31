@@ -20,7 +20,7 @@
     <strong>
     Loop {{ forloop.counter }} - 
     <ul>
-      {% for seq in loop.seqs %}
+      {% for seq in sequences[forloop.counter-1] %}
         <li>{{ seq }}</li>
       {% endfor %}
     </ul>
