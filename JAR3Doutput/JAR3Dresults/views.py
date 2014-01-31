@@ -329,20 +329,25 @@ class ResultsMaker():
             loops[0][0] = result 0 for loop 0
             loops[0][1] = result 1 for loop 0
             """
-
+            loop_ids = []
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.8/' + result.motif_id + '.png'
-                query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=result.loop_id)
-                seqs = []
-                for entries in query_seqs:
-                    seqs.append(entries.loop_sequence)
-                self.sequences.append(seqs)
+                if not(result.loop_id in loop_ids): 
+                    loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
                     if len(self.loops[-1]) < self.TOPRESULTS:
                         self.loops[-1].append(result)
+            
+            for loop_id in loop_ids:
+                query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=loop_id)
+                seqs = []
+                for entries in query_seqs:
+                    seqs.append(entries.loop_sequence)
+                self.sequences.append(seqs)
+
         else:
             pass
 
