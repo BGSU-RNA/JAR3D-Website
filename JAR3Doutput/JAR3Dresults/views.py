@@ -74,7 +74,7 @@ def result(request, uuid):
 
     if q.status == 1:
         return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_info': q, 'num': results.input_stats, 'loops': results.loops},
+                                  {'query_info': q, 'num': results.input_stats, 'loops': results.loops, 'sequences': results.sequences},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
         return render_to_response('JAR3Doutput/base_result_pending.html',
@@ -316,6 +316,7 @@ class ResultsMaker():
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
         self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/'
+        self.sequences = []
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
@@ -332,9 +333,10 @@ class ResultsMaker():
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.8/' + result.motif_id + '.png'
                 query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=result.loop_id)
-                result.seqs = []
+                seqs
                 for entries in query_seqs:
-                    result.seqs.append(entries.loop_sequence)
+                    seqs.append(entries.loop_sequence)
+                self.sequences.append(seqs)
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
