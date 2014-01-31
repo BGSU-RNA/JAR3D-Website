@@ -73,8 +73,9 @@ def result(request, uuid):
     """
 
     if q.status == 1:
+        zippedResults =  zip(results.loops,results.sequences) 
         return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_info': q, 'num': results.input_stats, 'loops': results.loops, 'sequences': results.sequences},
+                                  {'query_info': q, 'num': results.input_stats, 'results': zippedResults},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
         return render_to_response('JAR3Doutput/base_result_pending.html',
