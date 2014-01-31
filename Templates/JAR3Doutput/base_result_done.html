@@ -15,12 +15,12 @@
 {% block page_content %}
 
 <div class="row">
-{% for loop in loops %}
+{% for loop,sequences in results %}
     <div class="span8">
     <strong>
     Loop {{ forloop.counter }} - 
     <ul>
-      {% for seq in sequences[forloop.counter-1] %}
+      {% for seq in sequences %}
         <li>{{ seq }}</li>
       {% endfor %}
     </ul>
