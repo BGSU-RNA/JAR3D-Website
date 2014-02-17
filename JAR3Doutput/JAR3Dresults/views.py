@@ -165,7 +165,10 @@ class JAR3DValidator():
                 return self.respond("Couldn't extract loops")
 
         elif query_type in self.query_types['loops']:
-            loops,indicies = self.format_extracted_loops(data)
+            try:
+                loops,indicies = self.format_extracted_loops(data)
+            except:
+                return self.respond("Couldn't extract loops")
 
         elif query_type in self.query_types['RNAalifold_extract_loops']:
             try:
@@ -230,6 +233,10 @@ class JAR3DValidator():
             [seq.save() for seq in query_sequences]
         except:
             return self.respond("Couldn't save query_sequences")
+        try:
+            [ind.save() for ind in query_positions]
+        except:
+            return self.respond("Couldn't save query_positions")    
         try:
             query_info.save()
         except:
