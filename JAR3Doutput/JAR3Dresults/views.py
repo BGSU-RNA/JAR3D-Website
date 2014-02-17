@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
+from JAR3Dresults.models import Query_loop_positions
 from JAR3Dresults.models import Results_by_loop
 from JAR3Dresults.models import Results_by_loop_instance
 
@@ -145,7 +146,7 @@ class JAR3DValidator():
 
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
-                loops = self.UNAfold_extract_loops(data)
+                loops,indicies = self.UNAfold_extract_loops(data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -155,7 +156,7 @@ class JAR3DValidator():
 
         elif query_type in self.query_types['isfolded_extract_loops']:
             try:
-                loops = self.isfolded_extract_loops(ss, data)
+                loops,indicies = self.isfolded_extract_loops(ss, data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -164,11 +165,11 @@ class JAR3DValidator():
                 return self.respond("Couldn't extract loops")
 
         elif query_type in self.query_types['loops']:
-            loops = self.format_extracted_loops(data)
+            loops,indicies = self.format_extracted_loops(data)
 
         elif query_type in self.query_types['RNAalifold_extract_loops']:
             try:
-                loops = self.RNAalifold_extract_loops(data)
+                loops,indicies = self.RNAalifold_extract_loops(data)
             except fold.FoldingTimeOutError:
                 return respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -191,6 +192,7 @@ class JAR3DValidator():
                                 parsed_input = h.unescape(parsed_input))
 
         query_sequences = []
+        query_positions = []
         loop_types = ['internal', 'hairpin']
         loop_pattern = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])?$)'
         internal_id = 0
@@ -208,6 +210,15 @@ class JAR3DValidator():
                                                    internal_id = '>seq%i' % internal_id,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
+
+            loop_id = 0 
+            for loop_type , loop_indicies in indicies.items()
+                for loop in loop_indicies
+                    for side in loop
+                        for index in side
+                            query_positions.append(Query_loop_positions(query_id = query_id,
+                                                                        loop_id = loop_id,
+                                                                        column_index = index))
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
@@ -235,10 +246,19 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         loop_id = 0
-        loops = dict()
+        loops = dict()    
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
             loops[(loop_type,seq_id,loop_id)] = loop
+            ss = '.' * len(loop)
+            ss[1] = '('
+            ss[len(ss)] = ')' 
+            if loop_type == 'internal'
+                jump = loop.find('*')
+                ss[jump] = *
+                ss[jump-1] = "("
+                ss[jump+1] = ")"
+        indicies = Parser(ss).indicies(flanking = True)
         return loops
 
     def respond(self, value, key='error'):
@@ -254,6 +274,7 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         parser = Dot.Parser(dot_string)
+        indicies = parser.indicies(flanking=True)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
@@ -263,7 +284,7 @@ class JAR3DValidator():
                 for loop in loop_instances:
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
-        return results
+        return results,indicies
 
     def UNAfold_extract_loops(self, sequences):
         """
@@ -277,14 +298,14 @@ class JAR3DValidator():
 
         for seq_id, seq in enumerate(sequences):
             folded = folder.fold(seq)
+            indicies = folded.indicies(flanking=True)
             loops = folded[0].loops(flanking=True)
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
                 for loop in loop_instances:
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
-        return results
-
+        return results,indicies
     def RNAalifold_extract_loops(self, sequences):
         """
             Input: list of sequences
@@ -293,6 +314,7 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         folded = fold.RNAalifold().fold(sequences)
+        indicies = folded.indicies(flanking=True)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
@@ -302,7 +324,7 @@ class JAR3DValidator():
                 for loop in loop_instances:
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
-        return results
+        return results,indicies
 
 
 class ResultsMaker():
@@ -318,6 +340,7 @@ class ResultsMaker():
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
         self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/'
         self.sequences = []
+        self.indicies = []
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \

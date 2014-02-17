@@ -23,6 +23,13 @@ class Query_info(models.Model):
     class Meta:
         db_table = u'jar3d_query_info'
 
+class Query_loop_positions(models.Model):
+    query_id = models.CharField(max_length=36, primary_key=True, db_index=True)
+    loop_id = models.SmallIntegerField()
+    column_index = models.IntegerField()
+    class Meta:
+        db_table = u'jar3d_loop_positions'
+
 class Query_sequences(models.Model):
     query_id = models.CharField(max_length=36, db_index=True)
     seq_id = models.SmallIntegerField()
