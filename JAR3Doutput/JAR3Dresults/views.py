@@ -265,7 +265,7 @@ class JAR3DValidator():
                 ss[jump] = '*'
                 ss[jump-1] = "("
                 ss[jump+1] = ")"
-        indices = Parser(ss).indices(flanking = True)
+        indices = Dot.Parser(ss).indices(flanking = True)
         return loops,indices
 
     def respond(self, value, key='error'):
