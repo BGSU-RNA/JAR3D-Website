@@ -146,7 +146,7 @@ class JAR3DValidator():
 
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
-                loops,indicies = self.UNAfold_extract_loops(data)
+                loops,indices = self.UNAfold_extract_loops(data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -156,7 +156,7 @@ class JAR3DValidator():
 
         elif query_type in self.query_types['isfolded_extract_loops']:
             try:
-                loops,indicies = self.isfolded_extract_loops(ss, data)
+                loops,indices = self.isfolded_extract_loops(ss, data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -166,13 +166,13 @@ class JAR3DValidator():
 
         elif query_type in self.query_types['loops']:
             try:
-                loops,indicies = self.format_extracted_loops(data)
+                loops,indices = self.format_extracted_loops(data)
             except:
-                return self.respond("Couldn't extract loops")
+                return self.respond("Unknown Error")
 
         elif query_type in self.query_types['RNAalifold_extract_loops']:
             try:
-                loops,indicies = self.RNAalifold_extract_loops(data)
+                loops,indices = self.RNAalifold_extract_loops(data)
             except fold.FoldingTimeOutError:
                 return respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -215,7 +215,7 @@ class JAR3DValidator():
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
 
             loop_id = 0 
-            for loop_type , loops in indicies.items():
+            for loop_type , loops in indices.items():
                 for loop in loops:
                     for side in loop:
                         for index in side:
@@ -265,8 +265,8 @@ class JAR3DValidator():
                 ss[jump] = '*'
                 ss[jump-1] = "("
                 ss[jump+1] = ")"
-        indicies = Parser(ss).indicies(flanking = True)
-        return loops
+        indices = Parser(ss).indices(flanking = True)
+        return loops,indices
 
     def respond(self, value, key='error'):
         """convenience function
@@ -281,7 +281,7 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         parser = Dot.Parser(dot_string)
-        indicies = parser.indicies(flanking=True)
+        indices = parser.indices(flanking=True)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
@@ -291,7 +291,7 @@ class JAR3DValidator():
                 for loop in loop_instances:
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
-        return results,indicies
+        return results,indices
 
     def UNAfold_extract_loops(self, sequences):
         """
@@ -305,14 +305,14 @@ class JAR3DValidator():
 
         for seq_id, seq in enumerate(sequences):
             folded = folder.fold(seq)
-            indicies = folded.indicies(flanking=True)
+            indices = folded.indices(flanking=True)
             loops = folded[0].loops(flanking=True)
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
                 for loop in loop_instances:
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
-        return results,indicies
+        return results,indices
     def RNAalifold_extract_loops(self, sequences):
         """
             Input: list of sequences
@@ -321,7 +321,7 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         folded = fold.RNAalifold().fold(sequences)
-        indicies = folded.indicies(flanking=True)
+        indices = folded.indices(flanking=True)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
@@ -331,7 +331,7 @@ class JAR3DValidator():
                 for loop in loop_instances:
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
-        return results,indicies
+        return results,indices
 
 
 class ResultsMaker():
