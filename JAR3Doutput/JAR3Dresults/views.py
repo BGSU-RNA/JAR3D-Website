@@ -255,7 +255,7 @@ class JAR3DValidator():
             ss[len(ss)] = ')' 
             if loop_type == 'internal':
                 jump = loop.find('*')
-                ss[jump] = *
+                ss[jump] = '*'
                 ss[jump-1] = "("
                 ss[jump+1] = ")"
         indicies = Parser(ss).indicies(flanking = True)
