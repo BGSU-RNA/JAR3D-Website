@@ -18,14 +18,12 @@
 {% for loop,sequences in results %}
     <div class="span8">
     <strong>
-    Loop {{ forloop.counter }} -
-    <div style="height:60px;width:360px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+    Loop {{ forloop.counter }} - 
+    <ul>
       {% for seq in sequences %}
-          {{ seq }}<br>
+        <li>{{ seq }}</li>
       {% endfor %}
-    
-    </div> 
-      
+    </ul>
     </strong>
     <table class="table table-striped table-condensed table-bordered">
       <thead>
