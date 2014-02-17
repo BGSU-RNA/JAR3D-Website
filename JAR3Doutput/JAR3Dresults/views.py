@@ -212,10 +212,10 @@ class JAR3DValidator():
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
 
             loop_id = 0 
-            for loop_type , loop_indicies in indicies.items()
-                for loop in loop_indicies
-                    for side in loop
-                        for index in side
+            for loop_type , loops in indicies.items():
+                for loop in loops:
+                    for side in loop:
+                        for index in side:
                             query_positions.append(Query_loop_positions(query_id = query_id,
                                                                         loop_id = loop_id,
                                                                         column_index = index))
@@ -253,7 +253,7 @@ class JAR3DValidator():
             ss = '.' * len(loop)
             ss[1] = '('
             ss[len(ss)] = ')' 
-            if loop_type == 'internal'
+            if loop_type == 'internal':
                 jump = loop.find('*')
                 ss[jump] = *
                 ss[jump-1] = "("
