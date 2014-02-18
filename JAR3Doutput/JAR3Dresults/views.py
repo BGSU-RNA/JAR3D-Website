@@ -254,20 +254,17 @@ class JAR3DValidator():
         """
         loop_id = 0
         loops = dict()
-        indices = dict()
         inds = []
-        if loop_type == 'internal':
-            jump = loop.find('*')
-            ss = ss[:jump-1] + '()' + ss[(jump+2):]    
+        indices = {}  
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
             if loop_type == 'internal':
                 jump = find(loop,'*')
                 inds[0] = [1:jump-1]
                 inds[1] = [jump+1:len(loop)]
-                indices[(loop_type,loop_id)] = inds
+                indices[loop_type].append(inds)
             else:
-                indices[(loop_type,loop_id)] = 1:len(loop)
+                indices[loop_type].append = [1:len(loop)]
             loops[(loop_type,seq_id,loop_id)] = loop
         return loops,indices
 
