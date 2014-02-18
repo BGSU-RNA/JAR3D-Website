@@ -303,7 +303,7 @@ class JAR3DValidator():
         """
         folder = fold.UNAfold()
         results = dict()
-        folded = folder.fold(sequences[0])
+        folded = folder.fold(enumerate(sequences)[0])
         indices = folded.indices(flanking=True)
         for seq_id, seq in enumerate(sequences):
             folded = folder.fold(seq)
