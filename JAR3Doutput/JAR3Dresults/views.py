@@ -258,12 +258,12 @@ class JAR3DValidator():
             loop_type = 'internal' if '*' in loop else 'hairpin'
             loops[(loop_type,seq_id,loop_id)] = loop
             ss = '.' * len(loop)
-            ss = '(' + s[2:]
+            ss = '(' + ss[2:]
             ss = ss[1:len(ss)-1] + ')' 
             if loop_type == 'internal':
                 jump = loop.find('*')
-                ss = s[:jump-1] + '()' + s[(jump+2):]
-                
+                ss = ss[:jump-1] + '()' + ss[(jump+2):]
+
         indices = Dot.Parser(ss).indices(flanking = True)
         return loops,indices
 
