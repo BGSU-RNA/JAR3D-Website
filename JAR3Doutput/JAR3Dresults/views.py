@@ -255,10 +255,10 @@ class JAR3DValidator():
         loop_id = 0
         loops = dict()
         loop_type = 'internal' if '*' in loop else 'hairpin'
-        loops[(loop_type,0,loop_id)] = loop
-        ss = '.' * len(loop)
+        length = max((len(loop)) for seq_id,loop in enumerate(data)
+        ss = '.' * length
         ss = '(' + ss[2:]
-        ss = ss[1:len(ss)-1] + ')'
+        ss = ss[1:length-1] + ')'
         parser = Dot.Parser(ss)
         indices = parser.indices(flanking = True)
         if loop_type == 'internal':
