@@ -253,7 +253,8 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         loop_id = 0
-        loops = dict()    
+        loops = dict()
+        ss = ''    
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
             loops[(loop_type,seq_id,loop_id)] = loop
@@ -301,6 +302,7 @@ class JAR3DValidator():
         """
         folder = fold.UNAfold()
         results = dict()
+        indices = dict()
 
         for seq_id, seq in enumerate(sequences):
             folded = folder.fold(seq)
