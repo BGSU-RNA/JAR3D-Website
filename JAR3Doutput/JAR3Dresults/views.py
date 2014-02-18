@@ -254,18 +254,20 @@ class JAR3DValidator():
         """
         loop_id = 0
         loops = dict()
-        loop_type = 'internal' if '*' in loop else 'hairpin'
-        length = max((len(loop)) for seq_id,loop in enumerate(data)
-        ss = '.' * length
-        ss = '(' + ss[2:]
-        ss = ss[1:length-1] + ')'
-        parser = Dot.Parser(ss)
-        indices = parser.indices(flanking = True)
+        indices = dict()
         if loop_type == 'internal':
             jump = loop.find('*')
             ss = ss[:jump-1] + '()' + ss[(jump+2):]    
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
+            if loop_type == 'internal':
+                jump = find(loop,'*')
+                index = []
+                index[0] = (1:jump-1)
+                index[1] = (jump+1:len(loop))
+                indices[(loop_type,loop_id)] = index
+            else:
+                indices[(loop_type,loop_id)] = 1:len(loop)
             loops[(loop_type,seq_id,loop_id)] = loop
         return loops,indices
 
