@@ -215,13 +215,14 @@ class JAR3DValidator():
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
 
             loop_id = 0 
-            for loop_type , loops in indices.iteritems():
-                for loop in loops:
-                    for side in loop:
-                        for index in side:
-                            query_positions.append(Query_loop_positions(query_id = query_id,
-                                                                        loop_id = loop_id,
-                                                                        column_index = index))
+            for loop_types  in indices.iteritems():
+                for loops in loop_types:
+                    for loop in loops
+                        for side in loop:
+                            for index in side:
+                                query_positions.append(Query_loop_positions(query_id = query_id,
+                                                                            loop_id = loop_id,
+                                                                            column_index = index))
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
@@ -267,7 +268,7 @@ class JAR3DValidator():
                 inds.append(right)
                 indices[loop_type].append(inds)
             else:
-                indices[loop_type].append = [1:len(loop)]
+                indices[loop_type].append = range(1,len(loop))
             loops[(loop_type,seq_id,loop_id)] = loop
         return loops,indices
 
