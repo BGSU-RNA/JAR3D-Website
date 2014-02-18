@@ -303,11 +303,9 @@ class JAR3DValidator():
         """
         folder = fold.UNAfold()
         results = dict()
-        folded = folder.fold(enumerate(sequences)[0])
-        indices = folded.indices(flanking=True)
         for seq_id, seq in enumerate(sequences):
             folded = folder.fold(seq)
-            indices = folded.indices(flanking=True)
+            indices = folded[0].indices(flanking=True)
             loops = folded[0].loops(flanking=True)
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
@@ -323,7 +321,7 @@ class JAR3DValidator():
                 results[('internal',1,0)] = 'CAG*CAUG'
         """
         folded = fold.RNAalifold().fold(sequences)
-        indices = folded.indices(flanking=True)
+        indices = folded[0].indices(flanking=True)
         results = dict()
 
         for seq_id, seq in enumerate(sequences):
