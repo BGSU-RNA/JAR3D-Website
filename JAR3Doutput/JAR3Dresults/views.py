@@ -260,8 +260,10 @@ class JAR3DValidator():
             loop_type = 'internal' if '*' in loop else 'hairpin'
             if loop_type == 'internal':
                 jump = find(loop,'*')
-                inds[0] = [1:jump-1]
-                inds[1] = [jump+1:len(loop)]
+                left = [1:jump-1]
+                right = [jump+1:len(loop)]
+                inds.append(left)
+                inds.append(right)
                 indices[loop_type].append(inds)
             else:
                 indices[loop_type].append = [1:len(loop)]
