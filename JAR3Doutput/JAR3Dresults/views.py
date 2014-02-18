@@ -254,18 +254,19 @@ class JAR3DValidator():
         """
         loop_id = 0
         loops = dict()
-        ss = ''    
+        loop_type = 'internal' if '*' in loop else 'hairpin'
+        loops[(loop_type,0,loop_id)] = loop
+        ss = '.' * len(loop)
+        ss = '(' + ss[2:]
+        ss = ss[1:len(ss)-1] + ')'
+        parser = Dot.Parser(ss)
+        indices = parser.indices(flanking = True)
+        if loop_type == 'internal':
+            jump = loop.find('*')
+            ss = ss[:jump-1] + '()' + ss[(jump+2):]    
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
             loops[(loop_type,seq_id,loop_id)] = loop
-            ss = '.' * len(loop)
-            ss = '(' + ss[2:]
-            ss = ss[1:len(ss)-1] + ')' 
-            if loop_type == 'internal':
-                jump = loop.find('*')
-                ss = ss[:jump-1] + '()' + ss[(jump+2):]
-
-        indices = Dot.Parser(ss).indices(flanking = True)
         return loops,indices
 
     def respond(self, value, key='error'):
@@ -302,8 +303,8 @@ class JAR3DValidator():
         """
         folder = fold.UNAfold()
         results = dict()
-        indices = dict()
-
+        folded = folder.fold(sequences[0])
+        indices = folded.indices(flanking=True)
         for seq_id, seq in enumerate(sequences):
             folded = folder.fold(seq)
             indices = folded.indices(flanking=True)
