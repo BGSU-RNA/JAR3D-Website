@@ -222,6 +222,7 @@ class JAR3DValidator():
                             query_positions.append(Query_loop_positions(query_id = query_id,
                                                                         loop_id = loop_id,
                                                                         column_index = index))
+                    loop_id = loop_id + 1
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
@@ -254,21 +255,15 @@ class JAR3DValidator():
         """
         loop_id = 0
         loops = dict()
-        inds = []
-        indices = {}  
         for seq_id, loop in enumerate(data):
             loop_type = 'internal' if '*' in loop else 'hairpin'
+            dot_string = '(' + '.'*(len(loop)-2) + ')'
             if loop_type == 'internal':
-                jump = find(loop,'*')
-                left = range(1,jump-1)
-                right = range(jump+1,len(loop))
-                inds = []
-                inds.append(left)
-                inds.append(right)
-                indices[loop_type].append(inds)
-            else:
-                indices[loop_type].append = range(1,len(loop))
+                break_point = find(loop,'*')
+                dot_string = dot_string[:break_point-2] + () + dot_string[breakpoint+2:]
             loops[(loop_type,seq_id,loop_id)] = loop
+            parser = Dot.Parser(dot_string)
+            indices = parser.indices(flanking=True)
         return loops,indices
 
     def respond(self, value, key='error'):
