@@ -370,7 +370,7 @@ class ResultsMaker():
             
             for loop_id in loop_ids:
                 query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=loop_id)
-                loop_inds = Query_loop_positions.filter(query_id=self.query_id,loop_id=loop_id)
+                loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id,loop_id=loop_id)
                 inds = []
                 seqs = []
                 for entries in query_seqs:
