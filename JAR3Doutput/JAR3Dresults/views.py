@@ -378,7 +378,7 @@ class ResultsMaker():
                 for ind in loop_inds:
                     inds.append(ind.column_index)
                 self.sequences.append(seqs)
-                slef.indices.append(", ".join(map(str, inds)))
+                self.indices.append(", ".join(map(str, inds)))
 
         else:
             pass
