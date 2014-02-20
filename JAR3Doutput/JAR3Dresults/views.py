@@ -376,7 +376,7 @@ class ResultsMaker():
                 for entries in query_seqs:
                     seqs.append(entries.loop_sequence)
                 for ind in loop_inds:
-                    if not( ind.column_index in inds)
+                    if not( ind.column_index in inds):
                         inds.append(ind.column_index)
                 self.sequences.append(seqs)
                 self.indices.append(", ".join(map(str, inds)))
