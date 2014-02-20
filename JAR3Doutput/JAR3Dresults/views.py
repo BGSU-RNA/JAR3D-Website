@@ -74,7 +74,7 @@ def result(request, uuid):
     """
 
     if q.status == 1:
-        zippedResults =  zip(results.loops,results.sequences) 
+        zippedResults =  zip(results.loops,results.sequences,results.indices) 
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats, 'results': zippedResults},
                                   context_instance=RequestContext(request))
@@ -214,7 +214,7 @@ class JAR3DValidator():
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
 
-            loop_id = 0 
+            loop_id = 0
             for loop_types , loops in indices.iteritems():
                 for loop in loops:
                     for side in loop:
@@ -344,7 +344,7 @@ class ResultsMaker():
         self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
         self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/'
         self.sequences = []
-        self.indicies = []
+        self.indices = []
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
@@ -370,10 +370,15 @@ class ResultsMaker():
             
             for loop_id in loop_ids:
                 query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=loop_id)
+                loop_inds = Query_loop_positions.filter(query_id=self.query_id,loop_id=loop_id)
+                inds = []
                 seqs = []
                 for entries in query_seqs:
                     seqs.append(entries.loop_sequence)
+                for ind in loop_inds:
+                    inds.append(ind.column_index)
                 self.sequences.append(seqs)
+                slef.indices.append(", ".join(map(str, inds)))
 
         else:
             pass

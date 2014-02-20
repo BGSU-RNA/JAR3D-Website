@@ -15,10 +15,10 @@
 {% block page_content %}
 
 <div class="row">
-{% for loop,sequences in results %}
+{% for loop,sequences,indices in results %}
     <div class="span8">
     <strong>
-    Loop {{ forloop.counter }} -
+    Loop {{ forloop.counter }} - indices
     <div style="height:60px;width:360px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
       {% for seq in sequences %}
           {{ seq }}<br>
