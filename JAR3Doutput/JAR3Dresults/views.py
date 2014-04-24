@@ -173,26 +173,12 @@ class JAR3DValidator():
         else:
             return self.respond("Unrecognized query type")
 
-<<<<<<< HEAD
         query_info = self.make_query_info(query_id, query_type, parsed_input)
         query.sequences = self.make_query_sequences(loops, fasta, query_id)
         query.positions = self.make_query_indices(indices, query_id)
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
-=======
-        # create loop objects
-        h = HTMLParser.HTMLParser()
-        query_info = Query_info(query_id=query_id,
-                                group_set='IL1.8/HL1.8',  # change this
-                                model_type='default',  # change this
-                                query_type=query_type,
-                                structured_models_only=0,
-                                email='',
-                                status=0,
-                                parsed_input=h.unescape(parsed_input))
->>>>>>> 2d00a7b34c41d4465f950072b2160654bf6dc01e
-
         # todo: if all loops have status = -1, then set query_info.status to 1
         self.save_query_data(query_info, query_sequences, query_positions)
         # everything went well, return redirect url
@@ -209,7 +195,6 @@ class JAR3DValidator():
                 continue
             loop_type = 'IL' if loop_type == 'internal' else 'HL'
             internal_id += 1
-<<<<<<< HEAD
             query_sequences.append(Query_sequences(query_id = query_id,
                                                    seq_id = seq_id,
                                                    loop_id = loop_id,
@@ -244,31 +229,6 @@ class JAR3DValidator():
                                 status = 0,
                                 parsed_input = h.unescape(parsed_input))
         return query_info
-=======
-            query_sequences.append(Query_sequences(query_id=query_id,
-                                                   seq_id=seq_id,
-                                                   loop_id=loop_id,
-                                                   loop_type=loop_type,
-                                                   loop_sequence=loop,
-                                                   internal_id='>seq%i' % internal_id,
-                                                   user_seq_id='' if len(fasta) == 0 else fasta[seq_id],
-                                                   status=0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
-
-            loop_id = 0
-            for loop_types, loops in indices.iteritems():
-                for loop in loops:
-                    for side in loop:
-                        for index in side:
-                            query_positions.append(Query_loop_positions(query_id=query_id,
-                                                                        loop_id=loop_id,
-                                                                        column_index=index))
-                    loop_id = loop_id + 1
-        # don't proceed unless there are internal loops
-        if not query_sequences:
-            return self.respond("No internal loops found in the input")
-
-        # todo: if all loops have status = -1, then set query_info.status to 1
->>>>>>> 2d00a7b34c41d4465f950072b2160654bf6dc01e
 
     def save_query_data(self, query_info, query_sequences, query_positions):
         # persist the entries in the database starting with sequences
