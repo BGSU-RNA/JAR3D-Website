@@ -180,7 +180,19 @@ class JAR3DValidator():
         if not query_sequences:
             return self.respond("No internal loops found in the input")
         # todo: if all loops have status = -1, then set query_info.status to 1
-        self.save_query_data(query_info, query_sequences, query_positions)
+        # persist the entries in the database starting with sequences
+        try:
+            [seq.save() for seq in query_sequences]
+        except:
+            return self.respond("Couldn't save query_sequences")
+        try:
+            [ind.save() for ind in query_positions]
+        except:
+            return self.respond("Couldn't save query_positions")
+        try:
+            query_info.save()
+        except:
+            return self.respond("Couldn't save query_info")
         # everything went well, return redirect url
         return self.respond(redirect_url, 'redirect')
 
