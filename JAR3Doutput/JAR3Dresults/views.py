@@ -28,7 +28,7 @@ import re
 
 
 logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log",
-                    level=logging.DEBUG)
+                    level=logging.WARN)
 # logging.setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
