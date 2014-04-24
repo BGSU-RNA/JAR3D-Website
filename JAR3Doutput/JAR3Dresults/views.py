@@ -97,21 +97,6 @@ def pre_request_hook(req):
         hostname = urlparse(req.full_url)[1]
         req.headers['Host'] = hostname
 
-@csrf_exempt
-def test_for_blake(request):
-    hooks = {'pre_request': pre_request_hook}
-    proxies = { "http": "129.1.149.201:3030" }
-    req = requests.Request('http://rna.bgsu.edu')
-    logging.error(req)
-    logging.error(req.headers)
-    resp = requests.get("http://rna.bgsu.edu", proxies=proxies, hooks=hooks)
-    print(resp)
-    return resp
-    # url = 'http://www.google.com'
-    # req = urllib2.Request(url=url)
-    # return urllib2.urlopen(req).read()
-
-
 
 class JAR3DValidator():
     """
