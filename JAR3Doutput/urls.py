@@ -12,8 +12,6 @@ urlpatterns = patterns('',
     url(r'^refine/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', 'JAR3Dresults.views.home', name='refine'),
     url(r'^$', 'JAR3Dresults.views.home', name='home'),
 
-    url(r'^test_for_blake$', 'JAR3Dresults.views.test_for_blake'),
-
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
