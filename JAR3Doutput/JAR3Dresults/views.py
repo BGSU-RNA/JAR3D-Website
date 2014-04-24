@@ -19,7 +19,6 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 import json
 import urlparse
-import requests
 import urllib2
 import HTMLParser
 import logging
@@ -27,7 +26,7 @@ import pdb
 import re
 
 
-logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
+ logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
 # logging.setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -183,19 +182,20 @@ class JAR3DValidator():
         else:
             return self.respond("Unrecognized query type")
 
-        # create loop objects
-        h = HTMLParser.HTMLParser()
-        query_info = Query_info(query_id = query_id,
-                                group_set = 'IL1.8/HL1.8', # change this
-                                model_type = 'default', # change this
-                                query_type = query_type,
-                                structured_models_only = 0,
-                                email = '',
-                                status = 0,
-                                parsed_input = h.unescape(parsed_input))
+        query_info = self.make_query_info(query_id, query_type, parsed_input)
+        query.sequences = self.make_query_sequences(loops, fasta, query_id)
+        query.positions = self.make_query_indices(indices, query_id)
+        # don't proceed unless there are internal loops
+        if not query_sequences:
+            return self.respond("No internal loops found in the input")
 
+        # todo: if all loops have status = -1, then set query_info.status to 1
+        self.save_query_data(query_info, query_sequences, query_positions)
+        # everything went well, return redirect url
+        return self.respond(redirect_url, 'redirect')
+
+    def make_query_sequences(self, loops, fasta, query_id):
         query_sequences = []
-        query_positions = []
         loop_types = ['internal', 'hairpin']
         loop_pattern = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])?$)'
         internal_id = 0
@@ -213,22 +213,34 @@ class JAR3DValidator():
                                                    internal_id = '>seq%i' % internal_id,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
+        return query_sequences
 
-            loop_id = 0
-            for loop_types , loops in indices.iteritems():
-                for loop in loops:
-                    for side in loop:
-                        for index in side:
-                            query_positions.append(Query_loop_positions(query_id = query_id,
-                                                                        loop_id = loop_id,
-                                                                        column_index = index))
-                    loop_id = loop_id + 1
-        # don't proceed unless there are internal loops
-        if not query_sequences:
-            return self.respond("No internal loops found in the input")
+    def make_query_indices(self, indices, query_id):
+        query_positions = []
+        loop_id = 0
+        for loop_types , loops in indices.iteritems():
+            for loop in loops:
+                for side in loop:
+                    for index in side:
+                        query_positions.append(Query_loop_positions(query_id = query_id,
+                                                                    loop_id = loop_id,
+                                                                    column_index = index))
+                loop_id = loop_id + 1
+        return query_positions
 
-        # todo: if all loops have status = -1, then set query_info.status to 1
+    def make_query_info(self, query_id, query_type, parsed_input):
+        h = HTMLParser.HTMLParser()
+        query_info = Query_info(query_id = query_id,
+                                group_set = 'IL1.8/HL1.8', # change this
+                                model_type = 'default', # change this
+                                query_type = query_type,
+                                structured_models_only = 0,
+                                email = '',
+                                status = 0,
+                                parsed_input = h.unescape(parsed_input))
+        return query_info
 
+    def save_query_data(self, query_info, query_sequences, query_positions):
         # persist the entries in the database starting with sequences
         try:
             [seq.save() for seq in query_sequences]
@@ -242,9 +254,6 @@ class JAR3DValidator():
             query_info.save()
         except:
             return self.respond("Couldn't save query_info")
-
-        # everything went well, return redirect url
-        return self.respond(redirect_url, 'redirect')
 
     def format_extracted_loops(self, data):
         """
