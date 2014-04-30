@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 import json
 import urlparse
+import request
 import urllib2
 import HTMLParser
 import logging
@@ -28,8 +29,8 @@ import re
 
 
 
-# logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
-# logging.setLevel(logging.DEBUG)
+logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
+logging.setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
