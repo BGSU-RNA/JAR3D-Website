@@ -28,8 +28,8 @@ class FungalSeqTest(TestCase):
         query_info = validator.make_query_info('1','1','1')
         query_seqs = validator.make_query_sequences(loops, fasta, '1')
         query_inds = validator.make_query_indices(indices,'1')
-        validator.save_query_data(query_info, query_seqs, query_inds)
-        query_seqs_db = Query_sequences.objects.filter(query_id='1',)
+        [seq.save() for seq in query_seqs]
+        query_seqs_db = Query_sequences.objects.filter(query_id='1')
         self.assertEqual(len(loops.keys()),35)
         self.assertEqual(len(query_seqs),35)
         self.assertEqual(len(query_seqs_db),35)
