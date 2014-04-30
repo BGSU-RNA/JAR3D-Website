@@ -20,7 +20,6 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 import json
 import urlparse
-import request
 import urllib2
 import HTMLParser
 import logging
