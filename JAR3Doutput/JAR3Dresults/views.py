@@ -101,10 +101,10 @@ def pre_request_hook(req):
 def test_for_blake(request):
     hooks = {'pre_request': pre_request_hook}
     proxies = { "http": "129.1.149.201:3030" }
-    req = requests.Request('http://rna.bgsu.edu')
+    req = request.Request('http://rna.bgsu.edu')
     logging.error(req)
     logging.error(req.headers)
-    resp = requests.get("http://rna.bgsu.edu", proxies=proxies, hooks=hooks)
+    resp = request.get("http://rna.bgsu.edu", proxies=proxies, hooks=hooks)
     print(resp)
     return resp
     # url = 'http://www.google.com'
@@ -174,7 +174,7 @@ class JAR3DValidator():
             try:
                 loops,indices = self.RNAalifold_extract_loops(data)
             except fold.FoldingTimeOutError:
-                return respond("Folding timed out")
+                return self.respond("Folding timed out")
             except fold.FoldingFailedError:
                 return self.respond("Folding failed")
             except:
@@ -186,8 +186,8 @@ class JAR3DValidator():
         send_mail('Checkpoint 1', query_type + ss, 'fake@whocares.com',
             ['jroll@bgsu.edu'], fail_silently=False)
         query_info = self.make_query_info(query_id, query_type, parsed_input)
-        query.sequences = self.make_query_sequences(loops, fasta, query_id)
-        query.positions = self.make_query_indices(indices, query_id)        
+        query_sequences = self.make_query_sequences(loops, fasta, query_id)
+        query_positions = self.make_query_indices(indices, query_id)        
 
         # don't proceed unless there are internal loops
         if not query_sequences:
@@ -212,7 +212,7 @@ class JAR3DValidator():
             return self.respond("Couldn't save query_info")
         # email logging for 35 to 8 bug
         query_seqs_db = Query_sequences.objects.filter(query_id=query_id)
-        text = str(len(loop.keys())) + str(len(query_sequences())) + str(len(query_seqs_db()))
+        text = str(len(loops.keys())) + str(len(query_sequences())) + str(len(query_seqs_db()))
         send_mail('Checkpoint 2', text, 'fake@whocares.com',
             ['jroll@bgsu.edu'], fail_silently=False)
         # everything went well, return redirect url
