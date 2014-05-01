@@ -27,9 +27,9 @@ import pdb
 import re
 
 
-logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
-logging.setLevel(logging.DEBUG)
-logger = logging.getLogger(__name__)
+#logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
+#logging.setLevel(logging.DEBUG)
+#logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
     """
@@ -328,6 +328,7 @@ class JAR3DValidator():
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results,indices
+        
     def RNAalifold_extract_loops(self, sequences):
         """
             Input: list of sequences
