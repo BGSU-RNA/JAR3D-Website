@@ -182,8 +182,8 @@ class JAR3DValidator():
         else:
             return self.respond("Unrecognized query type")
         # email logging for 35 to 8 bug
-        send_mail('Checkpoint 1', query_type + ss, 'fake@whocares.com',
-            ['jroll@bgsu.edu'], fail_silently=False)
+#        send_mail('Checkpoint 1', query_type + ss, 'fake@whocares.com',
+#            ['jroll@bgsu.edu'], fail_silently=False)
         query_info = self.make_query_info(query_id, query_type, parsed_input)
         query_sequences = self.make_query_sequences(loops, fasta, query_id)
         query_positions = self.make_query_indices(indices, query_id)        
@@ -210,10 +210,9 @@ class JAR3DValidator():
         except:
             return self.respond("Couldn't save query_info")
         # email logging for 35 to 8 bug
-        query_seqs_db = Query_sequences.objects.filter(query_id=query_id)
-        text = str(len(loops.keys())) + str(len(query_sequences())) + str(len(query_seqs_db()))
-        send_mail('Checkpoint 2', text, 'fake@whocares.com',
-            ['jroll@bgsu.edu'], fail_silently=False)
+#        query_seqs_db = Query_sequences.objects.filter(query_id=query_id)
+#        send_mail('Checkpoint 2', text, 'fake@whocares.com',
+#            ['jroll@bgsu.edu'], fail_silently=False)
         # everything went well, return redirect url
         return self.respond(redirect_url, 'redirect')
 
