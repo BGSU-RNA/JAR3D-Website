@@ -26,8 +26,8 @@ import logging
 import pdb
 import re
 
-logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
-logging.setLevel(logging.DEBUG)
+logging.basicConfig(filename="/Users/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
+#logging.setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
