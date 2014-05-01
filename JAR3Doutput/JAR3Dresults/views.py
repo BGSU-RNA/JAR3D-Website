@@ -5,6 +5,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
@@ -26,8 +27,8 @@ import pdb
 import re
 
 
-# logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
-# logging.setLevel(logging.DEBUG)
+logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
+logging.setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
@@ -181,20 +182,44 @@ class JAR3DValidator():
 
         else:
             return self.respond("Unrecognized query type")
+        # email logging for 35 to 8 bug
+        send_mail('Checkpoint 1', query_type + ss, 'fake@whocares.com',
+            ['jroll@bgsu.edu'], fail_silently=False)
+        query_info = self.make_query_info(query_id, query_type, parsed_input)
+        query.sequences = self.make_query_sequences(loops, fasta, query_id)
+        query.positions = self.make_query_indices(indices, query_id)        
 
-        # create loop objects
-        h = HTMLParser.HTMLParser()
-        query_info = Query_info(query_id = query_id,
-                                group_set = 'IL1.8/HL1.8', # change this
-                                model_type = 'default', # change this
-                                query_type = query_type,
-                                structured_models_only = 0,
-                                email = '',
-                                status = 0,
-                                parsed_input = h.unescape(parsed_input))
+        # don't proceed unless there are internal loops
+        if not query_sequences:
+            return self.respond("No internal loops found in the input")
+            
+        # todo: if all loops have status = -1, then set query_info.status to 1
 
+        # persist the entries in the database starting with sequences
+        try:
+            for seq in query_sequences:
+                seq.save()
+        except:
+            return self.respond("Couldn't save query_sequences")
+        try:
+            for ind in query_positions:
+                ind.save()
+        except:
+            return self.respond("Couldn't save query_positions")
+        try:
+            query_info.save()
+        except:
+            return self.respond("Couldn't save query_info")
+        # email logging for 35 to 8 bug
+        query_seqs_db = Query_sequences.objects.filter(query_id=query_id,)
+        text = str(len(loop.keys())) + str(len(query_sequences())) + str(len(query_seqs_db()))
+        send_mail('Checkpoint 2', text, 'fake@whocares.com',
+            ['jroll@bgsu.edu'], fail_silently=False)
+        # everything went well, return redirect url
+        return self.respond(redirect_url, 'redirect')
+
+    def make_query_sequences(self, loops, fasta, query_id):
         query_sequences = []
-        query_positions = []
         loop_types = ['internal', 'hairpin']
         loop_pattern = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])?$)'
         internal_id = 0
@@ -212,38 +237,32 @@ class JAR3DValidator():
                                                    internal_id = '>seq%i' % internal_id,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
+        return query_sequences
 
-            loop_id = 0
-            for loop_types , loops in indices.iteritems():
-                for loop in loops:
-                    for side in loop:
-                        for index in side:
-                            query_positions.append(Query_loop_positions(query_id = query_id,
-                                                                        loop_id = loop_id,
-                                                                        column_index = index))
-                    loop_id = loop_id + 1
-        # don't proceed unless there are internal loops
-        if not query_sequences:
-            return self.respond("No internal loops found in the input")
+    def make_query_indices(self, indices, query_id):
+        query_positions = []
+        loop_id = 0
+        for loop_types , loops in indices.iteritems():
+            for loop in loops:
+                for side in loop:
+                    for index in side:
+                        query_positions.append(Query_loop_positions(query_id = query_id,
+                                                                    loop_id = loop_id,
+                                                                    column_index = index))
+                loop_id = loop_id + 1
+        return query_positions
 
-        # todo: if all loops have status = -1, then set query_info.status to 1
-
-        # persist the entries in the database starting with sequences
-        try:
-            [seq.save() for seq in query_sequences]
-        except:
-            return self.respond("Couldn't save query_sequences")
-        try:
-            [ind.save() for ind in query_positions]
-        except:
-            return self.respond("Couldn't save query_positions")    
-        try:
-            query_info.save()
-        except:
-            return self.respond("Couldn't save query_info")
-
-        # everything went well, return redirect url
-        return self.respond(redirect_url, 'redirect')
+    def make_query_info(self, query_id, query_type, parsed_input):
+        h = HTMLParser.HTMLParser()
+        query_info = Query_info(query_id = query_id,
+                                group_set = 'IL1.8/HL1.8', # change this
+                                model_type = 'default', # change this
+                                query_type = query_type,
+                                structured_models_only = 0,
+                                email = '',
+                                status = 0,
+                                parsed_input = h.unescape(parsed_input))
+        return query_info
 
     def format_extracted_loops(self, data):
         """
