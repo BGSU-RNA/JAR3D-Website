@@ -192,7 +192,7 @@ class JAR3DValidator():
         # don't proceed unless there are internal loops
         if not query_sequences:
             return self.respond("No internal loops found in the input")
-            
+
         # todo: if all loops have status = -1, then set query_info.status to 1
 
         # persist the entries in the database starting with sequences
@@ -211,7 +211,7 @@ class JAR3DValidator():
         except:
             return self.respond("Couldn't save query_info")
         # email logging for 35 to 8 bug
-        query_seqs_db = Query_sequences.objects.filter(query_id=query_id,)
+        query_seqs_db = Query_sequences.objects.filter(query_id=query_id)
         text = str(len(loop.keys())) + str(len(query_sequences())) + str(len(query_seqs_db()))
         send_mail('Checkpoint 2', text, 'fake@whocares.com',
             ['jroll@bgsu.edu'], fail_silently=False)
@@ -426,5 +426,3 @@ class ResultsMaker():
             pass
         else:
             pass
-
-
