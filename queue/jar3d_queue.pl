@@ -22,7 +22,7 @@ my $TERM :shared = 0;
 my $IDLE_QUEUE = Thread::Queue->new();
 
 # CPU time out for each query in seconds
-my $TIMEOUT = 1800;
+my $TIMEOUT = 3000;
 
 # refresh time
 my $SLEEP = 5;
@@ -84,7 +84,7 @@ MAIN:
             # Give the thread some work to do
             my $query_id = pop(@queries);
 
-            my $work = "ulimit -t $TIMEOUT; java  -jar $RealBin/webJAR3D_server.jar /Users/api/Models/IL/1.8/lib/all.txt /Users/api/Models/HL/1.8/lib/all.txt $query_id $config{db_user_name} $config{db_password} $config{db_database}";
+            my $work = "ulimit -t $TIMEOUT; java  -jar $RealBin/webJAR3D_server.jar /Users/api/Models/IL/1.13/lib/all.txt /Users/api/Models/HL/1.13/lib/all.txt $query_id $config{db_user_name} $config{db_password} $config{db_database}";
             $work_queues{$tid}->enqueue($work);
         }
         sleep($SLEEP);
