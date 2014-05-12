@@ -50,6 +50,6 @@ class ViroidSeqTest(TestCase):
     def test_fungal_ss_reader(self):    
         self.assertEqual(len(self.loops.keys()),34)
     def test_fungal_dict_convert(self):    
-        self.assertEqual(len(self.query_seqs),34)
+        self.assertEqual(len(self.query_seqs),33)
     def test_fungal_db_saver(self):    
-        self.assertEqual(len(self.query_seqs_db),34)
+        self.assertEqual(len(self.query_seqs_db),33)
