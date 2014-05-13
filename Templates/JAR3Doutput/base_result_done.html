@@ -52,9 +52,9 @@
           <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
           <span class="hover-link-icon">
             <a href="{{ result.motif_url }}" target="_blank">&rarr;</a>
-          </span>
+          </span>*
         </td>
-        <td>{{ result.cutoff_percent|floatformat:4 }}</td>
+        <td>{{ result.cutoff_percent|floatformat }}</td>
         <td>{{ result.meanscore|floatformat:4 }}</td>
         <td>{{ result.medianscore|floatformat:4 }}</td>
         <td>{{ result.medianpercentile|floatformat:2 }}</td>
