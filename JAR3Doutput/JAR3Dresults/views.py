@@ -359,7 +359,7 @@ class ResultsMaker():
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
-                                         .order_by('loop_id', 'cutoff_percent', '-meanscore')
+                                         .order_by('loop_id', '-cutoff_percent', '-meanscore')
 
         if results:
             """
