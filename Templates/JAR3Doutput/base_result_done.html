@@ -32,9 +32,9 @@
         <tr>
           <th>#</th>
           <th>Motif</th>
+          <th>Percent Past Cutoff</th>
           <th>Mean Alignment Score</th>
           <th>Median Alignment Score</th>
-          <th>Mean Percentile</th>
           <th>Median Percentile</th>
           <th>Full Edit Distance</th>
           <th>Interior Edit Distance</th>
@@ -54,9 +54,9 @@
             <a href="{{ result.motif_url }}" target="_blank">&rarr;</a>
           </span>
         </td>
+        <td>{{ result.cutoff|floatformat:4 }}</td>
         <td>{{ result.meanscore|floatformat:4 }}</td>
         <td>{{ result.medianscore|floatformat:4 }}</td>
-        <td>{{ result.meanpercentile|floatformat:2 }}</td>
         <td>{{ result.medianpercentile|floatformat:2 }}</td>
         <td>{{ result.medianfulleditdist|floatformat }}</td>
         <td>{{ result.medianinterioreditdist|floatformat }}</td>
