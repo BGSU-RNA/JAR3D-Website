@@ -32,10 +32,8 @@
         <tr>
           <th>#</th>
           <th>Motif</th>
-          <th>Percent Past Cutoff</th>
+          <th>Percent Accepted by Model</th>
           <th>Mean Alignment Score</th>
-          <th>Median Alignment Score</th>
-          <th>Median Percentile</th>
           <th>Full Edit Distance</th>
           <th>Interior Edit Distance</th>
           <th>Basepair Signature</th>
@@ -50,14 +48,12 @@
           <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
                  class='jmolInline' data-coord='{{ result.motif_id }}'>
           <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
-          <span class="hover-link-icon">
+          <span class="link-icon">
             <a href="{{ result.motif_url }}" target="_blank">&rarr;</a>
-          </span>*
+          </span>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
         <td>{{ result.meanscore|floatformat:4 }}</td>
-        <td>{{ result.medianscore|floatformat:4 }}</td>
-        <td>{{ result.medianpercentile|floatformat:2 }}</td>
         <td>{{ result.medianfulleditdist|floatformat }}</td>
         <td>{{ result.medianinterioreditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
