@@ -17,14 +17,16 @@
 
 {% block page_content %}
 
-<div class="span8" id='query-interpretation'>
+<div id='query-interpretation'>
     <h3>Input Summary</h3>
     <dl>
         <dt>Input</dt>
+            <div class = "span8">
             <dd>
             <textarea readonly id='input' rows='4' tabindex="1">
-            {{query_info.parsed_input|linebreaks}}</textarea>
+            {{query_info.parsed_input}}</textarea>
             </dd>
+            </div>
 
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
