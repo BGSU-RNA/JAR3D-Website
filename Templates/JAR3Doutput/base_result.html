@@ -20,20 +20,15 @@
 <div id='query-interpretation'>
     <h4>Query interpretation</h4>
     <dl>
-        <dt>Query type</dt>
-        <dd>{{query_info.query_type}}</dd>
+        <dt>Input</dt>
+        <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
 
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
 
-        <dt>Number of loops</dt>
-        <dd>{{num.loops}}</dd>
-
         <dt>Total number of loop instances</dt>
         <dd>{{num.loop_instances}}</dd>
 
-        <dt>Input</dt>
-        <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
     </dl>
 </div>
 
