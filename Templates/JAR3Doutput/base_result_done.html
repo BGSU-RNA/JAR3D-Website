@@ -19,6 +19,7 @@
     <div class="span8">
     <h3>
     Loop {{ forloop.counter }}
+    </h3>
     Column Numbers{{ indices }}
     <div style="height:60px;width:360px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
       {% for seq in sequences %}
@@ -26,8 +27,7 @@
       {% endfor %}
     
     </div> 
-      
-    </h3>
+    
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
