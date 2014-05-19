@@ -37,7 +37,6 @@
           <th>Full Edit Distance</th>
           <th>Interior Edit Distance</th>
           <th>Basepair Signature</th>
-          <th>2D Diagram</th>
         </tr>
       </thead>
       <tbody>
@@ -51,18 +50,16 @@
           <span class="link-icon">
             <a href="{{ result.motif_url }}" target="_blank">&rarr;</a>
           </span>
+          <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
+               title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
+                <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
+          </a>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
         <td>{{ result.meanscore|floatformat:4 }}</td>
         <td>{{ result.medianfulleditdist|floatformat }}</td>
         <td>{{ result.medianinterioreditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
-        <td>
-            <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
-               title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
-                <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
-            </a>
-        </td>
       </tr>
       {% endfor %}
       </tbody>
