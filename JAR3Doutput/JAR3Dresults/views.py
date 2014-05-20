@@ -73,7 +73,7 @@ def result(request, uuid):
     """
 
     if q.status == 1:
-        zippedResults =  zip(results.loops,results.sequences,results.indices) 
+        zippedResults =  zip(results.loops,results.sequences,results.indices)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats, 'results': zippedResults},
                                   context_instance=RequestContext(request))
@@ -181,10 +181,10 @@ class JAR3DValidator():
 
         else:
             return self.respond("Unrecognized query type")
-            
+
         query_info = self.make_query_info(query_id, query_type, parsed_input)
         query_sequences = self.make_query_sequences(loops, fasta, query_id)
-        query_positions = self.make_query_indices(indices, query_id)        
+        query_positions = self.make_query_indices(indices, query_id)
 
         # don't proceed unless there are internal loops
         if not query_sequences:
@@ -320,7 +320,7 @@ class JAR3DValidator():
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results,indices
-        
+
     def RNAalifold_extract_loops(self, sequences):
         """
             Input: list of sequences
@@ -371,14 +371,14 @@ class ResultsMaker():
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.13/' + result.motif_id + '.png'
-                if not(result.loop_id in loop_ids): 
+                if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
                     if len(self.loops[-1]) < self.TOPRESULTS:
                         self.loops[-1].append(result)
-            
+
             for loop_id in loop_ids:
                 query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=loop_id)
                 loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id,loop_id=loop_id)
