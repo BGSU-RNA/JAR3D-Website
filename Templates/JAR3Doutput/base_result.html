@@ -18,22 +18,21 @@
 {% block page_content %}
 
 <div id='query-interpretation'>
-    <h4>Query interpretation</h4>
+    <h3>Input Summary</h3>
     <dl>
-        <dt>Query type</dt>
-        <dd>{{query_info.query_type}}</dd>
+        <dt>Input</dt>
+            <div class = "span8">
+            <dd>
+            <textarea readonly id='input' rows='4'>{{query_info.parsed_input}}</textarea>
+            </dd>
+            </div>
 
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
 
-        <dt>Number of loops</dt>
-        <dd>{{num.loops}}</dd>
-
         <dt>Total number of loop instances</dt>
         <dd>{{num.loop_instances}}</dd>
 
-        <dt>Input</dt>
-        <dd class="monospace">{{query_info.parsed_input|linebreaks}}</dd>
     </dl>
 </div>
 
