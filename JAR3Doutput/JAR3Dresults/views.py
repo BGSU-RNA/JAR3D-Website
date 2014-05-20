@@ -5,6 +5,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.core.mail import send_mail
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
@@ -25,9 +26,8 @@ import logging
 import pdb
 import re
 
-
-# logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.DEBUG)
-# logging.setLevel(logging.DEBUG)
+logging.basicConfig(filename="/Users/api/apps/jar3d_dev/logs/django.log", level=logging.INFO)
+#logging.setLevel(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def home(request, uuid=None):
@@ -100,10 +100,10 @@ def pre_request_hook(req):
 def test_for_blake(request):
     hooks = {'pre_request': pre_request_hook}
     proxies = { "http": "129.1.149.201:3030" }
-    req = requests.Request('http://rna.bgsu.edu')
+    req = request.Request('http://rna.bgsu.edu')
     logging.error(req)
     logging.error(req.headers)
-    resp = requests.get("http://rna.bgsu.edu", proxies=proxies, hooks=hooks)
+    resp = request.get("http://rna.bgsu.edu", proxies=proxies, hooks=hooks)
     print(resp)
     return resp
     # url = 'http://www.google.com'
@@ -173,7 +173,7 @@ class JAR3DValidator():
             try:
                 loops,indices = self.RNAalifold_extract_loops(data)
             except fold.FoldingTimeOutError:
-                return respond("Folding timed out")
+                return self.respond("Folding timed out")
             except fold.FoldingFailedError:
                 return self.respond("Folding failed")
             except:
@@ -181,20 +181,37 @@ class JAR3DValidator():
 
         else:
             return self.respond("Unrecognized query type")
+            
+        query_info = self.make_query_info(query_id, query_type, parsed_input)
+        query_sequences = self.make_query_sequences(loops, fasta, query_id)
+        query_positions = self.make_query_indices(indices, query_id)        
 
-        # create loop objects
-        h = HTMLParser.HTMLParser()
-        query_info = Query_info(query_id = query_id,
-                                group_set = 'IL1.8/HL1.8', # change this
-                                model_type = 'default', # change this
-                                query_type = query_type,
-                                structured_models_only = 0,
-                                email = '',
-                                status = 0,
-                                parsed_input = h.unescape(parsed_input))
+        # don't proceed unless there are internal loops
+        if not query_sequences:
+            return self.respond("No internal loops found in the input")
 
+        # todo: if all loops have status = -1, then set query_info.status to 1
+
+        # persist the entries in the database starting with sequences
+        try:
+            for seq in query_sequences:
+                seq.save()
+        except:
+            return self.respond("Couldn't save query_sequences")
+        try:
+            for ind in query_positions:
+                ind.save()
+        except:
+            return self.respond("Couldn't save query_positions")
+        try:
+            query_info.save()
+        except:
+            return self.respond("Couldn't save query_info")
+        # everything went well, return redirect url
+        return self.respond(redirect_url, 'redirect')
+
+    def make_query_sequences(self, loops, fasta, query_id):
         query_sequences = []
-        query_positions = []
         loop_types = ['internal', 'hairpin']
         loop_pattern = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])?$)'
         internal_id = 0
@@ -212,38 +229,32 @@ class JAR3DValidator():
                                                    internal_id = '>seq%i' % internal_id,
                                                    user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
                                                    status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
+        return query_sequences
 
-            loop_id = 0
-            for loop_types , loops in indices.iteritems():
-                for loop in loops:
-                    for side in loop:
-                        for index in side:
-                            query_positions.append(Query_loop_positions(query_id = query_id,
-                                                                        loop_id = loop_id,
-                                                                        column_index = index))
-                    loop_id = loop_id + 1
-        # don't proceed unless there are internal loops
-        if not query_sequences:
-            return self.respond("No internal loops found in the input")
+    def make_query_indices(self, indices, query_id):
+        query_positions = []
+        loop_id = 0
+        for loop_types , loops in indices.iteritems():
+            for loop in loops:
+                for side in loop:
+                    for index in side:
+                        query_positions.append(Query_loop_positions(query_id = query_id,
+                                                                    loop_id = loop_id,
+                                                                    column_index = index))
+                loop_id = loop_id + 1
+        return query_positions
 
-        # todo: if all loops have status = -1, then set query_info.status to 1
-
-        # persist the entries in the database starting with sequences
-        try:
-            [seq.save() for seq in query_sequences]
-        except:
-            return self.respond("Couldn't save query_sequences")
-        try:
-            [ind.save() for ind in query_positions]
-        except:
-            return self.respond("Couldn't save query_positions")    
-        try:
-            query_info.save()
-        except:
-            return self.respond("Couldn't save query_info")
-
-        # everything went well, return redirect url
-        return self.respond(redirect_url, 'redirect')
+    def make_query_info(self, query_id, query_type, parsed_input):
+        h = HTMLParser.HTMLParser()
+        query_info = Query_info(query_id = query_id,
+                                group_set = 'IL1.13/HL1.13', # change this
+                                model_type = 'default', # change this
+                                query_type = query_type,
+                                structured_models_only = 0,
+                                email = '',
+                                status = 0,
+                                parsed_input = h.unescape(parsed_input))
+        return query_info
 
     def format_extracted_loops(self, data):
         """
@@ -309,6 +320,7 @@ class JAR3DValidator():
                     results[(loop_type,seq_id,loop_id)] = loop
                     loop_id += 1
         return results,indices
+        
     def RNAalifold_extract_loops(self, sequences):
         """
             Input: list of sequences
@@ -347,7 +359,7 @@ class ResultsMaker():
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
-                                         .order_by('loop_id', '-meanscore')
+                                         .order_by('loop_id', '-cutoff_percent', '-meanscore')
 
         if results:
             """
@@ -358,7 +370,7 @@ class ResultsMaker():
             loop_ids = []
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + result.motif_id
-                result.ssurl = self.SSURL + result.motif_id[0:2] + '1.8/' + result.motif_id + '.png'
+                result.ssurl = self.SSURL + result.motif_id[0:2] + '1.13/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids): 
                     loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:
@@ -407,5 +419,3 @@ class ResultsMaker():
             pass
         else:
             pass
-
-
