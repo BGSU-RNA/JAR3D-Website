@@ -1,9 +1,10 @@
 {% extends "JAR3Doutput/base_result.html" %}
+{% load staticfiles %}
 
 {% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
 
 {% block custom_css %}
-<script src="{{ STATIC_URL }}js/jsmol.jso"></script>
+  <link rel="stylesheet" href="{% static "js/fancybox/jquery.fancybox.css" %}" type="text/css" media="screen" />
 {% endblock custom_css %}
 
 {% block page_subtitle %}
@@ -27,9 +28,9 @@
       {% for seq in sequences %}
           {{ seq }}<br>
       {% endfor %}
-    
-    </div> 
-    
+
+    </div>
+
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
@@ -72,64 +73,78 @@
 </div>
 
 <div class="span4" id="jmol">
+    <script src="{% static "jsmol/JSmol.min.js" %}"></script>
     <script type="text/javascript">
-        jmolInitialize(" http://rna.bgsu.edu/img/jmol");
-        jmolSetAppletColor("#ffffff");
-        jmolApplet(340, "javascript appletLoaded()");
+        function jmolScript(cmd) {Jmol.script(jmolApplet0, cmd)};
+        function jmolScriptWait(cmd) {Jmol.scriptWait(jmolApplet0, cmd)};
+
+        Jmol.getProfile();
+
+        var jsMolSize = 340;
+
+        var config = {
+          width: jsMolSize,
+          height: jsMolSize,
+          debug: false,
+          color: "#F0F0F0",
+          addSelectionOptions: false,
+          use: "HTML5",
+          j2sPath: "{% static "jsmol/j2s" %}",
+          isSigned: false,
+          disableJ2SLoadMonitor: true,
+          disableInitialConsole: true,
+          allowjavascript: true,
+          readyFunction: function() {
+            $('.jmolInline').first().jmolToggle();
+          },
+        };
+        jmolApplet0 = Jmol.getApplet("jmolApplet0", config);
     </script>
+
     <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
     <input type='button' id='stereo' class='btn' value="Show stereo">
     <input type='button' id='prev' class='btn' value='Previous'>
     <input type='button' id='next' class='btn' value="Next">
     <label><input type="checkbox" id="showNtNums">Numbers</label>
 </div>
-
 {% endblock page_content%}
 
 {% block page_specific_js %}
     {{ block.super }}
-    <script src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
-    <script src="http://rna.bgsu.edu/img/jmolTools/jquery.jmolTools.js"></script>
+    <script src="{% static "js/jquery.tablesorter.min.js" %}"></script>
+    <script src="{% static "js/jquery.jmolTools.js" %}"></script>
+    <script src="{% static "js/fancybox/jquery.fancybox.pack.js" %}"></script>
 
     <script>
-    $(document).ready(function() {
-        $("table").tablesorter();
-    });
-    // initialize jmolTools
-    $('.jmolInline').jmolTools({
-        showStereoId: 'stereo',
-        showNeighborhoodId: 'neighborhood',
-        showNumbersId: 'showNtNums',
-        showNextId: 'next',
-        showPrevId: 'prev'
-    });
+      $(document).ready(function() {
+          $("table").tablesorter();
 
-    // make sure that jmol is ready
-    function appletLoaded (){
-        $('.jmolInline').first().jmolToggle();
-    }
-    </script>
+          // initialize jmolTools
+          $('.jmolInline').jmolTools({
+              showStereoId: 'stereo',
+              showNeighborhoodId: 'neighborhood',
+              showNumbersId: 'showNtNums',
+              showNextId: 'next',
+              showPrevId: 'prev'
+          });
 
-    <script src="{{ STATIC_URL }}js/fancybox/jquery.fancybox.pack.js"></script>
-    <link rel="stylesheet" href="{{ STATIC_URL }}js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+          // position jmol
+          (function(){
+              var reference = $('table').first();
+              var offset_left = reference.offset().left + reference.width();
+              var offset_top  = reference.offset().top;
+              $('#jmol').css('position','fixed')
+                        .css('left',offset_left)
+                        .css('top',offset_top);
+          })();
 
-    <script>
-    // position jmol
-    (function(){
-        var reference = $('table').first();
-        var offset_left = reference.offset().left + reference.width();
-        var offset_top  = reference.offset().top;
-        $('#jmol').css('position','fixed')
-                  .css('left',offset_left)
-                  .css('top',offset_top);
-    })();
+          // fancybox integration
+        $(".fancybox").fancybox({
+          openEffect	: 'none',
+          closeEffect	: 'none'
+        });
 
-    // fancybox integration
-	$(".fancybox").fancybox({
-		openEffect	: 'none',
-		closeEffect	: 'none'
-	});
-
+      });
     </script>
 
 {% endblock page_specific_js %}
