@@ -19,14 +19,8 @@
 
 <div id='query-interpretation'>
     <h3>Input Summary</h3>
+    <textarea readonly id='input' rows='4' data-role="none" class = "span8">{{query_info.parsed_input}}</textarea>
     <dl>
-        <dt>Input</dt>
-            <div class = "span8">
-            <dd>
-            <textarea readonly id='input' rows='4'>{{query_info.parsed_input}}</textarea>
-            </dd>
-            </div>
-
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
 
