@@ -10,7 +10,7 @@ var jar3dInputValidator = (function($) {
     var Validator = {
 
         params: {
-            maxLoopLength: 50,
+            maxLoopLength: 25,
             maxSequenceLength: 10000,
             closingPairs: ['AU', 'UA', 'GC', 'CG', 'GU', 'UG']
         },
