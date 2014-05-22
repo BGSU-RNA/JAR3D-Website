@@ -120,11 +120,16 @@ table .headerSortUp:after {
 .search-summary {
   overflow: auto;
   white-space: nowrap;
-  max-height: 150px;
+  max-height: 100px;
 }
 
 .loop-summary {
   overflow: auto;
   white-space: nowrap;
   max-height: 80px;
+}
+
+.sequence-input {
+  overflow: auto;
+  white-space: nowrap;
 }
