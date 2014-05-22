@@ -116,3 +116,20 @@ table .headerSortUp:after {
 .ss-thumbnail {
     width: 120px;
 }
+
+.search-summary {
+  overflow: auto;
+  white-space: nowrap;
+  max-height: 100px;
+}
+
+.loop-summary {
+  overflow: auto;
+  white-space: nowrap;
+  max-height: 80px;
+}
+
+.sequence-input {
+  overflow: auto;
+  white-space: nowrap;
+}

@@ -38,3 +38,5 @@ queue/jar3d_queue_config.pl
 *.swp
 
 db/
+.python-version
+.agignore
