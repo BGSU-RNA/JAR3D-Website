@@ -107,18 +107,23 @@
 
 <div id="popup-text">
   <div class="help-text" data-popup="percent">
+  Percentage of input sequences which meet the criteria to match the motif.  80% or above is good.
   </div>
 
   <div class="help-text" data-popup="mean-score">
+  Average alignment score against the probabilistic model for this motif.  Closer to 0 is better.
   </div>
 
   <div class="help-text" data-popup="full-edit">
+  The median of the minimum edit distance between each input sequence and sequences of each motif from 3D structures.
   </div>
 
   <div class="help-text" data-popup="interior-edit">
+  The median of the minimum edit distance between each input sequence and sequences of each motif from 3D structures, aside from the flanking basepairs.
   </div>
 
   <div class="help-text" data-popup="signature">
+  A text summary of the interactions characteristic of this motif.
   </div>
 </div>
 {% endblock page_content%}
