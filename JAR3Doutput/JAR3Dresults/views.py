@@ -1,6 +1,7 @@
 
 from django.shortcuts import render_to_response
 
+from django.http import HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
@@ -48,7 +49,7 @@ def result(request, uuid):
 
     q = Query_info.objects.filter(query_id=uuid)
     if q:
-        q = q[0] #we are interested only in the first one
+        q = q[0]  # We are interested only in the first one
     else:
         return render_to_response('JAR3Doutput/base_result_not_found.html',
                                   {'query_id': uuid},
@@ -114,20 +115,19 @@ class JAR3DValidator():
                                          'isNoFastaMultipleSequencesSS'],
         }
 
-
     def validate(self, request):
-        query_id = str( uuid.uuid4() )
+        query_id = str(uuid.uuid4())
         redirect_url = reverse('JAR3Dresults.views.result', args=[query_id])
         fasta = request.POST.getlist('fasta[]')
         # uppercase all strings and translate DNA to RNA
-        data = [ x.upper().replace('T','U') for x in request.POST.getlist('data[]') ]
+        data = [x.upper().replace('T', 'U') for x in request.POST.getlist('data[]')]
         query_type = request.POST['query_type']
         ss = request.POST['ss']
         parsed_input = request.POST['parsed_input']
 
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
-                loops,indices = self.UNAfold_extract_loops(data)
+                loops, indices = self.UNAfold_extract_loops(data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -137,7 +137,7 @@ class JAR3DValidator():
 
         elif query_type in self.query_types['isfolded_extract_loops']:
             try:
-                loops,indices = self.isfolded_extract_loops(ss, data)
+                loops, indices = self.isfolded_extract_loops(ss, data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -147,13 +147,13 @@ class JAR3DValidator():
 
         elif query_type in self.query_types['loops']:
             try:
-                loops,indices = self.format_extracted_loops(data)
+                loops, indices = self.format_extracted_loops(data)
             except:
                 return self.respond("Unknown Error")
 
         elif query_type in self.query_types['RNAalifold_extract_loops']:
             try:
-                loops,indices = self.RNAalifold_extract_loops(data)
+                loops, indices = self.RNAalifold_extract_loops(data)
             except fold.FoldingTimeOutError:
                 return self.respond("Folding timed out")
             except fold.FoldingFailedError:
@@ -203,39 +203,39 @@ class JAR3DValidator():
                 continue
             loop_type = 'IL' if loop_type == 'internal' else 'HL'
             internal_id += 1
-            query_sequences.append(Query_sequences(query_id = query_id,
-                                                   seq_id = seq_id,
-                                                   loop_id = loop_id,
-                                                   loop_type = loop_type,
-                                                   loop_sequence = loop,
-                                                   internal_id = '>seq%i' % internal_id,
-                                                   user_seq_id = '' if len(fasta)==0 else fasta[seq_id],
-                                                   status = 0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
+            query_sequences.append(Query_sequences(query_id=query_id,
+                                                   seq_id=seq_id,
+                                                   loop_id=loop_id,
+                                                   loop_type=loop_type,
+                                                   loop_sequence=loop,
+                                                   internal_id='>seq%i' % internal_id,
+                                                   user_seq_id='' if len(fasta)==0 else fasta[seq_id],
+                                                   status=0 if re.match(loop_pattern, loop, flags=re.IGNORECASE) else -1))
         return query_sequences
 
     def make_query_indices(self, indices, query_id):
         query_positions = []
         loop_id = 0
-        for loop_types , loops in indices.iteritems():
+        for loop_types, loops in indices.iteritems():
             for loop in loops:
                 for side in loop:
                     for index in side:
-                        query_positions.append(Query_loop_positions(query_id = query_id,
-                                                                    loop_id = loop_id,
-                                                                    column_index = index))
+                        query_positions.append(Query_loop_positions(query_id=query_id,
+                                                                    loop_id=loop_id,
+                                                                    column_index=index))
                 loop_id = loop_id + 1
         return query_positions
 
     def make_query_info(self, query_id, query_type, parsed_input):
         h = HTMLParser.HTMLParser()
-        query_info = Query_info(query_id = query_id,
-                                group_set = 'IL1.13/HL1.13', # change this
-                                model_type = 'default', # change this
-                                query_type = query_type,
-                                structured_models_only = 0,
-                                email = '',
-                                status = 0,
-                                parsed_input = h.unescape(parsed_input))
+        query_info = Query_info(query_id=query_id,
+                                group_set='IL1.13/HL1.13',  # change this
+                                model_type='default',  # change this
+                                query_type=query_type,
+                                structured_models_only=0,
+                                email='',
+                                status=0,
+                                parsed_input=h.unescape(parsed_input))
         return query_info
 
     def format_extracted_loops(self, data):
@@ -253,15 +253,15 @@ class JAR3DValidator():
             if loop_type == 'internal':
                 break_point = loop.find('*')
                 dot_string = dot_string[:break_point-2] + '()' + dot_string[break_point+2:]
-            loops[(loop_type,seq_id,loop_id)] = loop
+            loops[(loop_type, seq_id, loop_id)] = loop
             parser = Dot.Parser(dot_string)
             indices = parser.indices(flanking=True)
-        return loops,indices
+        return loops, indices
 
     def respond(self, value, key='error'):
         """convenience function
            if key == error, the message will be shown to the user"""
-        return HttpResponse( json.dumps({key: value}) )
+        return HttpResponse(json.dumps({key: value}))
 
     def isfolded_extract_loops(self, dot_string, sequences):
         """
@@ -279,9 +279,9 @@ class JAR3DValidator():
             loop_id = 0
             for loop_type, loop_instances in loops.iteritems(): # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id)] = loop
+                    results[(loop_type, seq_id, loop_id)] = loop
                     loop_id += 1
-        return results,indices
+        return results, indices
 
     def UNAfold_extract_loops(self, sequences):
         """
@@ -297,11 +297,11 @@ class JAR3DValidator():
             indices = folded[0].indices(flanking=True)
             loops = folded[0].loops(flanking=True)
             loop_id = 0
-            for loop_type, loop_instances in loops.iteritems(): # HL or IL
+            for loop_type, loop_instances in loops.iteritems():  # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id)] = loop
+                    results[(loop_type, seq_id, loop_id)] = loop
                     loop_id += 1
-        return results,indices
+        return results, indices
 
     def RNAalifold_extract_loops(self, sequences):
         """
@@ -317,11 +317,11 @@ class JAR3DValidator():
         for seq_id, seq in enumerate(sequences):
             loops = folded[0].loops(seq, flanking=True)
             loop_id = 0
-            for loop_type, loop_instances in loops.iteritems(): # HL or IL
+            for loop_type, loop_instances in loops.iteritems():  # HL or IL
                 for loop in loop_instances:
-                    results[(loop_type,seq_id,loop_id)] = loop
+                    results[(loop_type, seq_id, loop_id)] = loop
                     loop_id += 1
-        return results,indices
+        return results, indices
 
 
 class ResultsMaker():
@@ -341,7 +341,9 @@ class ResultsMaker():
 
     def get_loop_results(self):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
-                                         .order_by('loop_id', '-cutoff_percent', '-meanscore')
+                                         .order_by('loop_id',
+                                                   '-cutoff_percent',
+                                                   '-meanscore')
 
         if results:
             """
@@ -362,8 +364,8 @@ class ResultsMaker():
                         self.loops[-1].append(result)
 
             for loop_id in loop_ids:
-                query_seqs = Query_sequences.objects.filter(query_id=self.query_id,loop_id=loop_id)
-                loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id,loop_id=loop_id)
+                query_seqs = Query_sequences.objects.filter(query_id=self.query_id, loop_id=loop_id)
+                loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id, loop_id=loop_id)
                 inds = []
                 seqs = []
                 for entries in query_seqs:
