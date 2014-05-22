@@ -1,17 +1,13 @@
 
 from django.shortcuts import render_to_response
 
-from django.http import HttpResponse, Http404
-from django.shortcuts import render_to_response, render
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.core.mail import send_mail
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
 from JAR3Dresults.models import Query_loop_positions
 from JAR3Dresults.models import Results_by_loop
-from JAR3Dresults.models import Results_by_loop_instance
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
@@ -20,13 +16,12 @@ from django.views.decorators.csrf import csrf_exempt
 import uuid
 import json
 import urlparse
-import urllib2
 import HTMLParser
 import logging
-import pdb
 import re
 
 logger = logging.getLogger(__name__)
+
 
 def home(request, uuid=None):
     """
@@ -47,6 +42,7 @@ def home(request, uuid=None):
         return render_to_response('JAR3Doutput/base_homepage.html',
                                   {},
                                   context_instance=RequestContext(request))
+
 
 def result(request, uuid):
 
@@ -71,9 +67,10 @@ def result(request, uuid):
     """
 
     if q.status == 1:
-        zippedResults =  zip(results.loops,results.sequences,results.indices)
+        zippedResults = zip(results.loops, results.sequences, results.indices)
         return render_to_response('JAR3Doutput/base_result_done.html',
-                                  {'query_info': q, 'num': results.input_stats, 'results': zippedResults},
+                                  {'query_info': q, 'num': results.input_stats,
+                                   'results': zippedResults},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
         return render_to_response('JAR3Doutput/base_result_pending.html',
@@ -84,20 +81,23 @@ def result(request, uuid):
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
 
+
 @csrf_exempt
 def process_input(request):
     validator = JAR3DValidator()
     return validator.validate(request)
+
 
 def pre_request_hook(req):
     if 'Host' not in req.headers:
         hostname = urlparse(req.full_url)[1]
         req.headers['Host'] = hostname
 
+
 @csrf_exempt
 def test_for_blake(request):
     hooks = {'pre_request': pre_request_hook}
-    proxies = { "http": "129.1.149.201:3030" }
+    proxies = {"http": "129.1.149.201:3030"}
     req = request.Request('http://rna.bgsu.edu')
     logging.error(req)
     logging.error(req.headers)
@@ -107,7 +107,6 @@ def test_for_blake(request):
     # url = 'http://www.google.com'
     # req = urllib2.Request(url=url)
     # return urllib2.urlopen(req).read()
-
 
 
 class JAR3DValidator():
@@ -385,7 +384,7 @@ class ResultsMaker():
                 for entries in query_seqs:
                     seqs.append(entries.loop_sequence)
                 for ind in loop_inds:
-                    if not( ind.column_index in inds):
+                    if not(ind.column_index in inds):
                         inds.append(ind.column_index)
                 self.sequences.append(seqs)
                 self.indices.append(", ".join(map(str, inds)))
@@ -404,7 +403,7 @@ class ResultsMaker():
         """
             Get information about input sequences and loops
         """
-        s  = Query_sequences.objects.filter(query_id=self.query_id).order_by('-seq_id')[0]
+        s = Query_sequences.objects.filter(query_id=self.query_id).order_by('-seq_id')[0]
         self.input_stats['seq'] = s.seq_id + 1
         s = Query_sequences.objects.filter(query_id=self.query_id).order_by('-loop_id')[0]
         self.input_stats['loops'] = s.loop_id + 1
