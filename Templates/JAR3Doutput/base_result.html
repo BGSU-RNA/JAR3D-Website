@@ -16,11 +16,12 @@
 
 {% block page_content %}
 
-<div id='query-interpretation'>
+<div class='row' id='query-interpretation'>
+  <div class="span12">
     <h3>Input Summary</h3>
+  </div>
 
-    <div class='span12'>
-    <div class="span6">
+    <div class="span8">
       <pre class="pre-scrollabale search-summary">
 {{query_info.parsed_input|linebreaksbr}}
       </pre>
@@ -29,14 +30,13 @@
       </button>
     </div>
 
-    <dl class='span4 offset1'>
+    <dl class='span3'>
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
         <dt>Total number of loop instances</dt>
         <dd>{{num.loop_instances}}</dd>
     </dl>
 
-  </div>
 </div>
 
 {% endblock page_content %}
