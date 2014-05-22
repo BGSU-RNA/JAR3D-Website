@@ -3,7 +3,6 @@
 {% block title %}JAR3D Results{% endblock %}
 
 {% block page_subtitle %}
-  <button id='refine' class='btn btn-primary pull-right' data-id="{{query_info.query_id}}">Refine query</button>
 
 <!-- AddThis Button BEGIN -->
 <span class="addthis_toolbox addthis_default_style pull-right">
@@ -17,18 +16,29 @@
 
 {% block page_content %}
 
-<div id='query-interpretation'>
+<div class='row' id='query-interpretation'>
+  <div class="span12">
     <h3>Input Summary</h3>
-    <textarea readonly id='input' rows='6' data-role="none" class = "span8">{{query_info.parsed_input}}</textarea>
-    <dl>
+  </div>
+
+    <div class="span8">
+      <pre class="pre-scrollabale search-summary">
+        {{query_info.parsed_input|linebreaksbr}}
+      </pre>
+      <button id='refine' class='btn btn-primary pull-right' data-id="{{query_info.query_id}}">
+        Refine query
+      </button>
+    </div>
+
+    <dl class='span3'>
         <dt>Number of sequences</dt>
         <dd>{{num.seq}}</dd>
-
         <dt>Total number of loop instances</dt>
         <dd>{{num.loop_instances}}</dd>
-
     </dl>
+
 </div>
+
 
 {% endblock page_content %}
 
