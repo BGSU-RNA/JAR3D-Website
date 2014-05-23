@@ -375,7 +375,7 @@ class ResultsMaker():
                     if not(ind.column_index in inds):
                         inds.append(ind.column_index)
                 self.sequences.append(seqs)
-                self.indices.append(", ".join(map(str, inds)))
+                self.indices.append(", ".join(map(lambda i: str(i + 1), inds)))
 
         else:
             pass
