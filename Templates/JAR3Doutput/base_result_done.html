@@ -5,6 +5,7 @@
 
 {% block custom_css %}
   <link rel="stylesheet" href="{% static "js/fancybox/jquery.fancybox.css" %}" type="text/css" media="screen" />
+  <link rel="stylesheet" href="{% static "css/tipsy.css" %}" type="text/css"/>
 {% endblock custom_css %}
 
 {% block page_subtitle %}
@@ -31,13 +32,13 @@
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Motif</th>
-          <th>Percent Accepted by Model</th>
-          <th>Mean Alignment Score</th>
-          <th>Full Edit Distance</th>
-          <th>Interior Edit Distance</th>
-          <th>Interaction Signature</th>
+          <th class='table-header' data-header-name='index'>#</th>
+          <th class='table-header' data-header-name='motif'>Motif</th>
+          <th class='table-header' data-header-name='percent'>Percent Accepted by Model</th>
+          <th class='table-header' data-header-name='mean-score'>Mean Alignment Score</th>
+          <th class='table-header' data-header-name='full-edit'>Full Edit Distance</th>
+          <th class='table-header' data-header-name='interior-edit'>Interior Edit Distance</th>
+          <th class='table-header' data-header-name='signature'>Interaction Signature</th>
         </tr>
       </thead>
       <tbody>
@@ -106,23 +107,23 @@
 </div>
 
 <div id="popup-text">
-  <div class="help-text" data-popup="percent">
+  <div class="help-text" hidden data-header-name="percent">
   Percentage of input sequences which meet the criteria to match the motif.  80% or above is good.
   </div>
 
-  <div class="help-text" data-popup="mean-score">
+  <div class="help-text" hidden data-header-name="mean-score">
   Average alignment score against the probabilistic model for this motif.  Closer to 0 is better.
   </div>
 
-  <div class="help-text" data-popup="full-edit">
+  <div class="help-text" hidden data-header-name="full-edit">
   The median of the minimum edit distance between each input sequence and sequences of each motif from 3D structures.
   </div>
 
-  <div class="help-text" data-popup="interior-edit">
+  <div class="help-text" hidden data-header-name="interior-edit">
   The median of the minimum edit distance between each input sequence and sequences of each motif from 3D structures, aside from the flanking basepairs.
   </div>
 
-  <div class="help-text" data-popup="signature">
+  <div class="help-text" hidden data-header-name="signature">
   A text summary of the interactions characteristic of this motif.
   </div>
 </div>
@@ -133,6 +134,7 @@
     <script src="{% static "js/jquery.tablesorter.min.js" %}"></script>
     <script src="{% static "js/jquery.jmolTools.js" %}"></script>
     <script src="{% static "js/fancybox/jquery.fancybox.pack.js" %}"></script>
+    <script src="{% static "js/jquery.tipsy.js" %}"></script>
 
     <script>
       $(document).ready(function() {
@@ -163,6 +165,13 @@
           closeEffect	: 'none'
         });
 
+        $(".table-header").tipsy({
+            gravity: 's',
+            title: function() {
+              var name = $(this).data('header-name');
+              return $(".help-text[data-header-name='" + name + "']").text();
+            }
+        });
       });
     </script>
 
