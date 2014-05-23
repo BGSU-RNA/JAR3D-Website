@@ -14,35 +14,34 @@ var Examples = {
                              'CUCAGUAC*GGAACUG'].join('\n'),
 
     // one sequence
-    isFastaSingleSequenceSS: ['((((((((((..(((...)))...))))))))))',
+    isFastaSingleSequenceSS: ['((...((........))......))',
                               '>seq1',
-                              'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
+                              'GAGUAGCGGUCAAAUGCGCAGAUAC'].join('\n'),
 
-    isNoFastaSingleSequenceSS: ['((((((((((..(((...)))...))))))))))',
-                                'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
+    isNoFastaSingleSequenceSS: ['((...((........))......))',
+                                'GAGUAGCGGUCAAAUGCGCAGAUAC'].join('\n'),
 
-    isFastaSingleSequenceNoSS: ['>seq1','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
-
-    isNoFastaSingleSequenceNoSS: 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
+    isFastaSingleSequenceNoSS: ['>seq1','UCCCGGAGUAGCGGUCAAAUGCGCAGAUACCGGGA'].join('\n'),
+    isNoFastaSingleSequenceNoSS: 'UCCCGGAGUAGCGGUCAAAUGCGCAGAUACCGGGA',
 
     // multiple sequences
-    isFastaMultipleSequencesSS:        ['((((((((((..(((...)))...))))))))))',
-                               '>seq1', 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                               '>seq2', 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                               '>seq3', 'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
+    isFastaMultipleSequencesSS:        ['((...((........))......))',
+                               '>seq1', 'GAGUAGCGGUCAAAUGCGCAGAUAC',
+                               '>seq2', 'GUGUAGCGGUGAAAUGCGUAGAGAU',
+                               '>seq3', 'GAGUAGCGGUGAAAUGCGCAGAUAC'].join('\n'),
 
-    isNoFastaMultipleSequencesSS: ['((((((((((..(((...)))...))))))))))',
-                                   'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                                   'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                                   'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
+    isNoFastaMultipleSequencesSS: ['((...((........))......))',
+                                   'GAGUAGCGGUCAAAUGCGCAGAUAC',
+                                   'GUGUAGCGGUGAAAUGCGUAGAGAU',
+                                   'GAGUAGCGGUGAAAUGCGCAGAUAC'].join('\n'),
 
-    isFastaMultipleSequencesNoSS: ['>seq1','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                                   '>seq2','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                                   '>seq3','CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n'),
+    isFastaMultipleSequencesNoSS: ['>seq1','UCCCGGAGUAGCGGUCAAAUGCGCAGAUACCGGGA',
+                                   '>seq2','UCCCGGUGUAGCGGUGAAAUGCGUAGAGAUCGGGA',
+                                   '>seq3','UCCCGGAGUAGCGGUGAAAUGCGCAGAUACCGGGA'].join('\n'),
 
-    isNoFastaMultipleSequencesNoSS: ['CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                                     'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG',
-                                     'CGGCCCGGCCAACCCUUUGGGCAGGGCCGGGCCG'].join('\n')
+    isNoFastaMultipleSequencesNoSS: ['UCCCGGAGUAGCGGUCAAAUGCGCAGAUACCGGGA',
+                                     'UCCCGGUGUAGCGGUGAAAUGCGUAGAGAUCGGGA',
+                                     'UCCCGGAGUAGCGGUGAAAUGCGCAGAUACCGGGA'].join('\n')
 
 };
 
