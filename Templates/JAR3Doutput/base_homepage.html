@@ -18,22 +18,22 @@ predicting RNA 3D motifs in sequences
         <div class="span2">
             <h4>Sample Input</h4>
             <ul class="examples unstyled">
-                <li><a href='#' id="isNoFastaSingleLoop">Single loop</a></li>
-                <li><a href='#' id="isFastaSingleLoop">Single loop (fasta)</a></li>
-                <li><a href='#' id="isNoFastaMultipleLoops">Multiple loops</a></li>
-                <li><a href='#' id="isFastaMultipleLoops">Multiple loops (fasta)</a></li>
-                <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence</a></li>
-                <li><a href='#' id="isFastaSingleSequenceNoSS">Single sequence (fasta)</a></li>
-                <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence with secondary structure</a></li>
-                <li><a href='#' id="isFastaSingleSequenceSS">Single sequence with secondary structure (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleLoop">Single sequence, one loop</a></li>
+                <li><a href='#' id="isFastaSingleLoop">Single sequence, one loop (fasta)</a></li>
+                <li><a href='#' id="isNoFastaMultipleLoops">Multiple sequences, one loop</a></li>
+                <li><a href='#' id="isFastaMultipleLoops">Multiple sequences, one loop (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence, many loops</a></li>
+                <li><a href='#' id="isFastaSingleSequenceNoSS">Single sequence, many loops (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence, many loops, with secondary structure</a></li>
+                <li><a href='#' id="isFastaSingleSequenceSS">Single sequence, many loops, with secondary structure (fasta)</a></li>
             <ul>
         </div>
         <div class="span2">
             <ul class="examples unstyled">
-                <li><a href='#' id="isNoFastaMultipleSequencesNoSS">Multiple sequences</a></li>
-                <li><a href='#' id="isFastaMultipleSequencesNoSS">Multiple sequences (fasta)</a></li>
-                <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences with secondary structure</a></li>
-                <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences with secondary structure (fasta)</a></li>
+                <li><a href='#' id="isNoFastaMultipleSequencesNoSS">Multiple sequences, many loops</a></li>
+                <li><a href='#' id="isFastaMultipleSequencesNoSS">Multiple sequences, many loops (fasta)</a></li>
+                <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure</a></li>
+                <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure (fasta)</a></li>
             <ul>
         </div>
     </div>
@@ -51,11 +51,18 @@ predicting RNA 3D motifs in sequences
         <div class="span4">
             <h3>Goal</h3>
             <p>
-              Correctly predicting RNA 3D structures starting from sequence is a major,
-              unsolved challenge in bioinformatics. An important sub-goal is the inference
-              of the 3D structures of recurrent hairpin and internal RNA 3D motifs
-              that appear as unpaired "loops" on secondary structure diagrams.
-              Recurrent 3D motif functions include:
+              <strong>JAR3D</strong> matches RNA hairpin and internal loop sequences to motif groups 
+              from the <a href="">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and 
+              by probabilistic scoring and edit distance for novel sequences.
+              RNA hairpin and internal loops are often represented on secondary structure diagrams as if they are unstructured,
+              but in fact most are structured by non-Watson-Crick basepairs, base stacking, and base-backbone interactions.
+              Analysis of 3D structures shows that
+              different RNA sequences can form the same RNA 3D motif, as is apparent
+              in many motif groups in the RNA 3D Motif Atlas.
+              JAR3D matches sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
+              Because the RNA 3D Motif Atlas incorporates new RNA 3D structures every four weeks, the performance of JAR3D will improve over time.
+              <p>
+              Functions of recurrent 3D motifs include:
             </p>
             <ul>
                 <li>Architectural roles introducing bends in helices (e.g. kink-turns) or changing helical twist (e.g. C-loops)</li>
@@ -63,36 +70,32 @@ predicting RNA 3D motifs in sequences
                 <li>Providing sites for proteins or small molecules to bind.</li>
             </ul>
             <p>
-              Analysis of 3D structures (for example using
-              <a href="http://rna.bgsu.edu/webfr3d">WebFR3D</a>) shows that
-              different RNA sequences can form the same RNA 3D motif. Since not
-              all sequence variants of a given motif are present in the 3D database,
-              accurate methods are needed to predict which sequences are likely to form known 3D motifs.
-              This is the purpose of <strong>JAR3D</strong>.
+              Inferring the 3D structures of hairpin and internal loops is a step on the way toward
+              correctly predicting full RNA 3D structures starting from sequence. 
             </p>
         </div>
         <div class="span4">
             <h3>Input and Output</h3>
             <p>
-              JAR3D recognizes multiple types of input (see Examples above).
-              If a secondary structure is provided, it is used to extract
-              internal and hairpin loops.
-              Unfolded single sequences are folded by <a href="http://mfold.rna.albany.edu/">UNAfold</a>.
-              Multiple sequence alignments without secondary structures are folded with
+              JAR3D accepts single or multiple sequences having one or many loops.
+              See the Examples above.
+              <b>One loop:</b>
+              To specify the break between strands in internal loops, use an asterisk <b>*</b>.
+              Sequence(s) without an asterisk and shorter than 25 nucleotides are
+              interpreted as hairpins. 
+              Internal and hairpin loops should include closing Watson-Crick basepairs, with nucleotides running in 5' to 3' order within each strand.
+              <b>Many loops</b>
+              If a secondary structure is provided, it is used to extract internal and hairpin loops.
+              Single sequences without a secondary structure are folded by <a href="http://mfold.rna.albany.edu/">UNAfold</a> and 
+              multiple sequence alignments are folded with
               <a href="http://www.tbi.univie.ac.at/~ivo/RNA/man/RNAalifold.html">RNAalifold</a>.
-              To specify chain break in internal loops, use the <code>*</code> symbol.
-              Sequence(s) without asterisks and shorter than 25 nucleotides are
-              interpreted as hairpins. Internal and hairpin loops should include
-              closing Watson-Crick basepairs.
             </p>
             <p>
-              The output shows the top scoring motifs from the RNA 3D Motif Atlas.
-              The user can view scoring statistics, visualize representative
-              motif instances that potentially match input sequences.
+              The output shows the best-matching motif groups from the RNA 3D Motif Atlas and
+              statistics measuring the quality of the match.
+              The user can view a representative
+              instance from each motif group and explore the group further at the RNA 3D Motif Atlas page for the motif group.
             </p>
-            <div class="alert alert-info">
-              Only internal loops are supported at this time. Please check back soon.
-            </div>
         </div>
         <div class="span4">
             <h3>Method</h3>
@@ -104,7 +107,7 @@ predicting RNA 3D motifs in sequences
               for sequence variability based on a hybrid <strong>Stochastic
               Context-Free Grammar/Markov Random Field</strong> (SCFG/MRF) method we developed.
               <li>To parameterize each model, we use all instances of the motif
-              found in the non-redundant dataset and RNA knowledge of nucleotide interactions,
+              found in the non-redundant dataset and knowledge of RNA nucleotide interactions,
               especially <a href="http://nar.oxfordjournals.org/content/37/7/2294.full">
               isosteric basepairs</a> and their substitution patterns.
               <li>Given the sequence of a hairpin or internal loop from a secondary structure as input,
