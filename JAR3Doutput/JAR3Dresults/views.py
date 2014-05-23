@@ -421,7 +421,7 @@ def make_input_alignment(parsed_input, query_type):
    	first_seq_row = 0
    	if has_ss:
    		first_seq_row += 1
-   	if has_fasta
+   	if has_fasta:
    		first_seq_row += 1
    	seq_length = len(query_lines[first_seq_row])
    	i = 1
