@@ -69,6 +69,7 @@ def result(request, uuid):
 
     if q.status == 1:
         zippedResults = zip(results.loops, results.sequences, results.indices)
+        input_alignment = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults, 'input_alignment': input_alignment},
