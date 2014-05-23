@@ -419,10 +419,8 @@ def make_input_alignment(parsed_input, query_type):
    		has_ss = False
    	#Make formatted alignment for display
    	first_seq_row = 0
-   	if has_ss:
-   		first_seq_row += 1
-   	if has_fasta:
-   		first_seq_row += 1
+   	first_seq_row += 1 if has_ss else first_seq_row
+   	first_seq_row += 1 if has_fasta else first_seq_row
    	seq_length = len(query_lines[first_seq_row])
    	i = 1
    	out = ''
