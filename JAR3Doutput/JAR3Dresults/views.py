@@ -68,7 +68,7 @@ def result(request, uuid):
     """
 
     if q.status == 1:
-        zippedResults = sort_loops(results.loops, results.sequences, results.indices)
+        zippedResults = zip(results.loops, results.sequences, results.indices)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
