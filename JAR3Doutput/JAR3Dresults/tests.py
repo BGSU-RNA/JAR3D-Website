@@ -53,3 +53,22 @@ class ViroidSeqTest(TestCase):
         self.assertEqual(len(self.query_seqs),33)
     def test_fungal_db_saver(self):    
         self.assertEqual(len(self.query_seqs_db),33)
+
+class AlignmentMakerTest(TestCase):
+    def setUp(self):
+        self.single_loop = 'CAG*CGG\n'
+        self.fasta_loop = '>Loop1\nCAG*CGG\n'
+        self.ss = '((...))\nCCAAAGG\n'
+        self.fasta_ss = '((...))\n>Sequence1\nCCAAAGG\n'
+        self.parsed_single_loop = views.make_input_alignment(self.single_loop,'isNoFastaSingleLoop')
+        self.parsed_fasta_loop = views.make_input_alignment(self.fasta_loop,'isFastaSingleLoop')
+        self.parsed_ss = views.make_input_alignment(self.ss,'isNoFastaSingleLoop')
+        self.parsed_fasta_ss = views.make_input_alignment(self.fasta_ss,'isFastaSingleLoop')
+    def test_single_loop:
+        self.assertEqual(self.single_loop,self.parsed_single_loop)
+    def test_fasta_loop:
+        self.assertEqual(self.fasta_loop,self.parsed_fasta_loop)
+    def test_ss:
+        self.assertEqual(self.parsed_ss,'  1    2    3    4    5    6    7  \n  C    C    A    A    A    G    G  \n')
+    def test_fasta_ss:
+        self.assertEqual(self.parsed_fasta_ss,'  1    2    3    4    5    6    7  \n>Sequence1\n  C    C    A    A    A    G    G  \n')
