@@ -406,6 +406,6 @@ class ResultsMaker():
 
 def sort_loops(loops, indices, sequences):
     mins = [ min(inds) for inds in indices ]
-    sorted_lists = sorted(izip(loops, indices, seqeunces, mins), reverse=False, key=lambda x: x[3])
+    sorted_lists = sorted(zip(loops, indices, seqeunces, mins), reverse=False, key=lambda x: x[3])
     loops, indices, sequences, mins = [[x[i] for x in sorted_lists] for i in range(4)]
     return zip(loops, indices, sequences)
