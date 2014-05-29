@@ -68,7 +68,7 @@ def result(request, uuid):
     """
 
     if q.status == 1:
-        zippedResults = zip(results.loops, results.sequences, results.indices)
+        zippedResults = sort_loops(results.loops, results.sequences, results.indices)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
@@ -403,3 +403,9 @@ class ResultsMaker():
             pass
         else:
             pass
+
+def sort_loops(loops, indices, sequences):
+    mins = [ min(inds) for inds in indices ]
+    sorted_lists = sorted(izip(loops, indices, seqeunces, mins), reverse=False, key=lambda x: x[3])
+    loops, indices, sequences, mins = [[x[i] for x in sorted_lists] for i in range(4)]
+    return zip(loops, indices, sequences)
