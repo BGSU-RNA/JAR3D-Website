@@ -405,10 +405,10 @@ class ResultsMaker():
             pass
 
 def make_input_alignment(parsed_input, query_type):
-   #If inut is just one loop, return
-   if query_type[-4] == 'L' or query_type[-5] =='L':
-      return parsed_input
-   #Get info about query
+    #If inut is just one loop, return
+    if query_type[-4] == 'L' or query_type[-5] =='L':
+        return parsed_input
+    #Get info about query
   	query_lines = parsed_input.split('\n')
     has_ss = True;
     has_fasta = True;
