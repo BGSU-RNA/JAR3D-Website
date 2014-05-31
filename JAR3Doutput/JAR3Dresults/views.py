@@ -408,4 +408,4 @@ def sort_loops(loops, indices, sequences):
     mins = [ min(inds.split(', '), key = int) for inds in indices ]
     mins = [ str(x) for x in mins ]
     sorted_lists = sorted(zip(loops, sequences, indices, mins), key = lambda x: int(x[3]))
-    return zip(loops, sequences, indices, mins)
+    return sorted_lists
