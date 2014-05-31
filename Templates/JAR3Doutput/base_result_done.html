@@ -19,7 +19,7 @@
 {{ block.super }}
 
 <div class="row">
-{% for loop,sequences,indices in results %}
+{% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
     <h3>
     Loop {{ forloop.counter }} - {{ mins }}
