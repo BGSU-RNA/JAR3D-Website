@@ -22,7 +22,7 @@
 {% for loop,sequences,indices in results %}
     <div class="span8 loop-result-container">
     <h3>
-    Loop {{ forloop.counter }}
+    Loop {{ forloop.counter }} - {{ mins }}
     </h3>
     Column Numbers: {{ indices }}
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
