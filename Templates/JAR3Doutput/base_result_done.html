@@ -19,7 +19,7 @@
 {{ block.super }}
 
 <div class="row">
-{% for loop,sequences,indices in results %}
+{% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
     <h3>
     Loop {{ forloop.counter }}
@@ -58,7 +58,7 @@
           </a>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
-        <td>{{ result.meanscore|floatformat:4 }}</td>
+        <td>{{ result.meanscore|floatformat:2 }}</td>
         <td>{{ result.medianfulleditdist|floatformat }}</td>
         <td>{{ result.medianinterioreditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
