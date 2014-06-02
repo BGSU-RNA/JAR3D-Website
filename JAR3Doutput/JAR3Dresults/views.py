@@ -68,7 +68,7 @@ def result(request, uuid):
     """
 
     if q.status == 1:
-        zippedResults = zip(results.loops, results.sequences, results.indices)
+        zippedResults = sort_loops(results.loops, results.indices, results.sequences)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
@@ -404,46 +404,8 @@ class ResultsMaker():
         else:
             pass
 
-def make_input_alignment(parsed_input, query_type):
-    #If inut is just one loop, return
-    if query_type[-4] == 'L' or query_type[-5] =='L':
-        return parsed_input
-    #Get info about query
-  	query_lines = parsed_input.split('\n')
-    has_ss = True;
-    has_fasta = True;
-    if query_type[2] == 'N':
-        has_fasta = False
-    if query_type[-4] == 'N':
-        has_ss = False
-    #Make formatted alignment for display
-    first_seq_row = 0
-    first_seq_row += 1 if has_ss else first_seq_row
-    first_seq_row += 1 if has_fasta else first_seq_row
-    seq_length = len(query_lines[first_seq_row])
-    i = 1
-    out = ''
-    while i <= seq_length:
-        if i < 10:
-            out += '  ' + str(i) + '  '
-        elif i < 100:
-            out += '  ' + str(i) + ' '
-        else:
-            out += ' ' + str(i) + ' '
-    out += '\n'
-    line = 0
-    if has_ss:
-        out += '  ' + '    '.join(query_lines[line]) + '  \n'
-        line += 1
-    while line < len(query_lines):
-        if has_fasta:
-            out += query_lines[line] + '\n'
-            line += 1
-        out += '  ' + '    '.join(query_lines[line]) + '  \n'
-    return out
-
 def sort_loops(loops, indices, sequences):
-	mins = [ min(inds) for inds in indices ]
-	sorted_lists = sorted(izip(loops, indices, seqeunces, mins), reverse=False, key=lambda x: x[3])
-	loops, indices, sequences, mins = [[x[i] for x in sorted_lists] for i in range(4)]
-	return sip(loops, indices, sequences)
+    mins = [ min(inds.split(', '), key = int) for inds in indices ]
+    mins = [ str(x) for x in mins ]
+    sorted_lists = sorted(zip(loops, sequences, indices, mins), key = lambda x: int(x[3]))
+    return sorted_lists
