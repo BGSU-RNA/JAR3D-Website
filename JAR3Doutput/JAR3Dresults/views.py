@@ -413,16 +413,28 @@ def sort_loops(loops, indices, sequences):
 
 def make_input_alignment(parsed_input, query_type):
     #If inut is just one loop, return
-    if query_type[-4] == 'L' or query_type[-5] =='L':
-        return parsed_input
+    loops = ['isFastaSingleLoop',
+            'isNoFastaSingleLoop',
+            'isFastaMultipleLoops',
+            'isNoFastaMultipleLoops']
+    if query_type in loops:
+       return parsed_input
     #Get info about query
     query_lines = parsed_input.split('\n')
-    has_ss = True;
-    has_fasta = True;
-    if query_type[2] == 'N':
-        has_fasta = False
-    if query_type[-4] == 'N':
-        has_ss = False
+    has_ss = False;
+    has_fasta = False;
+    fasta = ['isFastaSingleSequenceSS',
+            'isFastaMultipleSequencesSS',
+            'isFastaSingleSequenceNoSS',
+            'isFastaMultipleSequencesNoSS']
+    SSs =   ['isFastaSingleSequenceSS',
+            'isNoFastaSingleSequenceSS',
+            'isFastaMultipleSequencesSS',
+            'isNoFastaMultipleSequencesSS']
+    if query_type in fasta:
+        has_fasta = True
+    if query_type in SSs:
+        has_ss = True
     #Make formatted alignment for display
     first_seq_row = 0
     first_seq_row += 1 if has_ss else first_seq_row
