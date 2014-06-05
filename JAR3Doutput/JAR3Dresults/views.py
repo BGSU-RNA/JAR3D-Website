@@ -444,22 +444,24 @@ def make_input_alignment(parsed_input, query_type):
         first_seq_row += 1
     seq_length = len(query_lines[first_seq_row])
     i = 1
-    out = ''
+    l = []
     while i <= seq_length:
         if i < 10:
-            out += '  ' + str(i) + '  '
+            l.append('  ' + str(i) + '  ')
         elif i < 100:
-            out += '  ' + str(i) + ' '
+            l.append('  ' + str(i) + ' ')
         else:
-            out += ' ' + str(i) + ' '
-    out += '\n'
+            l.append(' ' + str(i) + ' ')
+    l.append('\n')
     line = 0
     if has_ss:
-        out += '  ' + "    ".join(query_lines[line]) + '  \n'
+        l.append('  ' + "    ".join(query_lines[line]) + '  \n')
         line += 1
     while line < len(query_lines):
         if has_fasta:
-            out += query_lines[line] + '\n'
+            l.append(query_lines[line] + '\n')
             line += 1
-        out += '  ' + "    ".join(query_lines[line]) + '  \n'
+        l.append('  ' + "    ".join(query_lines[line]) + '  \n')
+        line += 1
+    out = l.join()
     return out
