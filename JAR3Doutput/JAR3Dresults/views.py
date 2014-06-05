@@ -75,6 +75,7 @@ def result(request, uuid):
                                    'results': zippedResults},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
+        q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_pending.html',
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
