@@ -119,7 +119,7 @@ table .headerSortUp:after {
 
 .search-summary {
   overflow: auto;
-  white-space: nowrap;
+  white-space: pre;
   max-height: 100px;
 }
 
