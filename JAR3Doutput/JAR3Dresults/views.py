@@ -452,6 +452,7 @@ def make_input_alignment(parsed_input, query_type):
             l.append('  ' + str(i) + ' ')
         else:
             l.append(' ' + str(i) + ' ')
+        i += 1
     l.append('\n')
     line = 0
     if has_ss:
