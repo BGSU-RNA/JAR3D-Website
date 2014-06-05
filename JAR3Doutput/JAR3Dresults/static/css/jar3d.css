@@ -118,7 +118,8 @@ table .headerSortUp:after {
 }
 
 .search-summary {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
   white-space: pre;
   max-height: 100px;
 }
