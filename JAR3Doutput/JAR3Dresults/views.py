@@ -464,5 +464,5 @@ def make_input_alignment(parsed_input, query_type):
             line += 1
         l.append('  ' + "    ".join(query_lines[line]) + '  \n')
         line += 1
-    out = l.join()
+    out = ''.join(l)
     return out
