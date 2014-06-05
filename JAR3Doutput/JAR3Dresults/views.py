@@ -420,7 +420,7 @@ def make_input_alignment(parsed_input, query_type):
     if query_type in loops:
        return parsed_input
     #Get info about query
-    query_lines = parsed_input.split()
+    query_lines = parsed_input.split('\n')
     has_ss = False;
     has_fasta = False;
     fasta = ['isFastaSingleSequenceSS',
@@ -437,8 +437,10 @@ def make_input_alignment(parsed_input, query_type):
         has_ss = True
     #Make formatted alignment for display
     first_seq_row = 0
-    first_seq_row += 1 if has_ss else first_seq_row
-    first_seq_row += 1 if has_fasta else first_seq_row
+    if has_ss:
+        first_seq_row += 1
+    if has_fasta:
+        first_seq_row += 1
     seq_length = len(query_lines[first_seq_row])
     i = 1
     out = ''
