@@ -121,6 +121,7 @@ table .headerSortUp:after {
   overflow-x: auto;
   overflow-y: auto;
   white-space: pre;
+  font-family: 'DejaVu Sans Mono', monospace;
   max-height: 100px;
 }
 
