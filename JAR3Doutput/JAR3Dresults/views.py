@@ -177,7 +177,7 @@ class JAR3DValidator():
         # todo: if all loops have status = -1, then set query_info.status to 1
 
         # persist the entries in the database starting with sequences
-        query_sequences, query_positions, mins = zip(*sort_sequences(query_positions, query_sequences))
+        # query_sequences, query_positions, mins = zip(*sort_sequences(query_positions, query_sequences))
         try:
             for seq in query_sequences:
                 seq.save()
