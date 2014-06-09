@@ -177,6 +177,7 @@ class JAR3DValidator():
         # todo: if all loops have status = -1, then set query_info.status to 1
 
         # persist the entries in the database starting with sequences
+        query_sequences, query_positions, mins = zip(*sort_sequences(query_positions, query_sequences))
         try:
             for seq in query_sequences:
                 seq.save()
@@ -412,6 +413,12 @@ def sort_loops(loops, indices, sequences):
     sorted_lists = sorted(zip(loops, sequences, indices, mins), key = lambda x: int(x[3]))
     return sorted_lists
 
+def sort_sequences(indices, sequences):
+    mins = [ min(inds.split(', '), key = int) for inds in indices ]
+    mins = [ str(x) for x in mins ]
+    sorted_lists = sorted(zip(sequences, indices, mins), key = lambda x: int(x[2]))
+    return sorted_lists
+
 def make_input_alignment(parsed_input, query_type):
     #If inut is just one loop, return
     loops = ['isFastaSingleLoop',
@@ -447,22 +454,22 @@ def make_input_alignment(parsed_input, query_type):
     l = ['1  ']
     while i <= seq_length:
         if i < 10:
-            l.append('  ' + str(i) + '  ')
+            l.append('__' + str(i) + '__')
         elif i < 100:
-            l.append('  ' + str(i) + ' ')
+            l.append('__' + str(i) + '_')
         else:
-            l.append(' ' + str(i) + ' ')
+            l.append('_' + str(i) + '_')
         i += 1
     l.append('\n')
     line = 0
     if has_ss:
-        l.append("    ".join(query_lines[line]) + '  \n')
+        l.append("____".join(query_lines[line]) + '__\n')
         line += 1
     while line < len(query_lines):
         if has_fasta:
             l.append(query_lines[line] + '\n')
             line += 1
-        l.append("    ".join(query_lines[line]) + '  \n')
+        l.append("____".join(query_lines[line]) + '__\n')
         line += 1
     out = ''.join(l)
     return out
