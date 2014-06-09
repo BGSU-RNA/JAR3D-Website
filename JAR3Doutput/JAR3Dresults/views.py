@@ -451,8 +451,8 @@ def make_input_alignment(parsed_input, query_type):
         first_seq_row += 1
     seq_length = len(query_lines[first_seq_row])
     i = 2
-    l = ['1  ']
-    while i <= seq_length:
+    l = ['1__']
+    while i <= seq_length-1:
         if i < 10:
             l.append('__' + str(i) + '__')
         elif i < 100:
@@ -460,16 +460,24 @@ def make_input_alignment(parsed_input, query_type):
         else:
             l.append('_' + str(i) + '_')
         i += 1
+    i = seq_length
+    if i < 10:
+            l.append('__' + str(i))
+        elif i < 100:
+            l.append('__' + str(i))
+        else:
+            l.append('_' + str(i))
+        i += 1
     l.append('\n')
     line = 0
     if has_ss:
-        l.append("____".join(query_lines[line]) + '__\n')
+        l.append("____".join(query_lines[line]) + '\n')
         line += 1
     while line < len(query_lines):
         if has_fasta:
             l.append(query_lines[line] + '\n')
             line += 1
-        l.append("____".join(query_lines[line]) + '__\n')
+        l.append("____".join(query_lines[line]) + '\n')
         line += 1
     out = ''.join(l)
     return out
