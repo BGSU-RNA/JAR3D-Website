@@ -460,14 +460,12 @@ def make_input_alignment(parsed_input, query_type):
         else:
             l.append('_' + str(i) + '_')
         i += 1
-    i = seq_length
     if i < 10:
-            l.append('__' + str(i))
-        elif i < 100:
-            l.append('__' + str(i))
-        else:
-            l.append('_' + str(i))
-        i += 1
+        l.append('__' + str(i))
+    elif i < 100:
+        l.append('__' + str(i))
+    else:
+        l.append('_' + str(i))
     l.append('\n')
     line = 0
     if has_ss:
