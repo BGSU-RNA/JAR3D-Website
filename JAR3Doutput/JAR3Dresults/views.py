@@ -457,7 +457,7 @@ def make_input_alignment(parsed_input, query_type):
         l.append('\n')
     if seq_length >= 10:
         for i in range(1, seq_length+1):
-            l.append(str(i//10))
+            l.append(str(i%100//10))
         l.append('\n')
     for i in range(1, seq_length+1):
         l.append(str(i%10))
