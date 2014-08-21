@@ -22,7 +22,7 @@ my $TERM :shared = 0;
 my $IDLE_QUEUE = Thread::Queue->new();
 
 # CPU time out for each query in seconds
-my $TIMEOUT = 3000;
+my $TIMEOUT = 7200;
 
 # refresh time
 my $SLEEP = 5;
