@@ -127,8 +127,10 @@ var Examples = {
 
     function submitData(response) {
 
-        url = document.URL.match(/^http:\/\/127\.0\.0\.1:8000/) ||
-              document.URL.match(/^http:\/\/rna.bgsu.edu\/\w+/);
+        url = document.URL.match(/^https?:\/\/127\.0\.0\.1:8000/) ||
+              document.URL.match(/^https?:\/\/rna.bgsu.edu\/\w+/) ||
+              document.URL.match(/^https?:\/\/rnatest.bgsu.edu\/\w+/);
+
         $.ajax({
           type: 'POST',
           url: url + '/process_input',
