@@ -35,7 +35,7 @@
           <th class='table-header' data-header-name='index'>#</th>
           <th class='table-header' data-header-name='motif'>Motif ID and 2D Diagram</th>
           <th class='table-header' data-header-name='percent'>Percent Accepted by Model</th>
-          <th class='table-header' data-header-name='mean-score'>Mean Alignment Score</th>
+          <th class='table-header' data-header-name='mean-score'>Mean Cutoff Score</th>
           <th class='table-header' data-header-name='full-edit'>Full Edit Distance</th>
           <th class='table-header' data-header-name='interior-edit'>Interior Edit Distance</th>
           <th class='table-header' data-header-name='signature'>Interaction Signature</th>
@@ -58,7 +58,7 @@
           </a>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
-        <td>{{ result.meanscore|floatformat:2 }}</td>
+        <td>{{ result.mean_cutoff_score|floatformat:2 }}</td>
         <td>{{ result.medianfulleditdist|floatformat }}</td>
         <td>{{ result.medianinterioreditdist|floatformat }}</td>
         <td>{{ result.signature }}</td>
