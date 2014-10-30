@@ -21,11 +21,8 @@ predicting RNA 3D motifs in sequences
                 <li><a href='#' id="isNoFastaSingleLoop">Single sequence, one loop</a></li>
                 <li><a href='#' id="isNoFastaMultipleLoops">Multiple sequences, one loop</a></li>
                 <li><a href='#' id="isFastaMultipleLoops">Multiple sequences, one loop (fasta)</a></li>
-                <li><a href='#' id="isNoFastaSingleSequenceNoSS">Single sequence, many loops</a></li>
                 <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence, many loops, with secondary structure</a></li>
                 <li><a href='#' id="isFastaSingleSequenceSS">Single sequence, many loops, with secondary structure (fasta)</a></li>
-                <li><a href='#' id="isNoFastaMultipleSequencesNoSS">Multiple sequences, many loops</a></li>
-                <li><a href='#' id="isFastaMultipleSequencesNoSS">Multiple sequences, many loops (fasta)</a></li>
                 <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure</a></li>
                 <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure (fasta)</a></li>
             <ul>
@@ -75,14 +72,13 @@ predicting RNA 3D motifs in sequences
               See the Examples above.
               <b>One loop:</b>
               To specify the break between strands in internal loops, use an asterisk <b>*</b>.
-              Sequence(s) without an asterisk and shorter than 25 nucleotides are
-              interpreted as hairpins. 
+              Sequence(s) without an asterisk are interpreted as hairpins. 
               Internal and hairpin loops should include closing Watson-Crick basepairs, with nucleotides running in 5' to 3' order within each strand.
-              <b>Many loops</b>
-              If a secondary structure is provided, it is used to extract internal and hairpin loops.
-              Single sequences without a secondary structure are folded by <a href="http://mfold.rna.albany.edu/">UNAfold</a> and 
-              multiple sequence alignments are folded with
-              <a href="http://www.tbi.univie.ac.at/~ivo/RNA/man/RNAalifold.html">RNAalifold</a>.
+              Individual loops do not need the nucleotides to be aligned.
+              <b>Many loops:</b>
+              JAR3D will extract internal and hairpin loops from longer sequences if a dot-bracket secondary structure is provided as the first line
+              of the input.
+              Multiple sequences need to be aligned to one another.
             </p>
             <p>
               The output shows the best-matching motif groups from the RNA 3D Motif Atlas and
