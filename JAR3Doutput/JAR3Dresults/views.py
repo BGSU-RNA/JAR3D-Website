@@ -9,6 +9,9 @@ from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
 from JAR3Dresults.models import Query_loop_positions
 from JAR3Dresults.models import Results_by_loop
+from JAR3Dresults.models import Results_by_loop_instance
+from JAR3Dresults.models import Loop_query_info
+from JAR3Dresults.models import Correspondence_results
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
@@ -83,6 +86,22 @@ def result(request, uuid):
         return render_to_response('JAR3Doutput/base_result_failed.html',
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
+
+def single_result(request,uuid,loopid,motifgroup):
+    q = Loop_query_info.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    if q:
+        q = q[0]  # We are interested only in the first one
+    else:
+        return render_to_response('JAR3Doutput/base_result_not_found.html',
+                                  {'query_id': uuid},
+                                  context_instance=RequestContext(request))
+    seq_res = Results_by_loop_instance.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    for res in seq_res:
+        corrs = Correspondence_results.filter(result_instance_id = res.id)
+    return render_to_response('JAR3Doutput/base_result_not_found.html',
+                                  {'query_id': uuid},
+                                  context_instance=RequestContext(request))
+
 
 
 @csrf_exempt

@@ -23,6 +23,17 @@ class Query_info(models.Model):
     class Meta:
         db_table = u'jar3d_query_info'
 
+class Loop_query_info(models.Model):
+    query_id = models.CharField(max_length=36, db_index=True)
+    loop_id = models.SmallIntegerField()
+    group_set = models.CharField(max_length=20, default='default') #moitfs release
+    model_type = models.CharField(max_length=20, default='default') #bph_stack etc
+    status = models.IntegerField(default=0)
+    time_finished = models.DateTimeField(blank=True, null=True)
+    motif_group = models.CharField(max_length=20)
+    class Meta:
+        db_table = u'jar3d_loop_results_queue'
+
 class Query_loop_positions(models.Model):
     query_id = models.CharField(max_length=36, db_index=True)
     loop_id = models.SmallIntegerField()
@@ -45,6 +56,7 @@ class Query_sequences(models.Model):
         db_table = u'jar3d_query_sequences'
 
 class Results_by_loop_instance(models.Model):
+    id = models.IntegerField(primary_key=True)
     query_id = models.CharField(max_length=36, db_index=True)
     seq_id = models.SmallIntegerField()
     loop_id = models.SmallIntegerField()
@@ -75,3 +87,12 @@ class Results_by_loop(models.Model):
     correspondences = models.TextField()
     class Meta:
         db_table = u'jar3d_results_by_loop'
+
+class Correspondence_results(models.Model):
+    node_position = models.IntegerField()
+    sequence_position = models.IntegerField()
+    result_instance_id = models.IntegerField()
+    node = models.IntegerField()
+    is_insertion = models.SmallIntegerField()
+    class Meta:
+        db_table = u'jar3d_node_position_results'
