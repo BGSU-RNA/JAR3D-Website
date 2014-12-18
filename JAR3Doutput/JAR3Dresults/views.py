@@ -92,8 +92,10 @@ def single_result(request,uuid,loopid,motifgroup):
     if q:
         q = q[0]  # We are interested only in the first one
     else:
+        query = Loop_query_info(query_id = uuid, loop_id = loopid, status = 0, motif_group = motifgroup)
+        query.save();
         return render_to_response('JAR3Doutput/base_result_not_found.html',
-                                  {'query_id': uuid},
+                                  {'query_id': "Pending"},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
     for res in seq_res:
