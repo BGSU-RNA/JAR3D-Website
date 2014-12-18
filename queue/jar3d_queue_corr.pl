@@ -82,9 +82,14 @@ MAIN:
             last if ($tid < 0);
 
             # Give the thread some work to do
-            my $query_id = pop(@queries);
+            my $query = pop(@queries);
 
-            my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/jar3dCorr.jar /Users/api/Models/IL/1.13/lib/all.txt /Users/api/Models/HL/1.13/lib/all.txt $query_id $config{db_user_name} $config{db_password} $config{db_database}";
+            my $models = $config{il_models};
+            if ($query->{motif_group} ~= /^HL/) {
+                $models = $config{hl_models};
+            }
+
+            my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/jar3dCorr.jar $models $query->{motif_group} $query->{query_id} $query->{loop_id} $config{db_user_name} $config{db_password} $config{db_database}";
             $work_queues{$tid}->enqueue($work);
         }
         sleep($SLEEP);
@@ -145,7 +150,7 @@ sub worker
 
 sub get_queries
 {
-    my $statement = "select query_id from jar3d_loop_results_queue where status = 0;";
+    my $statement = "select query_id, loop_id, model from jar3d_loop_results_queue where status = 0;";
 
     my $sth = $dbh->prepare($statement);
     $sth->execute();
@@ -154,7 +159,7 @@ sub get_queries
 
     while (my $result = $sth->fetchrow_hashref()) {
         print "Value returned: $result->{query_id}\n";
-        push @query_ids, $result->{query_id};
+        push @query_ids, $result;
     }
 
     $sth->finish;
