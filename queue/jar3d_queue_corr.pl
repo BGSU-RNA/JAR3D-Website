@@ -85,7 +85,7 @@ MAIN:
             my $query = pop(@queries);
 
             my $models = $config{il_models};
-            if ($query->{motif_group} ~= /^HL/) {
+            if ($query->{motif_group} =~ /^HL/) {
                 $models = $config{hl_models};
             }
 
@@ -150,7 +150,7 @@ sub worker
 
 sub get_queries
 {
-    my $statement = "select query_id, loop_id, model from jar3d_loop_results_queue where status = 0;";
+    my $statement = "select * from jar3d_loop_results_queue where status = 0;";
 
     my $sth = $dbh->prepare($statement);
     $sth->execute();
