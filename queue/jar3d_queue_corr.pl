@@ -85,7 +85,7 @@ MAIN:
             my $query = pop(@queries);
 
             my $models = $config{il_models};
-            if ($query->{motif_group} ~= /^HL/) {
+            if ($query->{motif_group} =~ /^HL/) {
                 $models = $config{hl_models};
             }
 
