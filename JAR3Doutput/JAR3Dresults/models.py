@@ -26,8 +26,6 @@ class Query_info(models.Model):
 class Loop_query_info(models.Model):
     query_id = models.CharField(max_length=36, db_index=True)
     loop_id = models.SmallIntegerField()
-    group_set = models.CharField(max_length=20, default='default') #moitfs release
-    model_type = models.CharField(max_length=20, default='default') #bph_stack etc
     status = models.IntegerField(default=0)
     time_finished = models.DateTimeField(blank=True, null=True)
     motif_group = models.CharField(max_length=20)
