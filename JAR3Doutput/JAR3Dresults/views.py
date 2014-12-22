@@ -129,7 +129,7 @@ def single_result(request,uuid,loopid,motifgroup):
         row_id += 1
         rows[row_id] =  line_base + ' has_cutoff_score ' + seq_res.cutoff_score
         row_id += 1
-    return render_to_response('JAR3Doutput/base_result_not_found.html',
+    return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_id': uuid, 'rows': rows},
                                   context_instance=RequestContext(request))
 
