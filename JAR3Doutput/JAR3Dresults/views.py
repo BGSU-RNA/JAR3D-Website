@@ -132,7 +132,6 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     num_seq = len(seq_res)
-    seq_res_id = seq_res[0].id
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'rows': rows, 'num': num_seq, 'seq_res_id': seq_res_id},
                                   context_instance=RequestContext(request))
