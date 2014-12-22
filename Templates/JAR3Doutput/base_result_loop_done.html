@@ -15,9 +15,9 @@
 
 
 {% block page_content %}
-  <p> Test 1 </p>
+  <p>{{num}}</p>
+  <p>{{seq_res_id}}</p>
   {% for row in rows %}
-  <p> Test 2 </p>
     <p>{{row}}</p>
   {% endfor %}
 {% endblock page_content%}
