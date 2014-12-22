@@ -15,7 +15,8 @@
 
 
 {% block page_content %}
-  {% for row in rows %}
-    <p>{{row}}</p>
-  {% endfor %}
+  {{ block.super }}
+    {% for row in rows %}
+      <p>{{row}}</p>
+    {% endfor %}
 {% endblock page_content%}
