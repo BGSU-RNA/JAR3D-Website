@@ -98,7 +98,7 @@ def single_result(request,uuid,loopid,motifgroup):
         return render_to_response('JAR3Doutput/base_result_not_found.html',
                                   {'query_id': "Pending"},
                                   context_instance=RequestContext(request))
-    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
     row_id = 0
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
