@@ -105,7 +105,7 @@ def single_result(request,uuid,loopid,motifgroup):
         line_base = Sequence_ + 'res.seq_id'
         for corr_line in corrs:
             seq = Query_sequences.objects.fiter(query_id = uuid, seq_id = seq_res.seq_id, loop_id = loop_id)[0].loop_sequence
-            rows[row_id] = (line_base + '_Position_' corr_line.sequence_position + '_' + 
+            rows[row_id] = (line_base + '_Position_' + corr_line.sequence_position + '_' + 
                 seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + corr_line.node + 
                 '_Position_' + corr.node_position)
             if corr_line.is_insertion:
