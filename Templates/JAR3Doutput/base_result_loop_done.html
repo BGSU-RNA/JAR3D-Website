@@ -1,0 +1,20 @@
+{% extends "JAR3Doutput/base_result.html" %}
+{% load staticfiles %}
+
+{% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
+
+{% block custom_css %}
+  <link rel="stylesheet" href="{% static "js/fancybox/jquery.fancybox.css" %}" type="text/css" media="screen" />
+  <link rel="stylesheet" href="{% static "css/tipsy.css" %}" type="text/css"/>
+{% endblock custom_css %}
+
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{ query_info.query_id }} completed
+{% endblock page_subtitle %}
+
+
+{% block page_content %}
+  {{for row in rows}}
+  <p>{{row}}</p>
+{% endblock page_content%}
