@@ -129,8 +129,12 @@ def single_result(request,uuid,loopid,motifgroup):
         row_id += 1
         rows[row_id] =  line_base + ' has_cutoff_score ' + seq_res.cutoff_score
         row_id += 1
+    q = Query_info.objects.filter(query_id=uuid)
+    if q:
+        q = q[0]  # We are interested only in the first one
+    else:
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                                  {'query_id': uuid, 'rows': rows},
+                                  {'query_info': q, 'rows': rows},
                                   context_instance=RequestContext(request))
 
 
