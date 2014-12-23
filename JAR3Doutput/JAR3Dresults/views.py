@@ -101,6 +101,7 @@ def single_result(request,uuid,loopid,motifgroup):
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
+        rows.append(str(res.id))
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.fiter(query_id = uuid, seq_id = seq_res.seq_id, loop_id = loop_id)[0].loop_sequence
