@@ -111,7 +111,7 @@ def single_result(request,uuid,loopid,motifgroup):
             if corr_line.is_insertion:
                 seq = seq + '_Insertion'
             row_id += 1
-        name = Query_sequences.objects.fiter(query_id = uuid, seq_id = seq_res.seq_id, loop_id = loop_id)[0].user_seq_id
+        name = Query_sequences.objects.filter(query_id = uuid, seq_id = seq_res.seq_id, loop_id = loop_id)[0].user_seq_id
         cutoff = 'true'
         if seq_res.cutoff == 0:
             cutoff = 'false'
