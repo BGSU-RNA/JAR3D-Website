@@ -99,36 +99,27 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_id': "Pending"},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
-    row_id = 0
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.fiter(query_id = uuid, seq_id = seq_res.seq_id, loop_id = loop_id)[0].loop_sequence
-            rows[row_id] = (line_base + '_Position_' + corr_line.sequence_position + '_' + 
+            rows.append(line_base + '_Position_' + corr_line.sequence_position + '_' + 
                 seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + corr_line.node + 
                 '_Position_' + corr.node_position)
             if corr_line.is_insertion:
                 seq = seq + '_Insertion'
-            row_id += 1
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         cutoff = 'true'
         if res.cutoff == 0:
             cutoff = 'false'
-        rows[row_id] =  line_base + ' has_name ' + name
-        row_id += 1
-        rows[row_id] =  line_base + ' has_score ' + str(res.score)
-        row_id += 1
-        rows[row_id] =  line_base + ' hase_alignment_score_deficit ' + 'N/A'
-        row_id += 1
-        rows[row_id] =  line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist)
-        row_id += 1
-        rows[row_id] =  line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist)
-        row_id += 1
-        rows[row_id] =  line_base + ' has_cutoff_value ' + cutoff
-        row_id += 1
-        rows[row_id] =  line_base + ' has_cutoff_score ' + str(res.cutoff_score)
-        row_id += 1
+        rows.append(line_base + ' has_name ' + name)
+        rows.append(line_base + ' has_score ' + str(res.score))
+        rows.append(line_base + ' hase_alignment_score_deficit ' + 'N/A')
+        rows.append(line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist))
+        rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
+        rows.append(line_base + ' has_cutoff_value ' + cutoff)
+        rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
