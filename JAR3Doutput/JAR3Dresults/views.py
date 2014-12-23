@@ -113,21 +113,21 @@ def single_result(request,uuid,loopid,motifgroup):
             row_id += 1
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         cutoff = 'true'
-        if seq_res.cutoff == 0:
+        if res.cutoff == 0:
             cutoff = 'false'
         rows[row_id] =  line_base + ' has_name ' + name
         row_id += 1
-        rows[row_id] =  line_base + ' has_score ' + str(seq_res.score)
+        rows[row_id] =  line_base + ' has_score ' + str(res.score)
         row_id += 1
         rows[row_id] =  line_base + ' hase_alignment_score_deficit ' + 'N/A'
         row_id += 1
-        rows[row_id] =  line_base + ' has_minimum_interior_edit_distance ' + str(seq_res.interioreditdist)
+        rows[row_id] =  line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist)
         row_id += 1
-        rows[row_id] =  line_base + ' has_minimum_full_edit_distance ' + str(seq_res.fulleditdist)
+        rows[row_id] =  line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist)
         row_id += 1
         rows[row_id] =  line_base + ' has_cutoff_value ' + cutoff
         row_id += 1
-        rows[row_id] =  line_base + ' has_cutoff_score ' + str(seq_res.cutoff_score)
+        rows[row_id] =  line_base + ' has_cutoff_score ' + str(res.cutoff_score)
         row_id += 1
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
