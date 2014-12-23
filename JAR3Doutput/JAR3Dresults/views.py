@@ -102,7 +102,7 @@ def single_result(request,uuid,loopid,motifgroup):
     row_id = 0
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
-        line_base = 'Sequence_' + res.seq_id
+        line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.fiter(query_id = uuid, seq_id = seq_res.seq_id, loop_id = loop_id)[0].loop_sequence
             rows[row_id] = (line_base + '_Position_' + corr_line.sequence_position + '_' + 
@@ -117,17 +117,17 @@ def single_result(request,uuid,loopid,motifgroup):
             cutoff = 'false'
         rows[row_id] =  line_base + ' has_name ' + name
         row_id += 1
-        rows[row_id] =  line_base + ' has_score ' + seq_res.score
+        rows[row_id] =  line_base + ' has_score ' + str(seq_res.score)
         row_id += 1
         rows[row_id] =  line_base + ' hase_alignment_score_deficit ' + 'N/A'
         row_id += 1
-        rows[row_id] =  line_base + ' has_minimum_interior_edit_distance ' + seq_res.interioreditdist
+        rows[row_id] =  line_base + ' has_minimum_interior_edit_distance ' + str(seq_res.interioreditdist)
         row_id += 1
-        rows[row_id] =  line_base + ' has_minimum_full_edit_distance ' + seq_res.fulleditdist
+        rows[row_id] =  line_base + ' has_minimum_full_edit_distance ' + str(seq_res.fulleditdist)
         row_id += 1
         rows[row_id] =  line_base + ' has_cutoff_value ' + cutoff
         row_id += 1
-        rows[row_id] =  line_base + ' has_cutoff_score ' + seq_res.cutoff_score
+        rows[row_id] =  line_base + ' has_cutoff_score ' + str(seq_res.cutoff_score)
         row_id += 1
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
