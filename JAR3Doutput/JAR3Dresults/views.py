@@ -123,7 +123,7 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
     # This is cheesy, fix asap
-    filenamewithpath = '\\Users\\api\\Models\\IL\\1.13\\lib\\' + motifgroup + '_correspondences.txt'
+    filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.read()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,instance_text)
