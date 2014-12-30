@@ -121,10 +121,16 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+    instance_text = '\n'.join(rows)
+    # This is cheesy, fix asap
+    filenamewithpath = '\\Users\\api\\Models\\IL\\1.13\\lib\\' + motifgroup + '_correspondences.txt'
+    with open(filenamewithpath,"r") as f:
+        model_text = f.read()
+    header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,instance_text)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                                  {'query_info': q, 'rows': rows},
+                                  {'query_info': q, 'header': header,  'motifalig': motifalig, 'sequencealig': sequencealig},
                                   context_instance=RequestContext(request))
 
 
@@ -513,3 +519,107 @@ def make_input_alignment(parsed_input, query_type):
         line += 1
     out = ''.join(l)
     return out
+
+def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
+
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)
+  NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)
+
+  motifalig = {}
+  
+  for a in InstanceToGroup.iterkeys():
+    m = re.search("(Instance_[0-9]+)",a)
+    motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
+  
+  for a in sorted(InstanceToGroup.iterkeys()):
+    m = re.search("(Instance_[0-9]+)",a)
+    t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
+    motifalig[m.group(1)][t-1] += a[len(a)-1]
+
+  sequencealig = {}
+
+  for a in SequenceToModel.iterkeys():
+    m = re.search("(Sequence_[0-9]+)",a)
+    sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
+    
+  for a in sorted(SequenceToModel.iterkeys()):
+    m = re.search("(Sequence_[0-9]+)",a)
+    t = int(ModelToColumn[SequenceToModel[a]])
+    sequencealig[m.group(1)][t-1] += a[len(a)-1]
+
+  header = {}              # new dictionary
+  header['columnname'] = [''] * len(ModelToColumn)
+  header['nodes'] = [''] * len(ModelToColumn)
+  header['positions'] = [''] * len(ModelToColumn)
+  header['insertions'] = [''] * len(ModelToColumn)
+  
+  for a in ModelToColumn.iterkeys():
+    header['columnname'][int(ModelToColumn[a])-1] = a
+
+  for i in range(0,len(ModelToColumn)):
+    m = re.search("Node_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['nodes'][i] = a
+    m = re.search("Position_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['positions'][i] = a
+    if re.search("Insertion",header['columnname'][i]):
+      header['insertions'][i] = 'Insertion'
+
+  return header, motifalig, sequencealig
+
+def readcorrespondencesfromtext(lines):
+
+  InstanceToGroup = {}          # instance of motif to conserved group position
+  InstanceToPDB = {}            # instance of motif to NTs in PDBs
+  InstanceToSequence = {}       # instance of motif to position in fasta file
+  GroupToModel = {}             # positions in motif group to nodes in JAR3D model
+  ModelToColumn = {}            # nodes in JAR3D model to display columns
+  HasName = {}                  # organism name in FASTA header
+  HasScore = {}                 # score of sequence against JAR3D model
+  HasInteriorEdit = {}          # minimum interior edit distance to 3D instances from the motif group
+  HasFullEdit = {}              # minimum full edit distance to 3D instances from the motif group
+  HasCutoffValue = {}           # cutoff value 'true' or 'false'
+  HasCutoffScore = {}           # cutoff score, 100 is perfect, 0 is accepted, negative means reject
+
+  SequenceToModel = {}          # sequence position to node in JAR3D model
+
+  for line in lines:
+    if re.search("corresponds_to_group",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToGroup[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_PDB",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToPDB[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_JAR3D",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        GroupToModel[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_sequence",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToSequence[m.group(1)] = m.group(3)
+    elif re.search("appears_in_column",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        ModelToColumn[m.group(1)] = m.group(3)
+    elif re.search("aligns_to_JAR3D",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        SequenceToModel[m.group(1)] = m.group(3)
+    elif re.search("has_name",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasName[m.group(1)] = m.group(3)
+    elif re.search("has_score",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasScore[m.group(1)] = m.group(3)
+    elif re.search("has_minimum_interior_edit_distance",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasInteriorEdit[m.group(1)] = m.group(3)
+    elif re.search("has_minimum_full_edit_distance",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasFullEdit[m.group(1)] = m.group(3)
+    elif re.search("has_cutoff_value",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasCutoffValue[m.group(1)] = m.group(3)
+    elif re.search("has_cutoff_score",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasCutoffScore[m.group(1)] = m.group(3)
+
+  return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel, HasName, HasScore, HasInteriorEdit, HasFullEdit, HasCutoffValue, HasCutoffScore

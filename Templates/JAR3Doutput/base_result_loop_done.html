@@ -15,7 +15,25 @@
 
 
 {% block page_content %}
-  {% for row in rows %}
-    <p>{{row}}</p>
+  {% for k, dk in header.iteritems(): %}
+    <p>
+    {% for x in dk: %}
+      {{x}}
+    {% endfor %}
+    </p>
+  {% endfor %}
+  {% for k, dk in motifalig.iteritems(): %}
+    <p>
+    {% for x in dk: %}
+      {{x}}
+    {% endfor %}
+    </p>
+  {% endfor %}
+  {% for k, dk in sequencealig.iteritems(): %}
+    <p>
+    {% for x in dk: %}
+      {{x}}
+    {% endfor %}
+    </p>
   {% endfor %}
 {% endblock page_content%}
