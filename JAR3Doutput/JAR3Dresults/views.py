@@ -522,8 +522,8 @@ def make_input_alignment(parsed_input, query_type):
 
 def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
 
-  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)
-  NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)[:6]
+  NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)[:6]
 
   motifalig = {}
   
@@ -576,13 +576,13 @@ def readcorrespondencesfromtext(lines):
   GroupToModel = {}             # positions in motif group to nodes in JAR3D model
   ModelToColumn = {}            # nodes in JAR3D model to display columns
   HasName = {}                  # organism name in FASTA header
+  SequenceToModel = {}          # sequence position to node in JAR3D model
   HasScore = {}                 # score of sequence against JAR3D model
   HasInteriorEdit = {}          # minimum interior edit distance to 3D instances from the motif group
   HasFullEdit = {}              # minimum full edit distance to 3D instances from the motif group
   HasCutoffValue = {}           # cutoff value 'true' or 'false'
   HasCutoffScore = {}           # cutoff score, 100 is perfect, 0 is accepted, negative means reject
-
-  SequenceToModel = {}          # sequence position to node in JAR3D model
+  HasAlignmentScoreDeficit = {} # alignment score deficit, how far below the best score among 3D instances in this group
 
   for line in lines:
     if re.search("corresponds_to_group",line):
@@ -621,5 +621,8 @@ def readcorrespondencesfromtext(lines):
     elif re.search("has_cutoff_score",line):
         m = re.match("(.*) (.*) (.*)",line)
         HasCutoffScore[m.group(1)] = m.group(3)
+    elif re.search("has_alignment_score_deficit",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasAlignmentScoreDeficit[m.group(1)] = m.group(3)
 
-  return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel, HasName, HasScore, HasInteriorEdit, HasFullEdit, HasCutoffValue, HasCutoffScore
+  return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel, HasName, HasScore, HasInteriorEdit, HasFullEdit, HasCutoffValue, HasCutoffScore, HasAlignmentScoreDeficit
