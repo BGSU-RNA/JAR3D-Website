@@ -132,17 +132,20 @@ def single_result(request,uuid,loopid,motifgroup):
     lines.append(header['nodes'])
     lines.append(header['positions'])
     lines.append(header['insertions'])
-    keys = sorted(motifalig.keys())
-    for key in keys:
+    mkeys = sorted(motifalig.keys())
+    for key in mkeys:
         lines.append(motifalig[key])
-    keys = sorted(sequencealig.keys())
-    for key in keys:
+    skeys = sorted(sequencealig.keys())
+    for key in skeys:
         lines.append(sequencealig[key])
     columnum = len(lines[0])
+    hkeys = sorted(header.keys())
+    numlines = len(mkeys) + len(hkeys) + len(skeys)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                                  {'query_info': q, 'lines': lines, 'colnum': columnum},
+                                  {'query_info': q, 'lines': lines, 'colnum': columnum, 
+                                  'mtext': model_test, 'itext': instance_text, 'numlines': numlines},
                                   context_instance=RequestContext(request))
 
 
