@@ -142,7 +142,7 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                                  {'query_info': q, 'lines': lines, 'colnum': colnum},
+                                  {'query_info': q, 'lines': lines, 'colnum': columnum},
                                   context_instance=RequestContext(request))
 
 
