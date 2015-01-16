@@ -15,19 +15,18 @@
 
 
 {% block page_content %}
-  {% for k, dk in header.items %}
-    <p>
-        dk
-    </p>
-  {% endfor %}
-  {% for k, dk in motifalig.items %}
-    <p>
-        dk
-    </p>
-  {% endfor %}
-  {% for k, dk in sequencealig.items %}
-    <p>
-        dk
-    </p>
-  {% endfor %}
+{{colnum}}
+<div class="row">
+    <table class="table table-striped table-condensed table-bordered">
+      <thead>
+      {% for line in lines %}
+        <tr>
+          {% for cell in line %}
+          <td>{{cell}}</th>
+          {% endfor %}
+          </tr>
+      <tbody>
+      {% endfor %}
+</div>
+
 {% endblock page_content%}
