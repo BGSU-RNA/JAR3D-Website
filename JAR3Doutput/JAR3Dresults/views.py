@@ -140,7 +140,7 @@ def single_result(request,uuid,loopid,motifgroup):
         lines.append(sequencealig[key])
     columnum = len(lines[0])
     hkeys = sorted(header.keys())
-    numlines = len(mkeys) + len(hkeys) + len(skeys)
+    numlines = 100*len(mkeys) + 10*len(hkeys) + len(skeys)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
