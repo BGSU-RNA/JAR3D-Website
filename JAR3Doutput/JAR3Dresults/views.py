@@ -99,9 +99,8 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_id': "Pending"},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
-    for res in seq_res:
+    for indx, res in enumerate(seq_res):
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
-        rows.append(str(res.id))
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
@@ -111,6 +110,8 @@ def single_result(request,uuid,loopid,motifgroup):
             if corr_line.is_insertion:
                 seq = seq + '_Insertion'
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
+        if len(name) == 0:
+            name = 'Sequence' + str(indx)
         cutoff = 'true'
         if res.cutoff == 0:
             cutoff = 'false'
