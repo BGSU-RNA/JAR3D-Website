@@ -126,8 +126,8 @@ def single_result(request,uuid,loopid,motifgroup):
     # This is cheesy, fix asap
     filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
-        model_text = f.read()
-    header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,instance_text)
+        model_text = f.readlines()
+    header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
     lines = []
     lines.append(header['columnname'])
     lines.append(header['nodes'])
