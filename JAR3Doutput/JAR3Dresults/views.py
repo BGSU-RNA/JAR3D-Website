@@ -131,7 +131,7 @@ def single_result(request,uuid,loopid,motifgroup):
     lines = []
     lines.append(header['nodes'])
     lines.append(header['positions'])
-    insertions []
+    insertions = []
     for item in header['insertions']:
         insertions.append(item.relace('nsertion', ''))
     lines.append(insertions)
