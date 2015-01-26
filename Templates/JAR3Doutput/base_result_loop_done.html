@@ -21,7 +21,7 @@
       {% for line in header_lines %}
         <tr>
           {% for cell in line %}
-          <th class='table-header'>{{cell}}</th>
+          <th class='table-header' data-header-name='{{forloop.counter}}'>{{cell}}</th>
           {% endfor %}
         </tr>
       <thead>
@@ -43,32 +43,12 @@
     {{ block.super }}
         {{ block.super }}
     <script src="{% static "js/jquery.tablesorter.min.js" %}"></script>
-    <script src="{% static "js/jquery.jmolTools.js" %}"></script>
     <script src="{% static "js/fancybox/jquery.fancybox.pack.js" %}"></script>
     <script src="{% static "js/jquery.tipsy.js" %}"></script>
 
     <script>
       $(document).ready(function() {
           $("table").tablesorter();
-
-          // initialize jmolTools
-          $('.jmolInline').jmolTools({
-              showStereoId: 'stereo',
-              showNeighborhoodId: 'neighborhood',
-              showNumbersId: 'showNtNums',
-              showNextId: 'next',
-              showPrevId: 'prev'
-          });
-
-          // position jmol
-          (function(){
-              var reference = $('.loop-result-container').first();
-              var offset_left = reference.offset().left + reference.width();
-              var offset_top  = reference.offset().top;
-              $('#jmol').css('position','fixed')
-                        .css('left',offset_left)
-                        .css('top',offset_top);
-          })();
 
           // fancybox integration
         $(".fancybox").fancybox({
