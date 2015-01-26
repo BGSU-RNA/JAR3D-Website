@@ -132,8 +132,8 @@ def single_result(request,uuid,loopid,motifgroup):
     header_lines = []
     body_lines = []
     col_nums = []
-    for i in range(0, len(header['nodes'])-1):
-        col_nums.append([str(i)])
+    for i in range(1, len(header['nodes'])+1):
+        col_nums.append(i)
     header_lines.append(col_nums)
     header_lines.append(header['nodes'])
     insertions = []
