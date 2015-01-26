@@ -18,12 +18,20 @@
 <div class="row">
     <table class="table table-striped table-condensed table-bordered">
       <thead>
-      {% for line in lines %}
+      {% for line in header_lines %}
+        <tr>
+          {% for cell in line %}
+          <th>{{cell}}</th>
+          {% endfor %}
+        </tr>
+      <thead>
+      <tbody>
+      {% for line in body_lines %}
         <tr>
           {% for cell in line %}
           <td>{{cell}}</td>
           {% endfor %}
-          </tr>
+        </tr>
       <tbody>
       {% endfor %}
 </div>
