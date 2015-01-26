@@ -38,3 +38,8 @@
 </div>
 
 {% endblock page_content%}
+
+{% block page_specific_js %}
+    {{ block.super }}
+    <script src="{% static "js/jquery.tablesorter.min.js" %}"></script>
+{% endblock page_specific_js %}
