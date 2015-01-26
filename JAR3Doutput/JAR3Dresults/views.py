@@ -95,7 +95,7 @@ def single_result(request,uuid,loopid,motifgroup):
     else:
         query = Loop_query_info(query_id = uuid, loop_id = loopid, status = 0, motif_group = motifgroup)
         query.save();
-        return render_to_response('JAR3Doutput/base_result_loop_found.html',
+        return render_to_response('JAR3Doutput/base_result_loop_pending.html',
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
