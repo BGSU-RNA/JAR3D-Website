@@ -138,7 +138,7 @@ def single_result(request,uuid,loopid,motifgroup):
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('nsertion', ''))
-    for i in range(1, len(header['nodes'])+1):
+    for i in range(0, len(header['nodes'])):
         header_line.append(str(col_nums[i])+'<br>'+str(nodes[i])+'<br>'+insertions[i])
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
