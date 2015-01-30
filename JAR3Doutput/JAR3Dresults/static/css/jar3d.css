@@ -118,8 +118,10 @@ table .headerSortUp:after {
 }
 
 .search-summary {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
   white-space: nowrap;
+  font-family: 'DejaVu Sans Mono', monospace;
   max-height: 100px;
 }
 

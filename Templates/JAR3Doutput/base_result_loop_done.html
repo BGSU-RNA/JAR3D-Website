@@ -1,0 +1,67 @@
+{% extends "JAR3Doutput/base_result.html" %}
+{% load staticfiles %}
+
+{% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
+
+{% block custom_css %}
+  <link rel="stylesheet" href="{% static "js/fancybox/jquery.fancybox.css" %}" type="text/css" media="screen" />
+  <link rel="stylesheet" href="{% static "css/tipsy.css" %}" type="text/css"/>
+{% endblock custom_css %}
+
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{ query_info.query_id }} completed
+{% endblock page_subtitle %}
+
+
+{% block page_content %}
+<div class="row">
+    <table class="table table-striped table-condensed table-bordered">
+      <thead>
+        <tr>
+          {% for cell in header_line %}
+          <th class='table-header' data-header-name='{{forloop.counter}}'><pre>{{cell}}</pre></th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for line in body_lines %}
+        <tr>
+          {% for cell in line %}
+          <td>{{cell}}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+</div>
+
+{% endblock page_content%}
+
+{% block page_specific_js %}
+    {{ block.super }}
+        {{ block.super }}
+    <script src="{% static "js/jquery.tablesorter.min.js" %}"></script>
+    <script src="{% static "js/fancybox/jquery.fancybox.pack.js" %}"></script>
+    <script src="{% static "js/jquery.tipsy.js" %}"></script>
+
+    <script>
+      $(document).ready(function() {
+          $("table").tablesorter({theme:'blue'});
+
+          // fancybox integration
+        $(".fancybox").fancybox({
+          openEffect	: 'none',
+          closeEffect	: 'none'
+        });
+
+        $(".table-header").tipsy({
+            gravity: 's',
+            title: function() {
+              var name = $(this).data('header-name');
+              return $(".help-text[data-header-name='" + name + "']").text();
+            }
+        });
+      });
+    </script>
+{% endblock page_specific_js %}

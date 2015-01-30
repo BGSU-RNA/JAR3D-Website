@@ -1,0 +1,31 @@
+{% extends "JAR3Doutput/base_result.html" %}
+
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{query_info.query_id}} has been added to the queue
+{% endblock page_subtitle %}
+
+{% block page_content %}
+
+  <div class="span6">
+  Your query has been successfully added to the queue.
+  The page will refresh every 5 seconds until results for the first loops become available.
+  If your query has many loops, manually refresh the page after a few minutes.
+  The results will be kept on the server indefinitely at this URL.
+
+      <dl class='span3'>
+        <dt>Loop Number</dt>
+        <dd>{{loopnum}}</dd>
+        <dt>Motif ID</dt>
+        <dd>{{motifid}}</dd>
+    </dl>
+  </div>
+
+{% endblock page_content %}
+
+{% block page_specific_js %}
+    {{ block.super }}
+    <script>
+        setTimeout("location.reload(true);", 5000);
+    </script>
+{% endblock page_specific_js %}
