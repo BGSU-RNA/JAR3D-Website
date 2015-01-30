@@ -9,6 +9,7 @@ urlpatterns = patterns('',
 
     url(r'^process_input$', 'JAR3Dresults.views.process_input'),
     url(r'^result/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', 'JAR3Dresults.views.result'),
+    url(r'^result/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/(?P<loopid>\d)/(?P<motifgroup>.*)/$', 'JAR3Dresults.views.single_result'),
     url(r'^refine/(?P<uuid>\w{8}-\w{4}-\w{4}-\w{4}-\w{12})/$', 'JAR3Dresults.views.home', name='refine'),
     url(r'^$', 'JAR3Dresults.views.home', name='home'),
 

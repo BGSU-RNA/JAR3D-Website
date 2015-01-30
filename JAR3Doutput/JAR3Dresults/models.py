@@ -23,6 +23,15 @@ class Query_info(models.Model):
     class Meta:
         db_table = u'jar3d_query_info'
 
+class Loop_query_info(models.Model):
+    query_id = models.CharField(max_length=36, db_index=True)
+    loop_id = models.SmallIntegerField()
+    status = models.IntegerField(default=0)
+    time_finished = models.DateTimeField(blank=True, null=True)
+    motif_group = models.CharField(max_length=20)
+    class Meta:
+        db_table = u'jar3d_loop_results_queue'
+
 class Query_loop_positions(models.Model):
     query_id = models.CharField(max_length=36, db_index=True)
     loop_id = models.SmallIntegerField()
@@ -45,13 +54,14 @@ class Query_sequences(models.Model):
         db_table = u'jar3d_query_sequences'
 
 class Results_by_loop_instance(models.Model):
+    id = models.IntegerField(primary_key=True)
     query_id = models.CharField(max_length=36, db_index=True)
     seq_id = models.SmallIntegerField()
     loop_id = models.SmallIntegerField()
     motif_id = models.CharField(max_length=11)
     cutoff =  models.SmallIntegerField()
     score = models.DecimalField(max_digits=10, decimal_places=6)
-    percentile = models.DecimalField(max_digits=10, decimal_places=6)
+    cutoff_score = models.DecimalField(max_digits=10, decimal_places=6)
     interioreditdist = models.SmallIntegerField()
     fulleditdist = models.SmallIntegerField()
     rotation = models.SmallIntegerField()
@@ -64,11 +74,10 @@ class Results_by_loop(models.Model):
     motif_id = models.CharField(max_length=11)
     cutoff_percent = models.DecimalField(max_digits=10, decimal_places=6)
     meanscore = models.DecimalField(max_digits=10, decimal_places=6)
-    meanpercentile = models.DecimalField(max_digits=10, decimal_places=6)
+    mean_cutoff_score = models.DecimalField(max_digits=10, decimal_places=6)
     meaninterioreditdist = models.DecimalField(max_digits=10, decimal_places=6)
     meanfulleditdist = models.DecimalField(max_digits=10, decimal_places=6)
     medianscore = models.DecimalField(max_digits=10, decimal_places=6)
-    medianpercentile = models.DecimalField(max_digits=10, decimal_places=6)
     medianinterioreditdist = models.DecimalField(max_digits=10, decimal_places=6)
     medianfulleditdist = models.DecimalField(max_digits=10, decimal_places=6)
     signature = models.CharField(max_length=150)
@@ -76,3 +85,12 @@ class Results_by_loop(models.Model):
     correspondences = models.TextField()
     class Meta:
         db_table = u'jar3d_results_by_loop'
+
+class Correspondence_results(models.Model):
+    node_position = models.IntegerField()
+    sequence_position = models.IntegerField()
+    result_instance_id = models.IntegerField()
+    node = models.IntegerField()
+    is_insertion = models.SmallIntegerField()
+    class Meta:
+        db_table = u'jar3d_node_position_results'

@@ -9,6 +9,9 @@ from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
 from JAR3Dresults.models import Query_loop_positions
 from JAR3Dresults.models import Results_by_loop
+from JAR3Dresults.models import Results_by_loop_instance
+from JAR3Dresults.models import Loop_query_info
+from JAR3Dresults.models import Correspondence_results
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
@@ -69,11 +72,13 @@ def result(request, uuid):
 
     if q.status == 1:
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
+        q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
+        q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_pending.html',
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
@@ -81,6 +86,73 @@ def result(request, uuid):
         return render_to_response('JAR3Doutput/base_result_failed.html',
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
+
+def single_result(request,uuid,loopid,motifgroup):
+    q = Loop_query_info.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    rows = []
+    if q:
+        q = q[0]  # We are interested only in the first one
+    else:
+        query = Loop_query_info(query_id = uuid, loop_id = loopid, status = 0, motif_group = motifgroup)
+        query.save();
+        return render_to_response('JAR3Doutput/base_result_loop_pending.html',
+                                  {'query_info': q,
+                                  'loopnum': loopid, 'motifid': motifgroup},
+                                  context_instance=RequestContext(request))
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
+    for indx, res in enumerate(seq_res):
+        corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
+        line_base = 'Sequence_' + str(res.seq_id)
+        for corr_line in corrs:
+            seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
+            rows.append(line_base + '_Position_' + str(corr_line.sequence_position) + '_' + 
+                seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + str(corr_line.node) + 
+                '_Position_' + str(corr_line.node_position))
+            if corr_line.is_insertion:
+                seq = seq + '_Insertion'
+        name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
+        if len(name) == 0:
+            name = 'Sequence' + str(indx)
+        cutoff = 'true'
+        if res.cutoff == 0:
+            cutoff = 'false'
+        rows.append(line_base + ' has_name ' + name)
+        rows.append(line_base + ' has_score ' + str(res.score))
+        rows.append(line_base + ' hase_alignment_score_deficit ' + 'N/A')
+        rows.append(line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist))
+        rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
+        rows.append(line_base + ' has_cutoff_value ' + cutoff)
+        rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+    instance_text = '\n'.join(rows)
+    # This is cheesy, fix asap
+    filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    with open(filenamewithpath,"r") as f:
+        model_text = f.readlines()
+    header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
+    header_line = []
+    body_lines = []
+    col_nums = []
+    for i in range(1, len(header['nodes'])+1):
+        col_nums.append(i)
+    nodes = header['nodes']
+    insertions = []
+    for item in header['insertions']:
+        insertions.append(item.replace('nsertion', ''))
+    for i in range(0, len(header['nodes'])):
+        header_line.append(str(col_nums[i])+'\n'+str(nodes[i])+'\n'+insertions[i])
+    mkeys = sorted(motifalig.keys())
+    for key in mkeys:
+        body_lines.append(motifalig[key])
+    skeys = sorted(sequencealig.keys())
+    for key in skeys:
+        body_lines.append(sequencealig[key])
+    q = Query_info.objects.filter(query_id=uuid)
+    q = q[0]  # We are interested only in the first one
+    return render_to_response('JAR3Doutput/base_result_loop_done.html',
+                                  {'query_info': q, 'header_line': header_line,
+                                  'body_lines': body_lines},
+                                  context_instance=RequestContext(request))
+
 
 
 @csrf_exempt
@@ -175,6 +247,7 @@ class JAR3DValidator():
         # todo: if all loops have status = -1, then set query_info.status to 1
 
         # persist the entries in the database starting with sequences
+        # query_sequences, query_positions, mins = zip(*sort_sequences(query_positions, query_sequences))
         try:
             for seq in query_sequences:
                 seq.save()
@@ -409,3 +482,167 @@ def sort_loops(loops, indices, sequences):
     mins = [ str(x) for x in mins ]
     sorted_lists = sorted(zip(loops, sequences, indices, mins), key = lambda x: int(x[3]))
     return sorted_lists
+
+def sort_sequences(indices, sequences):
+    mins = [ min(inds.split(', '), key = int) for inds in indices ]
+    mins = [ str(x) for x in mins ]
+    sorted_lists = sorted(zip(sequences, indices, mins), key = lambda x: int(x[2]))
+    return sorted_lists
+
+def make_input_alignment(parsed_input, query_type):
+    #If inut is just one loop, return
+    loops = ['isFastaSingleLoop',
+            'isNoFastaSingleLoop',
+            'isFastaMultipleLoops',
+            'isNoFastaMultipleLoops']
+    if query_type in loops:
+       return parsed_input
+    #Get info about query
+    query_lines = parsed_input.splitlines()
+    has_ss = False;
+    has_fasta = False;
+    fasta = ['isFastaSingleSequenceSS',
+            'isFastaMultipleSequencesSS',
+            'isFastaSingleSequenceNoSS',
+            'isFastaMultipleSequencesNoSS']
+    SSs =   ['isFastaSingleSequenceSS',
+            'isNoFastaSingleSequenceSS',
+            'isFastaMultipleSequencesSS',
+            'isNoFastaMultipleSequencesSS']
+    if query_type in fasta:
+        has_fasta = True
+    if query_type in SSs:
+        has_ss = True
+    #Make formatted alignment for display
+    first_seq_row = 0
+    if has_ss:
+        first_seq_row += 1
+    if has_fasta:
+        first_seq_row += 1
+    seq_length = len(query_lines[first_seq_row])
+    l = []
+    if seq_length >= 100:
+        for i in range(1, seq_length+1):
+            l.append(str(i//100))
+        l.append('\n')
+    if seq_length >= 10:
+        for i in range(1, seq_length+1):
+            l.append(str(i%100//10))
+        l.append('\n')
+    for i in range(1, seq_length+1):
+        l.append(str(i%10))
+    l.append('\n')
+    l.append('='*seq_length+'\n')
+    line = 0
+    while line < len(query_lines):
+        l.append(query_lines[line] + '\n')
+        line += 1
+    out = ''.join(l)
+    return out
+
+def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
+
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)[:6]
+  NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)[:6]
+
+  motifalig = {}
+  
+  for a in InstanceToGroup.iterkeys():
+    m = re.search("(Instance_[0-9]+)",a)
+    motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
+  
+  for a in sorted(InstanceToGroup.iterkeys()):
+    m = re.search("(Instance_[0-9]+)",a)
+    t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
+    motifalig[m.group(1)][t-1] += a[len(a)-1]
+
+  sequencealig = {}
+
+  for a in SequenceToModel.iterkeys():
+    m = re.search("(Sequence_[0-9]+)",a)
+    sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
+    
+  for a in sorted(SequenceToModel.iterkeys()):
+    m = re.search("(Sequence_[0-9]+)",a)
+    t = int(ModelToColumn[SequenceToModel[a]])
+    sequencealig[m.group(1)][t-1] += a[len(a)-1]
+
+  header = {}              # new dictionary
+  header['columnname'] = [''] * len(ModelToColumn)
+  header['nodes'] = [''] * len(ModelToColumn)
+  header['positions'] = [''] * len(ModelToColumn)
+  header['insertions'] = [''] * len(ModelToColumn)
+  
+  for a in ModelToColumn.iterkeys():
+    header['columnname'][int(ModelToColumn[a])-1] = a
+
+  for i in range(0,len(ModelToColumn)):
+    m = re.search("Node_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['nodes'][i] = a
+    m = re.search("Position_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['positions'][i] = a
+    if re.search("Insertion",header['columnname'][i]):
+      header['insertions'][i] = 'Insertion'
+
+  return header, motifalig, sequencealig
+
+def readcorrespondencesfromtext(lines):
+
+  InstanceToGroup = {}          # instance of motif to conserved group position
+  InstanceToPDB = {}            # instance of motif to NTs in PDBs
+  InstanceToSequence = {}       # instance of motif to position in fasta file
+  GroupToModel = {}             # positions in motif group to nodes in JAR3D model
+  ModelToColumn = {}            # nodes in JAR3D model to display columns
+  HasName = {}                  # organism name in FASTA header
+  SequenceToModel = {}          # sequence position to node in JAR3D model
+  HasScore = {}                 # score of sequence against JAR3D model
+  HasInteriorEdit = {}          # minimum interior edit distance to 3D instances from the motif group
+  HasFullEdit = {}              # minimum full edit distance to 3D instances from the motif group
+  HasCutoffValue = {}           # cutoff value 'true' or 'false'
+  HasCutoffScore = {}           # cutoff score, 100 is perfect, 0 is accepted, negative means reject
+  HasAlignmentScoreDeficit = {} # alignment score deficit, how far below the best score among 3D instances in this group
+
+  for line in lines:
+    if re.search("corresponds_to_group",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToGroup[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_PDB",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToPDB[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_JAR3D",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        GroupToModel[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_sequence",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToSequence[m.group(1)] = m.group(3)
+    elif re.search("appears_in_column",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        ModelToColumn[m.group(1)] = m.group(3)
+    elif re.search("aligns_to_JAR3D",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        SequenceToModel[m.group(1)] = m.group(3)
+    elif re.search("has_name",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasName[m.group(1)] = m.group(3)
+    elif re.search("has_score",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasScore[m.group(1)] = m.group(3)
+    elif re.search("has_minimum_interior_edit_distance",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasInteriorEdit[m.group(1)] = m.group(3)
+    elif re.search("has_minimum_full_edit_distance",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasFullEdit[m.group(1)] = m.group(3)
+    elif re.search("has_cutoff_value",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasCutoffValue[m.group(1)] = m.group(3)
+    elif re.search("has_cutoff_score",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasCutoffScore[m.group(1)] = m.group(3)
+    elif re.search("has_alignment_score_deficit",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasAlignmentScoreDeficit[m.group(1)] = m.group(3)
+
+  return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel, HasName, HasScore, HasInteriorEdit, HasFullEdit, HasCutoffValue, HasCutoffScore, HasAlignmentScoreDeficit
