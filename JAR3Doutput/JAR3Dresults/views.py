@@ -129,7 +129,6 @@ def single_result(request,uuid,loopid,motifgroup):
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
-    header_line = []
     body_lines = []
     col_nums = []
     for i in range(1, len(header['nodes'])+1):
@@ -138,8 +137,7 @@ def single_result(request,uuid,loopid,motifgroup):
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('nsertion', ''))
-    for i in range(0, len(header['nodes'])):
-        header_line.append(str(col_nums[i])+'\n'+str(nodes[i])+'\n'+insertions[i])
+    header_zip = zip(col_nums,nodes,insertions)
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
         body_lines.append(motifalig[key])
@@ -149,7 +147,7 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                                  {'query_info': q, 'header_line': header_line,
+                                  {'query_info': q, 'header_zip': header_zip,
                                   'body_lines': body_lines},
                                   context_instance=RequestContext(request))
 
