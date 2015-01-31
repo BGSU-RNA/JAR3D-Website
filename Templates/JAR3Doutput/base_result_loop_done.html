@@ -19,8 +19,8 @@
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
-          {% for cell in header_line %}
-          <th class='table-header' data-header-name='{{forloop.counter}}'><pre>{{cell}}</pre></th>
+          {% for col_num,node,insertion in header_zip %}
+          <th class='table-header' data-header-name='{{forloop.counter}}'>{{col_num}}<br>{{node}}<br>{{insertion}}</th>
           {% endfor %}
         </tr>
       </thead>
