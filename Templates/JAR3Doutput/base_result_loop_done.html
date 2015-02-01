@@ -17,10 +17,10 @@
 {% block page_content %}
 <div class="row">
     <table class="table table-striped table-condensed table-bordered">
-      <thead>
+      <thead style='text-align:center'>
         <tr>
           {% for col_num,node,insertion in header_zip %}
-          <th class='table-header' style='vertical-align:top' style='text-align:center'>
+          <th class='table-header' style='vertical-align:top'>
           {{col_num}}<br>{{node}}<br>{{insertion}}</th>
           {% endfor %}
         </tr>
