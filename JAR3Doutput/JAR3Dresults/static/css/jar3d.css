@@ -46,10 +46,6 @@ footer {
     display: none;
 }
 
-th {
-    text-align: center;
-    vertical-align: top;
-}
 /* Tablesorter styling */
 table .header {
   cursor: pointer;
