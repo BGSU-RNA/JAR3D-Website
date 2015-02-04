@@ -140,12 +140,12 @@ def single_result(request,uuid,loopid,motifgroup):
     header_zip = zip(col_nums,nodes,insertions)
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
-        line = [key].append(motifalig[key])
-        body_lines.append(line)
+        line = motifalig[key]
+        body_lines.append([key] + line)
     skeys = sorted(sequencealig.keys())
     for key in skeys:
-        line = [key].append(sequencealig[key])
-        body_lines.append(line)
+        line = sequencealig[key]
+        body_lines.append([key] + line)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
