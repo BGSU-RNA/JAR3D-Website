@@ -20,7 +20,7 @@
       <thead>
         <tr>
           {% for col_num,node,insertion in header_zip %}
-          <th class='table-header'  style='text-align: center;vertical-align: top'>
+          <th class='table-header'  style='text-align:center;vertical-align:top;font-family:serif;'>
           {{col_num}}<br>{{node}}<br>{{insertion}}</th>
           {% endfor %}
         </tr>
@@ -29,7 +29,7 @@
       {% for line in body_lines %}
         <tr>
           {% for cell in line %}
-          <td style='text-align:center'>{{cell}}</td>
+          <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
           {% endfor %}
         </tr>
       {% endfor %}
