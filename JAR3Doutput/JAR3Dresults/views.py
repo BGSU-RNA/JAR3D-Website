@@ -130,22 +130,29 @@ def single_result(request,uuid,loopid,motifgroup):
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
     body_lines = []
-    col_nums = ['Column Number']
+    col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    nodes = ['Node'] + header['nodes']
+    nodes = ['Node'] + header['nodes'] + ['','','Interior','Full']
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
-    insertions = ['Insertion'] + insertions
+    insertions = ['Insertion'] + insertions + ['Cutoff','Cutoff Score','Edit Distance','Edit Distance']
     header_zip = zip(col_nums,nodes,insertions)
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
         line = motifalig[key]
         body_lines.append([key] + line)
     skeys = sorted(sequencealig.keys())
-    for key in skeys:
-        line = sequencealig[key]
+    for indx, res in enumerate(seq_res):
+        key = 'Sequence_' + str(indx)
+        name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
+        if len(name) == 0:
+            name = 'Sequence' + str(indx)
+        cutoff = 'true'
+        if res.cutoff == 0:
+            cutoff = 'false'
+        line = [name] + sequencealig[key] + cutoff + res.cutoff_score + res.interioreditdist + res.fulleditdist
         body_lines.append([key] + line)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
