@@ -133,7 +133,7 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    col_nums = colnums + ['','','','']
+    col_nums = col_nums + ['','','','']
     nodes = ['Node'] + header['nodes'] + ['','','Interior','Full']
     insertions = []
     for item in header['insertions']:
