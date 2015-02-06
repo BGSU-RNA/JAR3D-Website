@@ -133,6 +133,7 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
+    col_nums = colnums + ['','','','']
     nodes = ['Node'] + header['nodes'] + ['','','Interior','Full']
     insertions = []
     for item in header['insertions']:
@@ -142,7 +143,7 @@ def single_result(request,uuid,loopid,motifgroup):
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
         line = motifalig[key]
-        body_lines.append([key] + line)
+        body_lines.append([key] + line + ['','','',''])
     skeys = sorted(sequencealig.keys())
     for indx, res in enumerate(seq_res):
         key = 'Sequence_' + str(indx)
@@ -153,7 +154,7 @@ def single_result(request,uuid,loopid,motifgroup):
         if res.cutoff == 0:
             cutoff = 'False'
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
-        body_lines.append([key] + line)
+        body_lines.append(line)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
