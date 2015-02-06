@@ -133,12 +133,12 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    col_nums = col_nums + ['','','','']
-    nodes = ['Node'] + header['nodes'] + ['','','Interior','Full']
+    col_nums = col_nums + ['','','Interior','Full']
+    nodes = ['Node'] + header['nodes'] + ['','Cutoff','Edit','Edit']
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
-    insertions = ['Insertion'] + insertions + ['Cutoff','Cutoff Score','Edit Distance','Edit Distance']
+    insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
     header_zip = zip(col_nums,nodes,insertions)
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
