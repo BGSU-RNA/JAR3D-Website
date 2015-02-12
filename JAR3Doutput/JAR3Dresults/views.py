@@ -130,6 +130,7 @@ def single_result(request,uuid,loopid,motifgroup):
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
     seq_text = '\n'.join(rows)
+    model_text = '\n'.join(model_text)
     body_lines = []
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
