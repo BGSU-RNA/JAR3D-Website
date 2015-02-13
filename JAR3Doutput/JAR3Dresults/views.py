@@ -105,8 +105,8 @@ def single_result(request,uuid,loopid,motifgroup):
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
-            line = (line_base + '_Position_' + str(corr_line.sequence_position) + '_' + 
-                seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + str(corr_line.node) + 
+            line = (line_base + '_Position_' + str(corr_line.sequence_position) + '_' +
+                seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + str(corr_line.node) +
                 '_Position_' + corr_line.node_position)
             if corr_line.is_insertion:
                 line = line + '_Insertion'
@@ -555,15 +555,15 @@ def make_input_alignment(parsed_input, query_type):
 
 def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
 
-  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)[:6]
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn = readcorrespondencesfromtext(MotifCorrespondenceText)[:5]
   NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)[:6]
 
   motifalig = {}
-  
+
   for a in InstanceToGroup.iterkeys():
     m = re.search("(Instance_[0-9]+)",a)
     motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
-  
+
   for a in sorted(InstanceToGroup.iterkeys()):
     m = re.search("(Instance_[0-9]+)",a)
     t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
@@ -574,7 +574,7 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   for a in SequenceToModel.iterkeys():
     m = re.search("(Sequence_[0-9]+)",a)
     sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
-    
+
   for a in sorted(SequenceToModel.iterkeys()):
     m = re.search("(Sequence_[0-9]+)",a)
     t = int(ModelToColumn[SequenceToModel[a]])
@@ -585,7 +585,7 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   header['nodes'] = [''] * len(ModelToColumn)
   header['positions'] = [''] * len(ModelToColumn)
   header['insertions'] = [''] * len(ModelToColumn)
-  
+
   for a in ModelToColumn.iterkeys():
     header['columnname'][int(ModelToColumn[a])-1] = a
 
@@ -593,11 +593,14 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
     m = re.search("Node_([0-9]+)",header['columnname'][i])
     a = m.group(1)
     header['nodes'][i] = a
-    m = re.search("Position_([0-9]+)",header['columnname'][i])
-    a = m.group(1)
-    header['positions'][i] = a
     if re.search("Insertion",header['columnname'][i]):
       header['insertions'][i] = 'Insertion'
+
+  for a in GroupToModel.iterkeys():
+    m = re.search("Column_([0-9]+)$",a)
+    if m is not None:
+      colnum = ModelToColumn[GroupToModel[a]]
+      header['positions'][int(colnum)] = m.group(1)
 
   return header, motifalig, sequencealig
 
