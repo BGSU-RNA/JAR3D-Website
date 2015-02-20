@@ -46,6 +46,14 @@ footer {
     display: none;
 }
 
+
+table.paleblue tr td { 
+  width: 1px; 
+}
+table.paleblue tr td:first-child { 
+  width: 1%; 
+}
+
 /* Tablesorter styling */
 table .header {
   cursor: pointer;
