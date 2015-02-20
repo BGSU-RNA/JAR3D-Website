@@ -51,6 +51,9 @@ table.paleblue thead th > a:visited {
     display: block;
 }
 
+table.paleblue tr td             { width: 1px; }
+table.paleblue tr td:first-child { width: 1%; }
+
 table.paleblue thead th.sortable > a {
     padding-right: 20px;
     background: url(../img/arrow-inactive-up.png) right center no-repeat;
