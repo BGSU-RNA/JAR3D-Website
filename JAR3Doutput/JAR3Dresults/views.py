@@ -160,10 +160,13 @@ def single_result(request,uuid,loopid,motifgroup):
         body_lines.append(line)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
+    filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+    with open(filenamewithpath,"r") as f:
+        interaction_text = f.read()
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
                                   'body_lines': body_lines, 'seq_text': seq_text,
-                                  'model_text': model_text},
+                                  'model_text': model_text, 'inter_text': interaction_text},
                                   context_instance=RequestContext(request))
 
 
@@ -600,7 +603,7 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
     m = re.search("Column_([0-9]+)$",a)
     if m is not None:
       colnum = ModelToColumn[GroupToModel[a]]
-      header['positions'][int(colnum)] = m.group(1)
+      header['positions'][int(colnum)-1] = m.group(1)
 
   return header, motifalig, sequencealig
 
