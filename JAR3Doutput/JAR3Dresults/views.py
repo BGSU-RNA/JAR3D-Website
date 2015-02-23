@@ -143,10 +143,6 @@ def single_result(request,uuid,loopid,motifgroup):
         insertions.append(item.replace('Insertion', 'I'))
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
     header_zip = zip(col_nums,position,insertions)
-    mkeys = sorted(motifalig.keys())
-    for key in mkeys:
-        line = motifalig[key]
-        body_lines.append([key] + line + ['','','',''])
     skeys = sorted(sequencealig.keys())
     for indx, res in enumerate(seq_res):
         key = 'Sequence_' + str(indx)
@@ -158,6 +154,10 @@ def single_result(request,uuid,loopid,motifgroup):
             cutoff = 'False'
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
         body_lines.append(line)
+    mkeys = sorted(motifalig.keys())
+    for key in mkeys:
+        line = motifalig[key]
+        body_lines.append([key] + line + ['','','',''])
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
