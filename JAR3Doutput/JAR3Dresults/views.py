@@ -162,7 +162,7 @@ def single_result(request,uuid,loopid,motifgroup):
     q = q[0]  # We are interested only in the first one
     filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
     with open(filenamewithpath,"r") as f:
-        interaction_text = f.read()
+        interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
                                   'body_lines': body_lines, 'seq_text': seq_text,
