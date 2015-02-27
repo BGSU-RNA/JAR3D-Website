@@ -146,7 +146,7 @@ def single_result(request,uuid,loopid,motifgroup):
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
     header_zip = zip(col_nums,position,insertions)
     skeys = sorted(sequencealig.keys())
-    for res in enumerate(seq_res):
+    for res in seq_res:
         key = 'Sequence_' + str(res.seq_id)
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         if len(name) == 0:
