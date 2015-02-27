@@ -125,8 +125,10 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
-    # This is cheesy, fix asap
-    filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
@@ -160,7 +162,10 @@ def single_result(request,uuid,loopid,motifgroup):
         body_lines.append([key] + line + ['','','',''])
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
-    filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_interactions.txt'
     with open(filenamewithpath,"r") as f:
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
