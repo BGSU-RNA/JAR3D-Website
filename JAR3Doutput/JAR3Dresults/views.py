@@ -88,7 +88,7 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
 def single_result(request,uuid,loopid,motifgroup):
-    q = Loop_query_info.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     rows = []
     if q:
         q = q[0]  # We are interested only in the first one
