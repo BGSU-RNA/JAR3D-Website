@@ -88,18 +88,94 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
 def single_result(request,uuid,loopid,motifgroup):
-    q = Loop_query_info.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
+    rows = []
     if q:
         q = q[0]  # We are interested only in the first one
     else:
-        return render_to_response('JAR3Doutput/base_result_not_found.html',
-                                  {'query_id': uuid},
+        query = Loop_query_info(query_id = uuid, loop_id = loopid, status = 0, motif_group = motifgroup)
+        query.save();
+        return render_to_response('JAR3Doutput/base_result_loop_pending.html',
+                                  {'query_info': q,
+                                  'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
-    seq_res = Results_by_loop_instance.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
+    for indx, res in enumerate(seq_res):
+        corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
+        line_base = 'Sequence_' + str(res.seq_id)
+        for corr_line in corrs:
+            seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
+            rotation = Results_by_loop.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
+            if rotation == 1:
+                strands = seq.split('*')
+                seq = strands[1] + '*' + strands[0]
+            line = (line_base + '_Position_' + str(corr_line.sequence_position) + '_' +
+                seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + str(corr_line.node) +
+                '_Position_' + corr_line.node_position)
+            if corr_line.is_insertion:
+                line = line + '_Insertion'
+            rows.append(line)
+        name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
+        if len(name) == 0:
+            name = 'Sequence' + str(indx)
+        cutoff = 'true'
+        if res.cutoff == 0:
+            cutoff = 'false'
+        rows.append(line_base + ' has_name ' + name)
+        rows.append(line_base + ' has_score ' + str(res.score))
+        rows.append(line_base + ' hase_alignment_score_deficit ' + 'N/A')
+        rows.append(line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist))
+        rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
+        rows.append(line_base + ' has_cutoff_value ' + cutoff)
+        rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+    instance_text = '\n'.join(rows)
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    with open(filenamewithpath,"r") as f:
+        model_text = f.readlines()
+    header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
+    seq_text = '\n'.join(rows)
+    model_text = '\n'.join(model_text)
+    body_lines = []
+    col_nums = ['Column']
+    for i in range(1, len(header['nodes'])+1):
+        col_nums.append(i)
+    col_nums = col_nums + ['','','Interior','Full']
+    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit']
+    insertions = []
+    for item in header['insertions']:
+        insertions.append(item.replace('Insertion', 'I'))
+    insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
+    header_zip = zip(col_nums,position,insertions)
+    skeys = sorted(sequencealig.keys())
     for res in seq_res:
-        corrs = Correspondence_results.filter(result_instance_id = res.id)
-    return render_to_response('JAR3Doutput/base_result_not_found.html',
-                                  {'query_id': uuid},
+        key = 'Sequence_' + str(res.seq_id)
+        name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
+        if len(name) == 0:
+            name = 'Sequence' + str(res.seq_id)
+        cutoff = 'True'
+        if res.cutoff == 0:
+            cutoff = 'False'
+        line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
+        body_lines.append(line)
+    mkeys = sorted(motifalig.keys())
+    for key in mkeys:
+        line = motifalig[key]
+        body_lines.append([key] + line + ['','','',''])
+    q = Query_info.objects.filter(query_id=uuid)
+    q = q[0]  # We are interested only in the first one
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_interactions.txt'
+    with open(filenamewithpath,"r") as f:
+        interaction_text = f.read().replace(' ','\t')
+    return render_to_response('JAR3Doutput/base_result_loop_done.html',
+                                  {'query_info': q, 'header_zip': header_zip,
+                                  'body_lines': body_lines, 'seq_text': seq_text,
+                                  'model_text': model_text, 'inter_text': interaction_text},
                                   context_instance=RequestContext(request))
 
 
@@ -488,3 +564,113 @@ def make_input_alignment(parsed_input, query_type):
         line += 1
     out = ''.join(l)
     return out
+
+def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
+
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn = readcorrespondencesfromtext(MotifCorrespondenceText)[:5]
+  NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)[:6]
+
+  motifalig = {}
+
+  for a in InstanceToGroup.iterkeys():
+    m = re.search("(Instance_[0-9]+)",a)
+    motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
+
+  for a in sorted(InstanceToGroup.iterkeys()):
+    m = re.search("(Instance_[0-9]+)",a)
+    t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
+    motifalig[m.group(1)][t-1] += a[len(a)-1]
+
+  sequencealig = {}
+
+  for a in SequenceToModel.iterkeys():
+    m = re.search("(Sequence_[0-9]+)",a)
+    sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
+
+  for a in sorted(SequenceToModel.iterkeys()):
+    m = re.search("(Sequence_[0-9]+)",a)
+    t = int(ModelToColumn[SequenceToModel[a]])
+    sequencealig[m.group(1)][t-1] += a[len(a)-1]
+
+  header = {}              # new dictionary
+  header['columnname'] = [''] * len(ModelToColumn)
+  header['nodes'] = [''] * len(ModelToColumn)
+  header['positions'] = [''] * len(ModelToColumn)
+  header['insertions'] = [''] * len(ModelToColumn)
+
+  for a in ModelToColumn.iterkeys():
+    header['columnname'][int(ModelToColumn[a])-1] = a
+
+  for i in range(0,len(ModelToColumn)):
+    m = re.search("Node_([0-9]+)",header['columnname'][i])
+    a = m.group(1)
+    header['nodes'][i] = a
+    if re.search("Insertion",header['columnname'][i]):
+      header['insertions'][i] = 'Insertion'
+
+  for a in GroupToModel.iterkeys():
+    m = re.search("Column_([0-9]+)$",a)
+    if m is not None:
+      colnum = ModelToColumn[GroupToModel[a]]
+      header['positions'][int(colnum)-1] = m.group(1)
+
+  return header, motifalig, sequencealig
+
+def readcorrespondencesfromtext(lines):
+
+  InstanceToGroup = {}          # instance of motif to conserved group position
+  InstanceToPDB = {}            # instance of motif to NTs in PDBs
+  InstanceToSequence = {}       # instance of motif to position in fasta file
+  GroupToModel = {}             # positions in motif group to nodes in JAR3D model
+  ModelToColumn = {}            # nodes in JAR3D model to display columns
+  HasName = {}                  # organism name in FASTA header
+  SequenceToModel = {}          # sequence position to node in JAR3D model
+  HasScore = {}                 # score of sequence against JAR3D model
+  HasInteriorEdit = {}          # minimum interior edit distance to 3D instances from the motif group
+  HasFullEdit = {}              # minimum full edit distance to 3D instances from the motif group
+  HasCutoffValue = {}           # cutoff value 'true' or 'false'
+  HasCutoffScore = {}           # cutoff score, 100 is perfect, 0 is accepted, negative means reject
+  HasAlignmentScoreDeficit = {} # alignment score deficit, how far below the best score among 3D instances in this group
+
+  for line in lines:
+    if re.search("corresponds_to_group",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToGroup[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_PDB",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToPDB[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_JAR3D",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        GroupToModel[m.group(1)] = m.group(3)
+    elif re.search("corresponds_to_sequence",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        InstanceToSequence[m.group(1)] = m.group(3)
+    elif re.search("appears_in_column",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        ModelToColumn[m.group(1)] = m.group(3)
+    elif re.search("aligns_to_JAR3D",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        SequenceToModel[m.group(1)] = m.group(3)
+    elif re.search("has_name",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasName[m.group(1)] = m.group(3)
+    elif re.search("has_score",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasScore[m.group(1)] = m.group(3)
+    elif re.search("has_minimum_interior_edit_distance",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasInteriorEdit[m.group(1)] = m.group(3)
+    elif re.search("has_minimum_full_edit_distance",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasFullEdit[m.group(1)] = m.group(3)
+    elif re.search("has_cutoff_value",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasCutoffValue[m.group(1)] = m.group(3)
+    elif re.search("has_cutoff_score",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasCutoffScore[m.group(1)] = m.group(3)
+    elif re.search("has_alignment_score_deficit",line):
+        m = re.match("(.*) (.*) (.*)",line)
+        HasAlignmentScoreDeficit[m.group(1)] = m.group(3)
+
+  return InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, SequenceToModel, HasName, HasScore, HasInteriorEdit, HasFullEdit, HasCutoffValue, HasCutoffScore, HasAlignmentScoreDeficit
