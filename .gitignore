@@ -40,3 +40,4 @@ queue/jar3d_queue_config.pl
 db/
 .python-version
 .agignore
+web_jar3d/settings.py

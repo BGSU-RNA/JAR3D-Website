@@ -5,13 +5,13 @@ from django.http import HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
-from JAR3Dresults.models import Query_info
-from JAR3Dresults.models import Query_sequences
-from JAR3Dresults.models import Query_loop_positions
-from JAR3Dresults.models import Results_by_loop
-from JAR3Dresults.models import Results_by_loop_instance
-from JAR3Dresults.models import Loop_query_info
-from JAR3Dresults.models import Correspondence_results
+from models import Query_info
+from models import Query_sequences
+from models import Query_loop_positions
+from models import Results_by_loop
+from models import Results_by_loop_instance
+from models import Loop_query_info
+from models import Correspondence_results
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot

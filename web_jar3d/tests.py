@@ -6,8 +6,8 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from JAR3Dresults import views
-from JAR3Dresults.models import Query_sequences
+import views
+from models import Query_sequences
 
 class SimpleTest(TestCase):
     def test_basic_addition(self):
@@ -28,11 +28,11 @@ class FungalSeqTest(TestCase):
         self.query_inds = validator.make_query_indices(self.indices,'1')
         [seq.save() for seq in self.query_seqs]
         self.query_seqs_db = Query_sequences.objects.filter(query_id='1')
-    def test_fungal_ss_reader(self):    
+    def test_fungal_ss_reader(self):
         self.assertEqual(len(self.loops.keys()),35)
-    def test_fungal_dict_convert(self):    
+    def test_fungal_dict_convert(self):
         self.assertEqual(len(self.query_seqs),35)
-    def test_fungal_db_saver(self):    
+    def test_fungal_db_saver(self):
         self.assertEqual(len(self.query_seqs_db),35)
 
 class ViroidSeqTest(TestCase):
@@ -47,9 +47,9 @@ class ViroidSeqTest(TestCase):
         self.query_inds = validator.make_query_indices(self.indices,'1')
         [seq.save() for seq in self.query_seqs]
         self.query_seqs_db = Query_sequences.objects.filter(query_id='1')
-    def test_fungal_ss_reader(self):    
+    def test_fungal_ss_reader(self):
         self.assertEqual(len(self.loops.keys()),34)
-    def test_fungal_dict_convert(self):    
+    def test_fungal_dict_convert(self):
         self.assertEqual(len(self.query_seqs),33)
-    def test_fungal_db_saver(self):    
+    def test_fungal_db_saver(self):
         self.assertEqual(len(self.query_seqs_db),33)
