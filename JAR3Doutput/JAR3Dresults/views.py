@@ -176,8 +176,8 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q, 'header_zip': header_zip,
                                   'loopnum': loopid, 'motifid': motifgroup,
                                   'body_lines': body_lines, 'seq_text': seq_text,
-                                  'model_text': model_text, 'inter_text': interaction_text},
-                                  'rotation': rotation, context_instance=RequestContext(request))
+                                  'model_text': model_text, 'inter_text': interaction_text,
+                                  'rotation': rotation}, context_instance=RequestContext(request))
 
 
 
