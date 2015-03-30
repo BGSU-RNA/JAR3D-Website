@@ -100,12 +100,12 @@ def single_result(request,uuid,loopid,motifgroup):
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
+    rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     for indx, res in enumerate(seq_res):
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
-            rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
             if rotation == 1:
                 strands = seq.split('*')
                 seq = strands[1] + '*' + strands[0]
@@ -174,9 +174,10 @@ def single_result(request,uuid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
+                                  'loopnum': loopid, 'motifid': motifgroup,
                                   'body_lines': body_lines, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text},
-                                  context_instance=RequestContext(request))
+                                  'rotation': rotation, context_instance=RequestContext(request))
 
 
 

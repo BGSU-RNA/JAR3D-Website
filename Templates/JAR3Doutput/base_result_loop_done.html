@@ -11,12 +11,16 @@
 {% block page_subtitle %}
   {{ block.super }}
   Query {{ query_info.query_id }} completed
+  Alignment of Loop {{loop num}} to {{motifid}}
 {% endblock page_subtitle %}
 
 
 {% block page_content %}
 <div>
 Click on a column header to sort by that column.  Holding shift and clicking on multiple column headers will sort by each column in order.
+{% if rotation == 1 %}
+The strands of your internal loop have been switched to match the strand ordering seen in {{motifid}}.  They are still in 5' to 3' order.
+{% endif %}
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
