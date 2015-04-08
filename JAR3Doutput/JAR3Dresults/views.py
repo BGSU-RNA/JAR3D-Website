@@ -161,9 +161,17 @@ def single_result(request,uuid,loopid,motifgroup):
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
         body_lines.append(line)
     mkeys = sorted(motifalig.keys())
-    for key in mkeys:
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '.fasta'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '.fasta'
+    with open(filenamewithpath,"r") as f:
+        fasta_text = f.readlines()
+    headers = [k for k in fasta_text if '>' in k]
+    loop_names = [k.split(' ')[2] for k in headers]
+    for ind, key in enumerate(mkeys):
         line = motifalig[key]
-        body_lines.append([key] + line + ['','','',''])
+        body_lines.append([loop_names[ind]] + line + ['','','',''])
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     if motifgroup[0] == 'I':
