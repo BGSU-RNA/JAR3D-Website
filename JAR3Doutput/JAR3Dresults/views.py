@@ -163,7 +163,6 @@ def single_result(request,uuid,loopid,motifgroup):
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
         seq_lines.append(line)
     mkeys = sorted(motifalig.keys())
-    loop_names = [k.split(' ')[2] for k in headers]
     for key in mkeys:
         line = motifalig[key]
         parts = k.split('_')
