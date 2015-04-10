@@ -582,11 +582,13 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   motifalig = {}
 
   for a in InstanceToGroup.iterkeys():
-    Name = HasName[a]                               # use the name as the key; very informative
+    m = re.search("(.+Instance_[0-9]+)",a)
+    Name = HasName[m.group(1)]                      # use the name as the key; very informative
     motifalig[Name] = [''] * len(ModelToColumn)     # start empty
 
   for a in sorted(InstanceToGroup.iterkeys()):
-    Name = HasName[a]                               # use the name as the key; very informative
+    m = re.search("(.+Instance_[0-9]+)",a)
+    Name = HasName[m.group(1)]                      # use the name as the key; very informative
     t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
     motifalig[Name][t-1] += a[len(a)-1]
 
