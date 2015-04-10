@@ -138,7 +138,9 @@ def single_result(request,uuid,loopid,motifgroup):
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
     seq_text = '\n'.join(rows)
     model_text = '\n'.join(model_text)
-    body_lines = []
+    seq_lines = []
+    motif_lines = []
+    motif_names = []
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
@@ -159,19 +161,15 @@ def single_result(request,uuid,loopid,motifgroup):
         if res.cutoff == 0:
             cutoff = 'False'
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
-        body_lines.append(line)
+        seq_lines.append(line)
     mkeys = sorted(motifalig.keys())
-    if motifgroup[0] == 'I':
-        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '.fasta'
-    else:
-        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '.fasta'
-    with open(filenamewithpath,"r") as f:
-        fasta_text = f.readlines()
-    headers = [k for k in fasta_text if '>' in k]
     loop_names = [k.split(' ')[2] for k in headers]
-    for ind, key in enumerate(mkeys):
+    for key in mkeys:
         line = motifalig[key]
-        body_lines.append([loop_names[ind]] + line + ['','','',''])
+        parts = k.split('_')
+        motif_names.append(parts[2]+'_'parts[3]+'_'+parts[4])
+        motif_lines.append(line + ['','','',''])
+    motif_data = zip(motif_names,motif_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     if motifgroup[0] == 'I':
@@ -183,7 +181,7 @@ def single_result(request,uuid,loopid,motifgroup):
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
                                   'loopnum': loopid, 'motifid': motifgroup,
-                                  'body_lines': body_lines, 'seq_text': seq_text,
+                                  'seq_lines': seq_lines, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
 
