@@ -165,7 +165,7 @@ def single_result(request,uuid,loopid,motifgroup):
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
         line = motifalig[key]
-        parts = k.split('_')
+        parts = key.split('_')
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
         motif_lines.append(line + ['','','',''])
     motif_data = zip(motif_names,motif_lines)
