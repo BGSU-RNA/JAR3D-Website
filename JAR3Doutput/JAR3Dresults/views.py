@@ -574,19 +574,21 @@ def make_input_alignment(parsed_input, query_type):
 
 def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
 
-  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn = readcorrespondencesfromtext(MotifCorrespondenceText)[:5]
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel, HasName = readcorrespondencesfromtext(MotifCorrespondenceText)[:7]
   NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)[:6]
 
   motifalig = {}
 
   for a in InstanceToGroup.iterkeys():
-    m = re.search("(Instance_[0-9]+)",a)
-    motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
+    m = re.search("(.+Instance_[0-9]+)",a)
+    Name = HasName[m.group(1)]                      # use the name as the key; very informative
+    motifalig[Name] = [''] * len(ModelToColumn)     # start empty
 
   for a in sorted(InstanceToGroup.iterkeys()):
-    m = re.search("(Instance_[0-9]+)",a)
+    m = re.search("(.+Instance_[0-9]+)",a)
+    Name = HasName[m.group(1)]                      # use the name as the key; very informative
     t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
-    motifalig[m.group(1)][t-1] += a[len(a)-1]
+    motifalig[Name][t-1] += a[len(a)-1]
 
   sequencealig = {}
 
