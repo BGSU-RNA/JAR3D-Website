@@ -144,30 +144,42 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    col_nums = col_nums + ['','','Interior','Full']
-    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit']
+    col_nums = col_nums + ['','','Interior','Full'] + ['']*len(sequencealig)
+    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit'] + ['Edits to']*len(sequencealig)
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
-    header_zip = zip(col_nums,position,insertions)
-    skeys = sorted(sequencealig.keys())
+    edit_dists = []
     for res in seq_res:
         key = 'Sequence_' + str(res.seq_id)
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         if len(name) == 0:
             name = 'Sequence' + str(res.seq_id)
+        insertions.append(name)
         cutoff = 'True'
         if res.cutoff == 0:
             cutoff = 'False'
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
+        for res2 in seq_res:
+            line1 = sequencealig[key]
+            key2 = 'Sequence_' + str(res2.seq_id)
+            line2 = sequencealig[key2]
+            line.append(str(compare_lists(line1, line2)))
         seq_lines.append(line)
+    header_zip = zip(col_nums,position,insertions)
     mkeys = sorted(motifalig.keys())
     for key in mkeys:
         line = motifalig[key]
         parts = key.split('_')
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
-        motif_lines.append(line + ['','','',''])
+        line = line +  + ['','','','']
+        for res2 in seq_res:
+            line1 = motifalig[key]
+            key2 = 'Sequence_' + str(res2.seq_id)
+            line2 = sequencealig[key2]
+            line.apped(str(compare_lists(line1, line2)))
+        motif_lines.append(line)
     motif_data = zip(motif_names,motif_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
@@ -507,6 +519,35 @@ class ResultsMaker():
             pass
         else:
             pass
+
+def compare_lists(l1, l2):
+    edits = 0
+    lists = zip(l1,l2)
+    for item1, item2 in lists:
+        if item1 != item2:
+            edits += levenshtein(item1, item2)
+    return edits
+
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+ 
+    # len(s1) >= len(s2)
+    if len(s2) == 0:
+        return len(s1)
+ 
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1 # j+1 instead of j since previous_row and current_row are one character longer
+            deletions = current_row[j] + 1       # than s2
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+ 
+    return previous_row[-1]
+
 
 def sort_loops(loops, indices, sequences):
     mins = [ min(inds.split(', '), key = int) for inds in indices ]
