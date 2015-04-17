@@ -524,7 +524,7 @@ def compare_lists(l1, l2):
     edits = 0
     lists = zip(l1,l2)
     for item1, item2 in lists:
-        if item1 != item2  && item1 != '*' && item2 != '*':
+        if item1 != item2  and item1 != '*' and item2 != '*':
             edits += levenshtein(item1, item2)
     return edits
 
