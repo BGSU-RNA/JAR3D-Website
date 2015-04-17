@@ -524,10 +524,11 @@ def compare_lists(l1, l2):
     edits = 0
     lists = zip(l1,l2)
     for item1, item2 in lists:
-        if item1 != item2:
+        if item1 != item2  && item1 != '*' && item2 != '*':
             edits += levenshtein(item1, item2)
     return edits
 
+# From http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance on 4/17/2015
 def levenshtein(s1, s2):
     if len(s1) < len(s2):
         return levenshtein(s2, s1)
