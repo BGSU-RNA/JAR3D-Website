@@ -173,7 +173,7 @@ def single_result(request,uuid,loopid,motifgroup):
         line = motifalig[key]
         parts = key.split('_')
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
-        line = line +  + ['','','','']
+        line = line +  ['','','','']
         for res2 in seq_res:
             line1 = motifalig[key]
             key2 = 'Sequence_' + str(res2.seq_id)
