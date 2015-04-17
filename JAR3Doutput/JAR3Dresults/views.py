@@ -178,7 +178,7 @@ def single_result(request,uuid,loopid,motifgroup):
             line1 = motifalig[key]
             key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
-            line.apped(str(compare_lists(line1, line2)))
+            line.append(str(compare_lists(line1, line2)))
         motif_lines.append(line)
     motif_data = zip(motif_names,motif_lines)
     q = Query_info.objects.filter(query_id=uuid)
