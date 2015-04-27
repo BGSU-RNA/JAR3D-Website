@@ -106,8 +106,8 @@ def single_result(request,uuid,loopid,motifgroup):
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
-            seq.replace('-', '')
-            seq.replace('_', '')
+            seq = seq.replace('-', '')
+            seq = seq.replace('_', '')
             if rotation == 1:
                 strands = seq.split('*')
                 seq = strands[1] + '*' + strands[0]
