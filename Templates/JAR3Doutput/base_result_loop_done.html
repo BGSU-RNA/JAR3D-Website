@@ -40,7 +40,7 @@ The strands of your internal loop have been switched to match the strand orderin
           <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
           {% endfor %}
           {% for cell in eds %}
-          <td style='text-align:center;font-family:sans-serif;background-color:#{{cell}}{{cell}}FFFF;'>{{cell}}</td>
+          <td style='text-align:center;font-family:sans-serif;background-color:{{cell.1}};'>{{cell.0}}</td>
           {% endfor %}
         </tr>
       {% endfor %}
@@ -53,7 +53,7 @@ The strands of your internal loop have been switched to match the strand orderin
           <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
           {% endfor %}
           {% for cell in eds %}
-          <td style='text-align:center;font-family:sans-serif;background-color:#{{cell}}{{cell}}FFFF;'>{{cell}}</td>
+          <td style='text-align:center;font-family:sans-serif;background-color:{{cell.1}};'>{{cell.0}}</td>
           {% endfor %}
         </tr>
       {% endfor %}
