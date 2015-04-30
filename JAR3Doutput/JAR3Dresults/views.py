@@ -152,6 +152,7 @@ def single_result(request,uuid,loopid,motifgroup):
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
+    color_dict = {'0':'#ffffff', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
     edit_lines = []
     for res in seq_res:
         key = 'Sequence_' + str(res.seq_id)
@@ -174,7 +175,6 @@ def single_result(request,uuid,loopid,motifgroup):
         edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
-    color_dict = {'0':'#ffffff', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
     mkeys = sorted(motifalig.keys())
     edit_lines = []
     for key in mkeys:
