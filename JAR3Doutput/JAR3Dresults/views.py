@@ -163,6 +163,7 @@ def single_result(request,uuid,loopid,motifgroup):
         if res.cutoff == 0:
             cutoff = 'False'
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
+        seq_lines.append(line)
         ed_line = []
         for res2 in seq_res:
             line1 = sequencealig[key]
@@ -170,7 +171,6 @@ def single_result(request,uuid,loopid,motifgroup):
             line2 = sequencealig[key2]
             ed_line.append(str(compare_lists(line1, line2)))
         edit_lines.append(ed_line)
-        seq_lines.append(line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
     mkeys = sorted(motifalig.keys())
