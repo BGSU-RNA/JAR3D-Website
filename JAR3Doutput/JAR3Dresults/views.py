@@ -169,7 +169,7 @@ def single_result(request,uuid,loopid,motifgroup):
             line1 = sequencealig[key]
             key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
-             edit = str(compare_lists(line1, line2))
+            edit = str(compare_lists(line1, line2))
             ed_line.append((edit, color_dict.setdefault(ed, '#df8080')))
         edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
