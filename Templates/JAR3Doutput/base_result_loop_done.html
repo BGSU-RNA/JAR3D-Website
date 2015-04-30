@@ -34,14 +34,17 @@ The strands of your internal loop have been switched to match the strand orderin
         </tr>
       </thead>
       <tbody>
-      {% for line in seq_lines %}
+      {% for line, eds in seq_lines %}
         <tr style='background-color:ghostwhite'>
           {% for cell in line %}
           <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
           {% endfor %}
+          {% for cell in eds %}
+          <td style='text-align:center;font-family:sans-serif;background-color:#'{{cell}}{{cell}}'0000;'>{{cell}}</td>
+          {% endfor %}
         </tr>
       {% endfor %}
-      {% for name, line in motif_data %}
+      {% for name, line, eds in motif_data %}
         <tr style='background-color:white'>
           <td style='text-align:center;font-family:sans-serif;'>
           	<a href="http://rna.bgsu.edu/rna3dhub/loops/view/{{name}}" target="_blank"> {{ name }}</a>

@@ -152,7 +152,7 @@ def single_result(request,uuid,loopid,motifgroup):
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
-    edit_dists = []
+    edit_lines = []
     for res in seq_res:
         key = 'Sequence_' + str(res.seq_id)
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
@@ -163,26 +163,30 @@ def single_result(request,uuid,loopid,motifgroup):
         if res.cutoff == 0:
             cutoff = 'False'
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
+        ed_line = []
         for res2 in seq_res:
             line1 = sequencealig[key]
             key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
-            line.append(str(compare_lists(line1, line2)))
-        seq_lines.append(line)
+            ed_line.append(str(compare_lists(line1, line2)))
+        edit_lines.append(line)
     header_zip = zip(col_nums,position,insertions)
+    seq_zip = zip(seq_lines, edit_lines)
     mkeys = sorted(motifalig.keys())
+    edit_lines = []
     for key in mkeys:
         line = motifalig[key]
         parts = key.split('_')
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
         line = line + ['','','','']
+        ed_line = []
         for res2 in seq_res:
             line1 = motifalig[key]
             key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
-            line.append(str(compare_lists(line1, line2)))
-        motif_lines.append(line)
-    motif_data = zip(motif_names,motif_lines)
+            ed_line.append(str(compare_lists(line1, line2)))
+        edit_lines.append(line)
+    motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     if motifgroup[0] == 'I':
@@ -194,7 +198,7 @@ def single_result(request,uuid,loopid,motifgroup):
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
                                   'loopnum': loopid, 'motifid': motifgroup,
-                                  'seq_lines': seq_lines, 'motif_data': motif_data, 'seq_text': seq_text,
+                                  'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
 
