@@ -173,6 +173,13 @@ def single_result(request,uuid,loopid,motifgroup):
         edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
+    color_dict = {'0'='#ffffff', '1'='#f8eaea', '2'='#f1d4d4', '3'='#eabfbf', '4'='#e3aaaa', '5'='#dc9595'}
+    seq_colors = []
+    for eds in edit_lines:
+        colors = []
+        for ed in eds:
+            colors.append(color_dict.setdefault(ed, '#df8080'))
+        seq_colors.append(colors)
     mkeys = sorted(motifalig.keys())
     edit_lines = []
     for key in mkeys:
@@ -197,9 +204,16 @@ def single_result(request,uuid,loopid,motifgroup):
         filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_interactions.txt'
     with open(filenamewithpath,"r") as f:
         interaction_text = f.read().replace(' ','\t')
+    motif_colors = []
+    for eds in edit_lines:
+        colors = []
+        for ed in eds:
+            colors.append(color_dict.setdefault(ed, '#df8080'))
+        motif_colors.append(colors)
+
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': loopid, 'motifid': motifgroup,
+                                  'loopnum': loopid, 'motifid': motifgroup, 'colors': colors,
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
