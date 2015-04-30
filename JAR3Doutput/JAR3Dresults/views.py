@@ -169,7 +169,8 @@ def single_result(request,uuid,loopid,motifgroup):
             key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
             ed_line.append(str(compare_lists(line1, line2)))
-        edit_lines.append(line)
+        edit_lines.append(ed_line)
+        seq_lines.append(line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
     mkeys = sorted(motifalig.keys())
@@ -185,7 +186,8 @@ def single_result(request,uuid,loopid,motifgroup):
             key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
             ed_line.append(str(compare_lists(line1, line2)))
-        edit_lines.append(line)
+        edit_lines.append(ed_line)
+        motif_lines.append(line)
     motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
