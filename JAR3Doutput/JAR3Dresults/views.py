@@ -173,7 +173,7 @@ def single_result(request,uuid,loopid,motifgroup):
         edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
-    color_dict = {'0'='#ffffff', '1'='#f8eaea', '2'='#f1d4d4', '3'='#eabfbf', '4'='#e3aaaa', '5'='#dc9595'}
+    color_dict = {'0':'#ffffff', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
     seq_colors = []
     for eds in edit_lines:
         colors = []
