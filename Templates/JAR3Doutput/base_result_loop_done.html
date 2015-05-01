@@ -26,7 +26,7 @@ The strands of your internal loop have been switched to match the strand orderin
 {% endif %}
     <table class='table table-condensed table-bordered'>
       <thead>
-        <tr style='background-color:white'>
+        <tr style='background-color:#ffffff'>
           {% for col_num,position,insertion in header_zip %}
           <th class='table-header' style='text-align:center;vertical-align:top;font-family:serif;'>
           {{col_num}}<br>{{position}}<br>{{insertion}}</th>
@@ -35,7 +35,7 @@ The strands of your internal loop have been switched to match the strand orderin
       </thead>
       <tbody>
       {% for line, eds in seq_zip %}
-        <tr style='background-color:ghostwhite'>
+        <tr style='background-color:#f8f8f8'>
           {% for cell in line %}
           <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
           {% endfor %}
@@ -45,7 +45,7 @@ The strands of your internal loop have been switched to match the strand orderin
         </tr>
       {% endfor %}
       {% for name, line, eds in motif_data %}
-        <tr style='background-color:white'>
+        <tr style='background-color:#ffffff'>
           <td style='text-align:center;font-family:sans-serif;'>
           	<a href="http://rna.bgsu.edu/rna3dhub/loops/view/{{name}}" target="_blank"> {{ name }}</a>
           </td> 
