@@ -152,7 +152,7 @@ def single_result(request,uuid,loopid,motifgroup):
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
-    color_dict = {'0':'#f5f5f5', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
+    color_dict = {'0':'#f8f8f8', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
     edit_lines = []
     for res in seq_res:
         key = 'Sequence_' + str(res.seq_id)
