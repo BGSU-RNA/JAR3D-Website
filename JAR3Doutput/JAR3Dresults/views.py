@@ -70,14 +70,14 @@ def result(request, uuid):
         2  - submitted to JAR3D
     """
 
-    if q.status == 1:
+    if q.status == 1 or q.status == 2:
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
                                   context_instance=RequestContext(request))
-    elif q.status == 0 or q.status == 2:
+    elif q.status == 0:
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_pending.html',
                                   {'query_info': q, 'num': results.input_stats},
@@ -88,7 +88,7 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
 def single_result(request,uuid,loopid,motifgroup):
-    q = Loop_query_info.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_group=motifgroup)
+    q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     rows = []
     if q:
         q = q[0]  # We are interested only in the first one
@@ -99,17 +99,24 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
-    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup)
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
+    rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     for indx, res in enumerate(seq_res):
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
             seq = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].loop_sequence
-            rows.append(line_base + '_Position_' + str(corr_line.sequence_position) + '_' + 
-                seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + str(corr_line.node) + 
-                '_Position_' + str(corr_line.node_position))
+            seq = seq.replace('-', '')
+            seq = seq.replace('_', '')
+            if rotation == 1:
+                strands = seq.split('*')
+                seq = strands[1] + '*' + strands[0]
+            line = (line_base + '_Position_' + str(corr_line.sequence_position) + '_' +
+                seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id + '_Node_' + str(corr_line.node) +
+                '_Position_' + corr_line.node_position)
             if corr_line.is_insertion:
-                seq = seq + '_Insertion'
+                line = line + '_Insertion'
+            rows.append(line)
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         if len(name) == 0:
             name = 'Sequence' + str(indx)
@@ -124,34 +131,82 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
-    # This is cheesy, fix asap
-    filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
-    header_line = []
-    body_lines = []
-    col_nums = []
+    seq_text = '\n'.join(rows)
+    model_text = '\n'.join(model_text)
+    seq_lines = []
+    motif_lines = []
+    motif_names = []
+    col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    nodes = header['nodes']
+    col_nums = col_nums + ['','','Interior','Full'] + ['']*len(sequencealig)
+    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit'] + ['Edits to']*len(sequencealig)
     insertions = []
     for item in header['insertions']:
-        insertions.append(item.replace('nsertion', ''))
-    for i in range(0, len(header['nodes'])):
-        header_line.append(str(col_nums[i])+'\n'+str(nodes[i])+'\n'+insertions[i])
+        insertions.append(item.replace('Insertion', 'I'))
+    insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
+    color_dict = {'0':'#f8f8f8', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
+    edit_lines = []
+    for res in seq_res:
+        key = 'Sequence_' + str(res.seq_id)
+        name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
+        if len(name) == 0:
+            name = 'Sequence' + str(res.seq_id)
+        insertions.append(name)
+        cutoff = 'True'
+        if res.cutoff == 0:
+            cutoff = 'False'
+        line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
+        seq_lines.append(line)
+        ed_line = []
+        for res2 in seq_res:
+            line1 = sequencealig[key]
+            key2 = 'Sequence_' + str(res2.seq_id)
+            line2 = sequencealig[key2]
+            edit = str(compare_lists(line1, line2))
+            ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
+        edit_lines.append(ed_line)
+    header_zip = zip(col_nums,position,insertions)
+    seq_zip = zip(seq_lines, edit_lines)
     mkeys = sorted(motifalig.keys())
+    edit_lines = []
+    color_dict['0'] = '#ffffff'
     for key in mkeys:
-        body_lines.append(motifalig[key])
-    skeys = sorted(sequencealig.keys())
-    for key in skeys:
-        body_lines.append(sequencealig[key])
+        line = motifalig[key]
+        parts = key.split('_')
+        motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
+        line = line + ['','','','']
+        ed_line = []
+        for res2 in seq_res:
+            line1 = motifalig[key]
+            key2 = 'Sequence_' + str(res2.seq_id)
+            line2 = sequencealig[key2]
+            edit = str(compare_lists(line1, line2))
+            ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
+        edit_lines.append(ed_line)
+        motif_lines.append(line)
+    motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
+    if motifgroup[0] == 'I':
+        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+    else:
+        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_interactions.txt'
+    with open(filenamewithpath,"r") as f:
+        interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                                  {'query_info': q, 'header_line': header_line,
-                                  'body_lines': body_lines},
-                                  context_instance=RequestContext(request))
+                                  {'query_info': q, 'header_zip': header_zip,
+                                  'loopnum': loopid, 'motifid': motifgroup,
+                                  'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
+                                  'model_text': model_text, 'inter_text': interaction_text,
+                                  'rotation': rotation}, context_instance=RequestContext(request))
 
 
 
@@ -477,6 +532,36 @@ class ResultsMaker():
         else:
             pass
 
+def compare_lists(l1, l2):
+    edits = 0
+    lists = zip(l1,l2)
+    for item1, item2 in lists:
+        if item1 != item2  and item1 != '*' and item2 != '*':
+            edits += levenshtein(item1, item2)
+    return edits
+
+# From http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance on 4/17/2015
+def levenshtein(s1, s2):
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
+ 
+    # len(s1) >= len(s2)
+    if len(s2) == 0:
+        return len(s1)
+ 
+    previous_row = range(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1 # j+1 instead of j since previous_row and current_row are one character longer
+            deletions = current_row[j] + 1       # than s2
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
+ 
+    return previous_row[-1]
+
+
 def sort_loops(loops, indices, sequences):
     mins = [ min(inds.split(', '), key = int) for inds in indices ]
     mins = [ str(x) for x in mins ]
@@ -542,26 +627,28 @@ def make_input_alignment(parsed_input, query_type):
 
 def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespondenceText):
 
-  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromtext(MotifCorrespondenceText)[:6]
+  InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel, HasName = readcorrespondencesfromtext(MotifCorrespondenceText)[:7]
   NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)[:6]
 
   motifalig = {}
-  
+
   for a in InstanceToGroup.iterkeys():
-    m = re.search("(Instance_[0-9]+)",a)
-    motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
-  
+    m = re.search("(.+Instance_[0-9]+)",a)
+    Name = HasName[m.group(1)]                      # use the name as the key; very informative
+    motifalig[Name] = [''] * len(ModelToColumn)     # start empty
+
   for a in sorted(InstanceToGroup.iterkeys()):
-    m = re.search("(Instance_[0-9]+)",a)
+    m = re.search("(.+Instance_[0-9]+)",a)
+    Name = HasName[m.group(1)]                      # use the name as the key; very informative
     t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
-    motifalig[m.group(1)][t-1] += a[len(a)-1]
+    motifalig[Name][t-1] += a[len(a)-1]
 
   sequencealig = {}
 
   for a in SequenceToModel.iterkeys():
     m = re.search("(Sequence_[0-9]+)",a)
     sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
-    
+
   for a in sorted(SequenceToModel.iterkeys()):
     m = re.search("(Sequence_[0-9]+)",a)
     t = int(ModelToColumn[SequenceToModel[a]])
@@ -572,7 +659,7 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   header['nodes'] = [''] * len(ModelToColumn)
   header['positions'] = [''] * len(ModelToColumn)
   header['insertions'] = [''] * len(ModelToColumn)
-  
+
   for a in ModelToColumn.iterkeys():
     header['columnname'][int(ModelToColumn[a])-1] = a
 
@@ -580,11 +667,14 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
     m = re.search("Node_([0-9]+)",header['columnname'][i])
     a = m.group(1)
     header['nodes'][i] = a
-    m = re.search("Position_([0-9]+)",header['columnname'][i])
-    a = m.group(1)
-    header['positions'][i] = a
     if re.search("Insertion",header['columnname'][i]):
       header['insertions'][i] = 'Insertion'
+
+  for a in GroupToModel.iterkeys():
+    m = re.search("Column_([0-9]+)$",a)
+    if m is not None:
+      colnum = ModelToColumn[GroupToModel[a]]
+      header['positions'][int(colnum)-1] = m.group(1)
 
   return header, motifalig, sequencealig
 
