@@ -4,6 +4,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
@@ -462,8 +463,10 @@ class ResultsMaker():
         self.input_stats = dict()
         self.problem_loops = []
         self.TOPRESULTS = 10
-        self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
-        self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/'
+        self.RNA3DHUBURL = getattr(settings, 'RNA3DHUB',
+                                   'http://rna.bgsu.edu/rna3dhub/motif/view/')
+        self.SSURL = getattr(settings, 'SSURL',
+                             'http://rna.bgsu.edu/img/MotifAtlas/')
         self.sequences = []
         self.indices = []
 
@@ -544,11 +547,11 @@ def compare_lists(l1, l2):
 def levenshtein(s1, s2):
     if len(s1) < len(s2):
         return levenshtein(s2, s1)
- 
+
     # len(s1) >= len(s2)
     if len(s2) == 0:
         return len(s1)
- 
+
     previous_row = range(len(s2) + 1)
     for i, c1 in enumerate(s1):
         current_row = [i + 1]
@@ -558,7 +561,7 @@ def levenshtein(s1, s2):
             substitutions = previous_row[j] + (c1 != c2)
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row
- 
+
     return previous_row[-1]
 
 
