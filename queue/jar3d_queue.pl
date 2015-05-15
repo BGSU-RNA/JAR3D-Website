@@ -84,7 +84,7 @@ MAIN:
             # Give the thread some work to do
             my $query_id = pop(@queries);
 
-            my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/webJAR3D_server.jar $config{il_models} $config{hl_models} $query_id $config{db_user_name} $config{db_password} $config{db_database}";
+            my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/webJAR3D_server.jar $config{il_models}/all.txt $config{hl_models}/all.txt $query_id $config{db_user_name} $config{db_password} $config{db_database}";
             $work_queues{$tid}->enqueue($work);
         }
         sleep($SLEEP);
