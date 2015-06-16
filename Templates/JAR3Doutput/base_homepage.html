@@ -6,7 +6,7 @@
 
 {% block page_subtitle %}
 predicting RNA 3D motifs in sequences
-<a href="http://rna.bgsu.edu/main/jar3d-tutorial/" class="btn btn-success pull-right">Tutorial</a>
+<a href="{{ BASE }}/main/jar3d-tutorial/" class="btn btn-success pull-right">Tutorial</a>
 {% endblock page_subtitle %}
 
 {% block page_content %}
@@ -42,8 +42,8 @@ predicting RNA 3D motifs in sequences
         <div class="span4">
             <h3>Goal</h3>
             <p>
-              <strong>JAR3D</strong> matches RNA hairpin and internal loop sequences to motif groups 
-              from the <a href="">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and 
+              <strong>JAR3D</strong> matches RNA hairpin and internal loop sequences to motif groups
+              from the <a href="{{BASE}}/rna3dhub/motifs">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and
               by probabilistic scoring and edit distance for novel sequences.
               RNA hairpin and internal loops are often represented on secondary structure diagrams as if they are unstructured,
               but in fact most are structured by non-Watson-Crick basepairs, base stacking, and base-backbone interactions.
@@ -62,7 +62,7 @@ predicting RNA 3D motifs in sequences
             </ul>
             <p>
               Inferring the 3D structures of hairpin and internal loops is a step on the way toward
-              correctly predicting full RNA 3D structures starting from sequence. 
+              correctly predicting full RNA 3D structures starting from sequence.
             </p>
         </div>
         <div class="span4">
@@ -72,7 +72,7 @@ predicting RNA 3D motifs in sequences
               See the Examples above.
               <b>One loop:</b>
               To specify the break between strands in internal loops, use an asterisk <b>*</b>.
-              Sequence(s) without an asterisk are interpreted as hairpins. 
+              Sequence(s) without an asterisk are interpreted as hairpins.
               Internal and hairpin loops should include closing Watson-Crick basepairs, with nucleotides running in 5' to 3' order within each strand.
               Individual loops do not need the nucleotides to be aligned.
               <b>Many loops:</b>
@@ -88,14 +88,14 @@ predicting RNA 3D motifs in sequences
             </p>
             <h3>Tutorial</h3>
             <p>
-            The tutorial <a href="http://rna.bgsu.edu/main/jar3d-tutorial/">at this link</a> is a bit dated, but still helpful.
+            The tutorial <a href="{{ BASE }}/main/jar3d-tutorial/">at this link</a> is a bit dated, but still helpful.
         </div>
         <div class="span4">
             <h3>Method</h3>
               <ol>
-              <li>We extract all hairpin and internal loops from a <a href="http://rna.bgsu.edu/nrlist">
+                <li>We extract all hairpin and internal loops from a <a href="{{ BASE }}/rna3dhub/nrlist">
               non-redundant set</a> of RNA 3D structures from the PDB/NDB and cluster them in geometrically
-              similar <a href="http://rna.bgsu.edu/rna3dhub/motifs">families</a>.
+            similar <a href="{{ BASE }}/rna3dhub/motifs">families</a>.
               <li>For each recurrent motif, we construct a probabilistic model
               for sequence variability based on a hybrid <strong>Stochastic
               Context-Free Grammar/Markov Random Field</strong> (SCFG/MRF) method we developed.
@@ -108,7 +108,7 @@ predicting RNA 3D motifs in sequences
               If the score is in the same range as sequences known to form the 3D structure,
               we infer that the new sequence can form the same 3D structure.
               <br>
-              <a href="http://rna.bgsu.edu/main/webapps/jar3d/">Read more</a>
+              <a href="{{ BASE }}/main/webapps/jar3d/">Read more</a>
               </ol>
         </div>
     </div>

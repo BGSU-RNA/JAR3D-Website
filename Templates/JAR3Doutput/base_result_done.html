@@ -51,13 +51,13 @@
           <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
           View <a href="{{ result.motif_url }}" target="_blank">{{ result.motif_id }}</a>
           <br>{{result.signature}}<br>
-        <a href="http://rna.bgsu.edu/jar3d_dev/result/{{result.query_id}}/{{result.loop_id}}/{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
+        <a href="{{result.align_url}}/{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
         <td>{{ result.mean_cutoff_score|floatformat:2 }}</td>
         <td>{{ result.medianfulleditdist|floatformat }}</td>
         <td>{{ result.medianinterioreditdist|floatformat }}</td>
-        <td>  
+        <td>
           <a class="fancybox" rel="gallery" href="{{ result.ssurl }}"
               title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif {{ result.motif_id }}">
               <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>

@@ -16,8 +16,9 @@ framework.
 import os
 import sys
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "JAR3Doutput.settings")
-sys.path.append(os.path.join(os.path.dirname(__file__), "JAR3Doutput"))
+sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), "JAR3Doutput"))
+os.environ["DJANGO_SETTINGS_MODULE"] = "JAR3Doutput.settings"
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION
