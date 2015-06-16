@@ -1,9 +1,9 @@
-
 from django.shortcuts import render_to_response
 
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
+
 
 from JAR3Dresults.models import Query_info
 from JAR3Dresults.models import Query_sequences
@@ -12,6 +12,8 @@ from JAR3Dresults.models import Results_by_loop
 from JAR3Dresults.models import Results_by_loop_instance
 from JAR3Dresults.models import Loop_query_info
 from JAR3Dresults.models import Correspondence_results
+
+from JAR3Doutput import settings
 
 from rnastructure.primary import fold
 from rnastructure.secondary import dot_bracket as Dot
@@ -132,9 +134,9 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
     if motifgroup[0] == 'I':
-        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
     else:
-        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/HL/1.13/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
@@ -196,9 +198,9 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     if motifgroup[0] == 'I':
-        filenamewithpath = '/Users/api/Models/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+        filenamewithpath = settings.MODELS + '/IL/1.13/lib/' + motifgroup + '_interactions.txt'
     else:
-        filenamewithpath = '/Users/api/Models/HL/1.13/lib/' + motifgroup + '_interactions.txt'
+        filenamewithpath = settings.MODELS + '/HL/1.13/lib/' + motifgroup + '_interactions.txt'
     with open(filenamewithpath,"r") as f:
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
@@ -462,8 +464,10 @@ class ResultsMaker():
         self.input_stats = dict()
         self.problem_loops = []
         self.TOPRESULTS = 10
-        self.RNA3DHUBURL = 'http://rna.bgsu.edu/rna3dhub/motif/view/'
-        self.SSURL = 'http://rna.bgsu.edu/img/MotifAtlas/'
+        self.RNA3DHUBURL = getattr(settings, 'RNA3DHUB',
+                                   'http://rna.bgsu.edu/rna3dhub/motif/view/')
+        self.SSURL = getattr(settings, 'SSURL',
+                             'http://rna.bgsu.edu/img/MotifAtlas/')
         self.sequences = []
         self.indices = []
 
@@ -481,7 +485,8 @@ class ResultsMaker():
             """
             loop_ids = []
             for result in results:
-                result.motif_url = self.RNA3DHUBURL + result.motif_id
+                result.motif_url = self.RNA3DHUBURL + '/motif/view/' + result.motif_id
+                result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.13/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
@@ -544,11 +549,11 @@ def compare_lists(l1, l2):
 def levenshtein(s1, s2):
     if len(s1) < len(s2):
         return levenshtein(s2, s1)
- 
+
     # len(s1) >= len(s2)
     if len(s2) == 0:
         return len(s1)
- 
+
     previous_row = range(len(s2) + 1)
     for i, c1 in enumerate(s1):
         current_row = [i + 1]
@@ -558,7 +563,7 @@ def levenshtein(s1, s2):
             substitutions = previous_row[j] + (c1 != c2)
             current_row.append(min(insertions, deletions, substitutions))
         previous_row = current_row
- 
+
     return previous_row[-1]
 
 
