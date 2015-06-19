@@ -51,7 +51,7 @@
           <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
           View <a href="{{ result.motif_url }}" target="_blank">{{ result.motif_id }}</a>
           <br>{{result.signature}}<br>
-        <a href="{{result.align_url}}/{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
+        <a href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
         <td>{{ result.mean_cutoff_score|floatformat:2 }}</td>
