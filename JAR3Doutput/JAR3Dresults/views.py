@@ -485,7 +485,7 @@ class ResultsMaker():
             """
             loop_ids = []
             for result in results:
-                result.motif_url = self.RNA3DHUBURL + result.motif_id
+                result.motif_url = self.RNA3DHUBURL + 'motifs/view/' + result.motif_id
                 result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
                 result.ssurl = self.SSURL + result.motif_id[0:2] + '1.18/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
