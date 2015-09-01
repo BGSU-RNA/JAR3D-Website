@@ -253,6 +253,7 @@ class JAR3DValidator():
         query_type = request.POST['query_type']
         ss = request.POST['ss']
         parsed_input = request.POST['parsed_input']
+        title = request.POST.get('title','JAR3D Search')
 
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
@@ -293,7 +294,7 @@ class JAR3DValidator():
         else:
             return self.respond("Unrecognized query type")
 
-        query_info = self.make_query_info(query_id, query_type, parsed_input)
+        query_info = self.make_query_info(query_id, query_type, parsed_input, title)
         query_sequences = self.make_query_sequences(loops, fasta, query_id)
         query_positions = self.make_query_indices(indices, query_id)
 
@@ -356,12 +357,13 @@ class JAR3DValidator():
                 loop_id = loop_id + 1
         return query_positions
 
-    def make_query_info(self, query_id, query_type, parsed_input):
+    def make_query_info(self, query_id, query_type, parsed_input, title):
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id=query_id,
                                 group_set='IL1.18/HL1.18',  # change this
                                 model_type='default',  # change this
                                 query_type=query_type,
+                                title=title,
                                 structured_models_only=0,
                                 email='',
                                 status=0,
