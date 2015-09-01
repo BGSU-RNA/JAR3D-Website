@@ -407,7 +407,8 @@ var jar3dInputValidator = (function($) {
         validate: function( input ) {
             var self = jar3dInputValidator,
                 lines = self.splitLines(input),
-                l = lines.length;
+                l = lines.length,
+                title = $('#title-input').text();
 
             var response = {
                 valid: false,
@@ -415,7 +416,7 @@ var jar3dInputValidator = (function($) {
                 fasta: new Array(),
                 data: new Array(),
                 ss: null,
-                parsed_input: lines.join('\n')
+                parsed_input: lines.join('\n'),
             };
 
             if ( l == 0 ) { return response; }

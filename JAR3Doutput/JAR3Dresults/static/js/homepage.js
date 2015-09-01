@@ -131,6 +131,8 @@ var Examples = {
               document.URL.match(/^https?:\/\/localhost:\d+/) ||
               window.location.protocol + '//' + window.location.host + '/jar3d';
 
+        response.title = $("#title-input").text();
+
         $.ajax({
           type: 'POST',
           url: url + '/process_input',
