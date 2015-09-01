@@ -14,6 +14,7 @@ class Query_info(models.Model):
     group_set = models.CharField(max_length=20, default='default') #motifs release
     model_type = models.CharField(max_length=20, default='default') #bph_stack etc
     query_type = models.CharField(max_length=35)
+    title = models.CharField(max_length=100)
     structured_models_only = models.IntegerField(default=0)
     email = models.CharField(blank=True, max_length=100)
     status = models.IntegerField(default=0)
