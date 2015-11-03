@@ -35,7 +35,13 @@ predicting RNA 3D motifs in sequences
     <div class="row">
         <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
         <button class="btn btn-danger span1" id="clear">Clear</button>
-
+        Version : 
+        <select name = "version">
+        {% for option in options %}
+          <option value={{option}}>{{option}}</option>
+        }
+        {% endfor %}
+        </select>
         <div id="message" class="span3 alert"></div>
     </div>
 
