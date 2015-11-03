@@ -34,19 +34,20 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
+    versions = ["1.16","1.13","1.7"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': q.parsed_input},
+                                      {'input': q.parsed_input, 'options':versions},
                                       context_instance=RequestContext(request))
         else:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': 'query id not found'},
+                                      {'input': 'query id not found', 'options':versions},
                                       context_instance=RequestContext(request))
     else:
         return render_to_response('JAR3Doutput/base_homepage.html',
-                                  {},
+                                  {'options':versions},
                                   context_instance=RequestContext(request))
 
 
