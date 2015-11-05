@@ -84,7 +84,7 @@ MAIN:
             # Give the thread some work to do
             my $query = pop(@queries);
             my $query_id = $query->{query_id};
-            my $versions = split('/', $query->{group_set})
+            my @versions = split('/', $query->{group_set});
             my $il_version = substr($versions[0], 2);
             my $hl_version = substr($versions[1], 2);
             my $il_models = $config{models} . "/IL/$il_version/lib/all.txt";
