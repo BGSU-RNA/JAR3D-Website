@@ -34,7 +34,7 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
-    versions = ["1.16","1.13","1.7"]
+    versions = ["1.18","1.13"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
@@ -295,7 +295,8 @@ class JAR3DValidator():
         else:
             return self.respond("Unrecognized query type")
 
-        query_info = self.make_query_info(query_id, query_type, parsed_input, title)
+        version = request.POST['version']
+        query_info = self.make_query_info(query_id, query_type, parsed_input, title, version)
         query_sequences = self.make_query_sequences(loops, fasta, query_id)
         query_positions = self.make_query_indices(indices, query_id)
 
@@ -358,10 +359,10 @@ class JAR3DValidator():
                 loop_id = loop_id + 1
         return query_positions
 
-    def make_query_info(self, query_id, query_type, parsed_input, title):
+    def make_query_info(self, query_id, query_type, parsed_input, title, version):
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id=query_id,
-                                group_set='IL1.18/HL1.18',  # change this
+                                group_set='IL'+ version + '/HL' + version,  
                                 model_type='default',  # change this
                                 query_type=query_type,
                                 title=title,
