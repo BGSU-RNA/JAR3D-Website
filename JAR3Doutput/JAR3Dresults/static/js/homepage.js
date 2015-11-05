@@ -132,6 +132,7 @@ var Examples = {
               window.location.protocol + '//' + window.location.host + '/jar3d';
 
         response.title = $("#title-input").val();
+        response.version = $("#version").val();
 
         $.ajax({
           type: 'POST',
