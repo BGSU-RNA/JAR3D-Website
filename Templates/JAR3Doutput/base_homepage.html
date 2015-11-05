@@ -13,10 +13,10 @@ predicting RNA 3D motifs in sequences
     <div class="row">
         <div class="span8">
             <textarea id='title-input' class="span8" rows='1' tabindex="1"
-            placeholder="Title for Search (optional)">JAR3D Search</textarea>
+            placeholder="Optional title for search">{{title-input|default:''}}</textarea>
             <br>
             <textarea id='input' class="span8" rows='10' tabindex="1"
-            placeholder="Single or aligned RNA/DNA sequences or single/multiple loops (fasta-formatted descriptions and secondary structures are optional)">{{input|default:''}}</textarea>
+            placeholder="Single or aligned RNA/DNA sequences or single/multiple loops (fasta-formatted descriptions and secondary structures are optional)"></textarea>
         </div>
         <div class="span4">
             <h4>Sample Input</h4>
@@ -35,7 +35,7 @@ predicting RNA 3D motifs in sequences
     <div class="row">
         <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
         <button class="btn btn-danger span1" id="clear">Clear</button>
-        Version : 
+        Version :
         <select name = "version">
         {% for option in options %}
           <option value={{option}}>{{option}}</option>
