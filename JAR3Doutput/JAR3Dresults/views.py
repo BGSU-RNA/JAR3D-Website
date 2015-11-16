@@ -296,6 +296,7 @@ class JAR3DValidator():
             return self.respond("Unrecognized query type")
 
         version = request.POST['version']
+        version = '1.18'
         query_info = self.make_query_info(query_id, query_type, parsed_input, title, version)
         query_sequences = self.make_query_sequences(loops, fasta, query_id)
         query_positions = self.make_query_indices(indices, query_id)
