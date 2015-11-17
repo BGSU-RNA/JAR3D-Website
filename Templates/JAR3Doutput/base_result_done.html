@@ -11,9 +11,9 @@
 {% block page_subtitle %}
   {{ block.super }}
   Query {{ query_info.query_id }} completed
+  <br>
+  Run on Motif Atlas Version {{ query_info.group_set }}
 {% endblock page_subtitle %}
-
-Run on Motif Atlas Version {{ query_info.group_set }}
 
 {% block page_content %}
 {{ block.super }}
