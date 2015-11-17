@@ -15,9 +15,8 @@
 
 
 {% block page_content %}
-
-{{ block.super }}
 Run on Motif Atlas Version {{ query_info.group_set }}
+{{ block.super }}
 <div class="row">
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
