@@ -11,14 +11,13 @@
 {% block page_subtitle %}
   {{ block.super }}
   Query {{ query_info.query_id }} completed
-  Run on Motif Atlas Version {{ query_info.group_set }}
 {% endblock page_subtitle %}
 
 
 {% block page_content %}
 
 {{ block.super }}
-
+Run on Motif Atlas Version {{ query_info.group_set }}
 <div class="row">
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
