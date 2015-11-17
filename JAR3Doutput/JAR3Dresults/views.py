@@ -62,7 +62,7 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
     results = ResultsMaker(query_id=uuid)
-    results.get_loop_results()
+    results.get_loop_results(request)
     results.get_input_stats()
 
     """
@@ -134,10 +134,11 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
+    version = request.POST['version']
     if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/1.18/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_correspondences.txt'
     else:
-        filenamewithpath = settings.MODELS + '/HL/1.18/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/HL'+version+'lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
@@ -199,9 +200,9 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/1.18/lib/' + motifgroup + '_interactions.txt'
+        filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
-        filenamewithpath = settings.MODELS + '/HL/1.18/lib/' + motifgroup + '_interactions.txt'
+        filenamewithpath = settings.MODELS + '/HL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     with open(filenamewithpath,"r") as f:
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
@@ -475,12 +476,12 @@ class ResultsMaker():
         self.sequences = []
         self.indices = []
 
-    def get_loop_results(self):
+    def get_loop_results(self, request):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-meanscore')
-
+        version = request.post['version']
         if results:
             """
             build a 2d list
@@ -491,7 +492,7 @@ class ResultsMaker():
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
                 result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
-                result.ssurl = self.SSURL + result.motif_id[0:2] + '1.18/' + result.motif_id + '.png'
+                result.ssurl = self.SSURL + result.motif_id[0:2] + version + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:
