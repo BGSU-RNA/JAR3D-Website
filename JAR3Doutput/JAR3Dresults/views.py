@@ -481,7 +481,7 @@ class ResultsMaker():
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-meanscore')
-        version = request.post['version']
+        version = request.POST['version']
         if results:
             """
             build a 2d list
