@@ -60,9 +60,10 @@ def result(request, uuid):
         return render_to_response('JAR3Doutput/base_result_not_found.html',
                                   {'query_id': uuid},
                                   context_instance=RequestContext(request))
+    version = q.group_set[2:q.group_set.index('/')]
 
     results = ResultsMaker(query_id=uuid)
-    results.get_loop_results(request)
+    results.get_loop_results(version)
     results.get_input_stats()
 
     """
@@ -134,11 +135,11 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
-    version = request.POST['version']
+    version = q.group_set[2:q.group_set.index('/')]
     if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/IL/'+ version +'/lib/' + motifgroup + '_correspondences.txt'
     else:
-        filenamewithpath = settings.MODELS + '/HL'+version+'lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/HL'+ version +'lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
@@ -199,6 +200,7 @@ def single_result(request,uuid,loopid,motifgroup):
     motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
+    version = q.group_set[2:q.group_set.index('/')]
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
@@ -470,18 +472,17 @@ class ResultsMaker():
         self.problem_loops = []
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = getattr(settings, 'RNA3DHUB',
-                                   'http://rna.bgsu.edu/rna3dhub/motif/view/')
+                                   'http://rna.bgsu.edu/rna3dhub/')
         self.SSURL = getattr(settings, 'SSURL',
                              'http://rna.bgsu.edu/img/MotifAtlas/')
         self.sequences = []
         self.indices = []
 
-    def get_loop_results(self, request):
+    def get_loop_results(self, version):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-meanscore')
-        version = request.POST['version']
         if results:
             """
             build a 2d list
