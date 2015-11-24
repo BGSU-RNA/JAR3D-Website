@@ -93,6 +93,7 @@ def result(request, uuid):
 
 def single_result(request,uuid,loopid,motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
+    group_set =  Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
     if q:
         q = q[0]  # We are interested only in the first one
@@ -135,7 +136,7 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
-    version = q.group_set[2:q.group_set.index('/')]
+    version = group_set[2:group_set.index('/')]
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+ version +'/lib/' + motifgroup + '_correspondences.txt'
     else:
@@ -493,7 +494,7 @@ class ResultsMaker():
             for result in results:
                 result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
                 result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
-                result.ssurl = self.SSURL + result.motif_id[0:2] + version + result.motif_id + '.png'
+                result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:
