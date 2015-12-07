@@ -140,7 +140,7 @@ def single_result(request,uuid,loopid,motifgroup):
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+ version +'/lib/' + motifgroup + '_correspondences.txt'
     else:
-        filenamewithpath = settings.MODELS + '/HL'+ version +'lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/HL/'+ version +'/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
