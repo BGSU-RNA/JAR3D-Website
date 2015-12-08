@@ -88,8 +88,8 @@ MAIN:
             my @versions = split('/', $query->{group_set});
             my $il_version = substr($versions[0], 2);
             my $hl_version = substr($versions[1], 2);
-            my $il_models = $config{models} . "/IL/$il_version/lib/all.txt";
-            my $hl_models = $config{models} . "/HL/$hl_version/lib/all.txt";;
+            my $il_models = $config{models} . "/IL/$il_version/lib/";
+            my $hl_models = $config{models} . "/HL/$hl_version/lib/";;
 
             my $models = $il_models;
             if ($query->{motif_group} =~ /^HL/) {
