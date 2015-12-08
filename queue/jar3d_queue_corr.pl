@@ -157,7 +157,7 @@ sub worker
 
 sub get_queries
 {
-    my $statement = "select * from jar3d_loop_results_queue where status = 0;";
+    my $statement = "select I.*, Q.motif_group, Q.loop_id from jar3d_query_info as I join jar3d_loop_results_queue as Q on Q.query_id = I.query_id where Q.status = 0;";
 
     my $sth = $dbh->prepare($statement);
     $sth->execute();
