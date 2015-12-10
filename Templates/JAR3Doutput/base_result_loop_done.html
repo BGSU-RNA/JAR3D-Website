@@ -10,32 +10,59 @@
 
 {% block page_subtitle %}
   {{ block.super }}
-  Query {{ query_info.query_id }} completed
+  Query <a href="http://rna.bgsu.edu/jar3d_dev/result/{{ query_info.query_id }}" target="_blank"> {{ query_info.query_id }}</a>  
+  <br>
+  Alignment of Loop {{loopnum}} to 
+  <a href="http://rna.bgsu.edu/rna3dhub/motif/view/{{ motifid }}" target="_blank"> {{motifid}} </a>
 {% endblock page_subtitle %}
 
 
 {% block page_content %}
-<div class="row">
-    <table class="table table-striped table-condensed table-bordered">
+<div>
+Click on a column header to sort by that column.  Holding shift and clicking on multiple column headers will sort by each column in order.
+{% if rotation == 1 %}
+<br>
+The strands of your internal loop have been switched to match the strand ordering seen in {{motifid}}.  They are still in 5' to 3' order.
+{% endif %}
+    <table class='table table-condensed table-bordered'>
       <thead>
-        <tr>
-          {% for col_num,node,insertion in header_zip %}
-          <th class='table-header' data-header-name='{{forloop.counter}}'>{{col_num}}<br>{{node}}<br>{{insertion}}</th>
+
+        <tr style='background-color:#ffffff'>
+          {% for col_num,position,insertion in header_zip %}
+          <th class='table-header' style='text-align:center;vertical-align:top;font-family:serif;'>
+          {{col_num}}<br>{{position}}<br>{{insertion}}</th>
           {% endfor %}
         </tr>
       </thead>
       <tbody>
-      {% for line in body_lines %}
-        <tr>
+      {% for line, eds in seq_zip %}
+        <tr style='background-color:#f8f8f8'>
           {% for cell in line %}
-          <td>{{cell}}</td>
+          <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
+          {% endfor %}
+          {% for cell in eds %}
+          <td style='text-align:center;font-family:sans-serif;background-color:{{cell.1}};'>{{cell.0}}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      {% for name, line, eds in motif_data %}
+        <tr style='background-color:#ffffff'>
+          <td style='text-align:center;font-family:sans-serif;'>
+          	<a href="http://rna.bgsu.edu/rna3dhub/loops/view/{{name}}" target="_blank"> {{ name }}</a>
+          </td> 
+          {% for cell in line %}
+          <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
+          {% endfor %}
+          {% for cell in eds %}
+          <td style='text-align:center;font-family:sans-serif;background-color:{{cell.1}};'>{{cell.0}}</td>
           {% endfor %}
         </tr>
       {% endfor %}
       </tbody>
     </table>
 </div>
-
+The consensus interactions for this motif group are shown below
+<pre>{{inter_text}}</pre>
 {% endblock page_content%}
 
 {% block page_specific_js %}

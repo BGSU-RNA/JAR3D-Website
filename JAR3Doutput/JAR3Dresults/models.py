@@ -87,7 +87,7 @@ class Results_by_loop(models.Model):
         db_table = u'jar3d_results_by_loop'
 
 class Correspondence_results(models.Model):
-    node_position = models.IntegerField()
+    node_position = models.CharField(max_length=7)
     sequence_position = models.IntegerField()
     result_instance_id = models.IntegerField()
     node = models.IntegerField()
