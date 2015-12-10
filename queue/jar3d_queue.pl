@@ -82,9 +82,15 @@ MAIN:
             last if ($tid < 0);
 
             # Give the thread some work to do
-            my $query_id = pop(@queries);
+            my $query = pop(@queries);
+            my $query_id = $query->{query_id};
+            my @versions = split('/', $query->{group_set});
+            my $il_version = substr($versions[0], 2);
+            my $hl_version = substr($versions[1], 2);
+            my $il_models = $config{models} . "/IL/$il_version/lib/all.txt";
+            my $hl_models = $config{models} . "/HL/$hl_version/lib/all.txt";;
 
-            my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/webJAR3D_server.jar $config{il_models}/all.txt $config{hl_models}/all.txt $query_id $config{db_user_name} $config{db_password} $config{db_database}";
+            my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/webJAR3D_server.jar $il_models $hl_models $query_id $config{db_user_name} $config{db_password} $config{db_database}";
             $work_queues{$tid}->enqueue($work);
         }
         sleep($SLEEP);
@@ -145,7 +151,7 @@ sub worker
 
 sub get_queries
 {
-    my $statement = "select query_id from jar3d_query_info where status = 0;";
+    my $statement = "select I.* from jar3d_query_info as I where I.status = 0;";
 
     my $sth = $dbh->prepare($statement);
     $sth->execute();
@@ -154,7 +160,7 @@ sub get_queries
 
     while (my $result = $sth->fetchrow_hashref()) {
         print "Value returned: $result->{query_id}\n";
-        push @query_ids, $result->{query_id};
+        push @query_ids, $result;
     }
 
     $sth->finish;

@@ -34,19 +34,20 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
+    versions = ["1.18","1.17","1.15","1.14","1.13","1.12","1.11","1.10","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': q.parsed_input},
+                                      {'input': q.parsed_input, 'options':versions},
                                       context_instance=RequestContext(request))
         else:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': 'query id not found'},
+                                      {'input': 'query id not found', 'options':versions},
                                       context_instance=RequestContext(request))
     else:
         return render_to_response('JAR3Doutput/base_homepage.html',
-                                  {},
+                                  {'options':versions},
                                   context_instance=RequestContext(request))
 
 
@@ -59,9 +60,10 @@ def result(request, uuid):
         return render_to_response('JAR3Doutput/base_result_not_found.html',
                                   {'query_id': uuid},
                                   context_instance=RequestContext(request))
+    version = q.group_set[2:q.group_set.index('/')]
 
     results = ResultsMaker(query_id=uuid)
-    results.get_loop_results()
+    results.get_loop_results(version)
     results.get_input_stats()
 
     """
@@ -72,14 +74,14 @@ def result(request, uuid):
         2  - submitted to JAR3D
     """
 
-    if q.status == 1 or q.status == 2:
+    if q.status == 1:
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
                                   context_instance=RequestContext(request))
-    elif q.status == 0:
+    elif q.status == 0 or q.status == 2:
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_pending.html',
                                   {'query_info': q, 'num': results.input_stats},
@@ -91,6 +93,7 @@ def result(request, uuid):
 
 def single_result(request,uuid,loopid,motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
+    group_set =  Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
     if q:
         q = q[0]  # We are interested only in the first one
@@ -133,10 +136,11 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
     instance_text = '\n'.join(rows)
+    version = group_set[2:group_set.index('/')]
     if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/1.13/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/IL/'+ version +'/lib/' + motifgroup + '_correspondences.txt'
     else:
-        filenamewithpath = settings.MODELS + '/HL/1.13/lib/' + motifgroup + '_correspondences.txt'
+        filenamewithpath = settings.MODELS + '/HL/'+ version +'/lib/' + motifgroup + '_correspondences.txt'
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
@@ -200,10 +204,11 @@ def single_result(request,uuid,loopid,motifgroup):
     motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
+    version = q.group_set[2:q.group_set.index('/')]
     if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/1.13/lib/' + motifgroup + '_interactions.txt'
+        filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
-        filenamewithpath = settings.MODELS + '/HL/1.13/lib/' + motifgroup + '_interactions.txt'
+        filenamewithpath = settings.MODELS + '/HL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     with open(filenamewithpath,"r") as f:
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
@@ -256,6 +261,7 @@ class JAR3DValidator():
         query_type = request.POST['query_type']
         ss = request.POST['ss']
         parsed_input = request.POST['parsed_input']
+        title = request.POST.get('title','JAR3D Search')
 
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
@@ -296,7 +302,8 @@ class JAR3DValidator():
         else:
             return self.respond("Unrecognized query type")
 
-        query_info = self.make_query_info(query_id, query_type, parsed_input)
+        version = request.POST['version']
+        query_info = self.make_query_info(query_id, query_type, parsed_input, title, version)
         query_sequences = self.make_query_sequences(loops, fasta, query_id)
         query_positions = self.make_query_indices(indices, query_id)
 
@@ -359,12 +366,13 @@ class JAR3DValidator():
                 loop_id = loop_id + 1
         return query_positions
 
-    def make_query_info(self, query_id, query_type, parsed_input):
+    def make_query_info(self, query_id, query_type, parsed_input, title, version):
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id=query_id,
-                                group_set='IL1.13/HL1.13',  # change this
+                                group_set='IL'+ version + '/HL' + version,  
                                 model_type='default',  # change this
                                 query_type=query_type,
+                                title=title,
                                 structured_models_only=0,
                                 email='',
                                 status=0,
@@ -468,18 +476,17 @@ class ResultsMaker():
         self.problem_loops = []
         self.TOPRESULTS = 10
         self.RNA3DHUBURL = getattr(settings, 'RNA3DHUB',
-                                   'http://rna.bgsu.edu/rna3dhub/motif/view/')
+                                   'http://rna.bgsu.edu/rna3dhub/')
         self.SSURL = getattr(settings, 'SSURL',
                              'http://rna.bgsu.edu/img/MotifAtlas/')
         self.sequences = []
         self.indices = []
 
-    def get_loop_results(self):
+    def get_loop_results(self, version):
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-meanscore')
-
         if results:
             """
             build a 2d list
@@ -488,9 +495,9 @@ class ResultsMaker():
             """
             loop_ids = []
             for result in results:
-                result.motif_url = self.RNA3DHUBURL + '/motif/view/' + result.motif_id
+                result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
                 result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
-                result.ssurl = self.SSURL + result.motif_id[0:2] + '1.13/' + result.motif_id + '.png'
+                result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:

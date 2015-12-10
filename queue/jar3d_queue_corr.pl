@@ -84,9 +84,16 @@ MAIN:
             # Give the thread some work to do
             my $query = pop(@queries);
 
-            my $models = $config{il_models};
+            my $query_id = $query->{query_id};
+            my @versions = split('/', $query->{group_set});
+            my $il_version = substr($versions[0], 2);
+            my $hl_version = substr($versions[1], 2);
+            my $il_models = $config{models} . "/IL/$il_version/lib/";
+            my $hl_models = $config{models} . "/HL/$hl_version/lib/";;
+
+            my $models = $il_models;
             if ($query->{motif_group} =~ /^HL/) {
-                $models = $config{hl_models};
+                $models = $hl_models;
             }
 
             my $work = "ulimit -t $TIMEOUT; java -Xmx500m -jar $RealBin/jar3dCorr.jar $models $query->{motif_group} $query->{query_id} $query->{loop_id} $config{db_user_name} $config{db_password} $config{db_database}";
@@ -150,7 +157,7 @@ sub worker
 
 sub get_queries
 {
-    my $statement = "select * from jar3d_loop_results_queue where status = 0;";
+    my $statement = "select I.*, Q.motif_group, Q.loop_id from jar3d_query_info as I join jar3d_loop_results_queue as Q on Q.query_id = I.query_id where Q.status = 0;";
 
     my $sth = $dbh->prepare($statement);
     $sth->execute();

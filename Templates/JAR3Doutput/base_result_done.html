@@ -11,13 +11,12 @@
 {% block page_subtitle %}
   {{ block.super }}
   Query {{ query_info.query_id }} completed
+  <br>
+  Ran on Motif Atlas Version {{ query_info.group_set }}
 {% endblock page_subtitle %}
 
-
 {% block page_content %}
-
 {{ block.super }}
-
 <div class="row">
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
@@ -50,13 +49,10 @@
                  class='jmolInline' data-coord='{{ result.motif_id }}'>
           <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
           View <a href="{{ result.motif_url }}" target="_blank">{{ result.motif_id }}</a>
-<<<<<<< HEAD
-        <a href="http://rna.bgsu.edu/jar3d_dev/result/{{result.query_id}}/{{result.loop_id}}/{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
-          {{result.signature}}
-=======
+
           <br>{{result.signature}}<br>
-        <a href="{{result.align_url}}/{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
->>>>>>> 4254112f4a5e9d17a9607768cae495668bc1b097
+
+        <a href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences to {{ result.motif_id }}</a>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
         <td>{{ result.mean_cutoff_score|floatformat:2 }}</td>
@@ -118,7 +114,7 @@
   </div>
 
   <div class="help-text" hidden data-header-name="mean-score">
-  Average alignment score against the probabilistic model for this motif.  Closer to 0 is better.
+  A score indicating how close a sequence is to the cutoff barrier.  100 is the best, 0 is right on the cutoff line, negative is outside of the cutoff region.
   </div>
 
   <div class="help-text" hidden data-header-name="full-edit">
@@ -130,7 +126,7 @@
   </div>
 
   <div class="help-text" hidden data-header-name="signature">
-  A text summary of the interactions characteristic of this motif.
+  A 2D diagram of the consensus interactions in the motif group.
   </div>
 </div>
 {% endblock page_content%}
