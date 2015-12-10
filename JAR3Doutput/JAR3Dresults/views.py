@@ -144,8 +144,6 @@ def single_result(request,uuid,loopid,motifgroup):
     with open(filenamewithpath,"r") as f:
         model_text = f.readlines()
     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)
-    body_lines = []
-    col_nums = []
     seq_text = '\n'.join(rows)
     model_text = '\n'.join(model_text)
     seq_lines = []
