@@ -5,13 +5,16 @@
 {% block page_specific_css_class %}homepage{% endblock page_specific_css_class %}
 
 {% block page_subtitle %}
-predicting RNA 3D motifs in sequences
+Scoring RNA loop sequences against known 3D motifs
 <a href="{{ BASE }}/main/jar3d-tutorial/" class="btn btn-success pull-right">Tutorial</a>
 {% endblock page_subtitle %}
 
 {% block page_content %}
     <div class="row">
         <div class="span8">
+            <textarea id='title-input' class="span8" rows='1' tabindex="1"
+            placeholder="Optional title for search"></textarea>
+            <br>
             <textarea id='input' class="span8" rows='10' tabindex="1"
             placeholder="Single or aligned RNA/DNA sequences or single/multiple loops (fasta-formatted descriptions and secondary structures are optional)">{{input|default:''}}</textarea>
         </div>
@@ -32,7 +35,14 @@ predicting RNA 3D motifs in sequences
     <div class="row">
         <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
         <button class="btn btn-danger span1" id="clear">Clear</button>
-
+        &nbsp
+        Motif Atlas Version : 
+        <select id = "version">
+        {% for option in options %}
+          <option value={{option}}>{{option}}</option>
+        }
+        {% endfor %}
+        </select>
         <div id="message" class="span3 alert"></div>
     </div>
 
@@ -42,7 +52,7 @@ predicting RNA 3D motifs in sequences
         <div class="span4">
             <h3>Goal</h3>
             <p>
-              <strong>JAR3D</strong> matches RNA hairpin and internal loop sequences to motif groups
+              <strong>JAR3D</strong> scores RNA hairpin and internal loop sequences against motif groups
               from the <a href="{{BASE}}/rna3dhub/motifs">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and
               by probabilistic scoring and edit distance for novel sequences.
               RNA hairpin and internal loops are often represented on secondary structure diagrams as if they are unstructured,
@@ -50,7 +60,7 @@ predicting RNA 3D motifs in sequences
               Analysis of 3D structures shows that
               different RNA sequences can form the same RNA 3D motif, as is apparent
               in many motif groups in the RNA 3D Motif Atlas.
-              JAR3D matches sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
+              JAR3D scores sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
               Because the RNA 3D Motif Atlas incorporates new RNA 3D structures every four weeks, the performance of JAR3D will improve over time.
               <p>
               Functions of recurrent 3D motifs include:
@@ -81,14 +91,14 @@ predicting RNA 3D motifs in sequences
               Multiple sequences need to be aligned to one another.
             </p>
             <p>
-              The output shows the best-matching motif groups from the RNA 3D Motif Atlas and
-              statistics measuring the quality of the match.
+              The output shows the best-scoring motif groups from the RNA 3D Motif Atlas using a variety of metrics.
               The user can view a representative
               instance from each motif group and explore the group further at the RNA 3D Motif Atlas page for the motif group.
+              The user can also see how their input input sequences align to known 3D instances of a motif.
             </p>
             <h3>Tutorial</h3>
             <p>
-            The tutorial <a href="{{ BASE }}/main/jar3d-tutorial/">at this link</a> is a bit dated, but still helpful.
+            The tutorial can be found <a href="{{ BASE }}/main/jar3d-tutorial/">at this link</a>.
         </div>
         <div class="span4">
             <h3>Method</h3>
@@ -103,10 +113,9 @@ predicting RNA 3D motifs in sequences
               found in the non-redundant dataset and knowledge of RNA nucleotide interactions,
               especially <a href="http://nar.oxfordjournals.org/content/37/7/2294.full">
               isosteric basepairs</a> and their substitution patterns.
-              <li>Given the sequence of a hairpin or internal loop from a secondary structure as input,
-              each SCFG/MRF model calculates the probability that the sequence forms a given 3D motif.
-              If the score is in the same range as sequences known to form the 3D structure,
-              we infer that the new sequence can form the same 3D structure.
+              <li>For each motif group, we form an acceptance region that is consistent with the 
+              geometry and basepairing of that group. If the score is in the cutoff region, we 
+              infer that the new sequence can form the same 3D structure.
               <br>
               <a href="{{ BASE }}/main/webapps/jar3d/">Read more</a>
               </ol>
