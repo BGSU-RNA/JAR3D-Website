@@ -183,7 +183,6 @@ def single_result(request,uuid,loopid,motifgroup):
         edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
->>>>>>> 4254112f4a5e9d17a9607768cae495668bc1b097
     mkeys = sorted(motifalig.keys())
     edit_lines = []
     color_dict['0'] = '#ffffff'
