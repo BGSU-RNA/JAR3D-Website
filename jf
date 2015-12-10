@@ -1,0 +1,13 @@
+[1mdiff --git a/JAR3Doutput/JAR3Dresults/views.py b/JAR3Doutput/JAR3Dresults/views.py[m
+[1mindex a852d9e..2bf437f 100644[m
+[1m--- a/JAR3Doutput/JAR3Dresults/views.py[m
+[1m+++ b/JAR3Doutput/JAR3Dresults/views.py[m
+[36m@@ -144,6 +144,8 @@[m [mdef single_result(request,uuid,loopid,motifgroup):[m
+     with open(filenamewithpath,"r") as f:[m
+         model_text = f.readlines()[m
+     header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text,rows)[m
+[32m+[m[32m    body_lines = [][m
+[32m+[m[32m    col_nums = [][m
+     seq_text = '\n'.join(rows)[m
+     model_text = '\n'.join(model_text)[m
+     seq_lines = [][m
