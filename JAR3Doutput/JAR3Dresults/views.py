@@ -79,7 +79,7 @@ def result(request, uuid):
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
-                                   'results': zippedResults},
+                                   'results': zippedResults, 'version': version},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
@@ -210,7 +210,7 @@ def single_result(request,uuid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': loopid, 'motifid': motifgroup,
+                                  'loopnum': loopid, 'motifid': motifgroup, 'version': version,
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
