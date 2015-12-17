@@ -60,7 +60,7 @@ def result(request, uuid):
         return render_to_response('JAR3Doutput/base_result_not_found.html',
                                   {'query_id': uuid},
                                   context_instance=RequestContext(request))
-    version = q.group_set[2:q.group_set.index('/')]
+    version = str(q.group_set[2:q.group_set.index('/')])
 
     results = ResultsMaker(query_id=uuid)
     results.get_loop_results(version)
@@ -77,8 +77,7 @@ def result(request, uuid):
     if q.status == 1:
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
-        version = q.group_set[2:q.group_set.index('/')]
-        q.version = version
+        q.version = str(q.group_set[2:q.group_set.index('/')])
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
@@ -203,8 +202,9 @@ def single_result(request,uuid,loopid,motifgroup):
     motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
-    version = q.group_set[2:q.group_set.index('/')]
-    q.version = version
+    version = str(q.group_set[2:q.group_set.index('/')])
+    q.version = str(q.group_set[2:q.group_set.index('/')])
+
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
