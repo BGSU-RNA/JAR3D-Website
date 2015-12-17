@@ -78,7 +78,7 @@ def result(request, uuid):
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
         q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
         version = q.group_set[2:q.group_set.index('/')]
-        q.group_set = version
+        q.version = version
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
@@ -204,7 +204,7 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     version = q.group_set[2:q.group_set.index('/')]
-    q.group_set = version
+    q.version = version
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
