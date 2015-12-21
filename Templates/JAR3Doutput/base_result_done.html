@@ -13,9 +13,9 @@
   Query {{ query_info.query_id }} completed
   <br>
   {% if query_info.group_set|length == 13%}
-  Run on Motif Atlas Version {{ query_info.group_set|slice:2:5 }}
+  Run on Motif Atlas Version {{ query_info.group_set|slice:"2:5" }}
   {% else %}
-  Run on Motif Atlas Version {{ query_info.group_set|slice:2:4 }}
+  Run on Motif Atlas Version {{ query_info.group_set|slice:"2:4" }}
   {% endif %}
 {% endblock page_subtitle %}
 
