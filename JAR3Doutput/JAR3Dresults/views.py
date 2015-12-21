@@ -211,7 +211,7 @@ def single_result(request,uuid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': loopid, 'motifid': motifgroup,
+                                  'loopnum': loopid, 'motifid': motifgroup, 
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
