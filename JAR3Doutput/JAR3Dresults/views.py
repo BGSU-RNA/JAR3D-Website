@@ -152,8 +152,8 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    col_nums = col_nums + ['','','Interior','Full'] + ['']*len(sequencealig)
-    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit'] + ['Edits to']*len(sequencealig)
+    col_nums = col_nums + ['','','Interior','Full'] + ['Alignment']*len(sequencealig)
+    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit'] + ['Distance to']*len(sequencealig)
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
@@ -484,7 +484,7 @@ class ResultsMaker():
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
-                                                   '-meanscore')
+                                                   '-mean_cutoff_score')
         if results:
             """
             build a 2d list
