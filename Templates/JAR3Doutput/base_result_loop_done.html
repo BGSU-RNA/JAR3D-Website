@@ -25,7 +25,7 @@
 
 {% block page_content %}
 <div>
-Click on a column header to sort by that column.  Holding shift and clicking on multiple column headers will sort by each column in order.
+Input sequences are initially listed on the top, and sequences from 3D structures on the bottom.  Click on a column header to sort by that column.  Holding shift and clicking on multiple column headers will sort by each column in order.
 {% if rotation == 1 %}
 <br>
 The strands of your internal loop have been switched to match the strand ordering seen in {{motifid}}.  They are still in 5' to 3' order.
@@ -67,7 +67,7 @@ The strands of your internal loop have been switched to match the strand orderin
       </tbody>
     </table>
 </div>
-The consensus interactions for this motif group are shown below
+The consensus interactions for this motif group are shown below.  The numbers refer to the Position header.
 <pre>{{inter_text}}</pre>
 {% endblock page_content%}
 
