@@ -19,7 +19,7 @@ Scoring RNA loop sequences against known 3D motifs
             placeholder="Single or aligned RNA/DNA sequences or single/multiple loops (fasta-formatted descriptions and secondary structures are optional)">{{input|default:''}}</textarea>
         </div>
         <div class="span4">
-            <h4>Sample Input</h4>
+            <h4>Examples</h4>
             <ul class="examples unstyled">
                 <li><a href='#' id="isNoFastaSingleLoop">Single sequence, one loop</a></li>
                 <li><a href='#' id="isNoFastaMultipleLoops">Multiple sequences, one loop</a></li>
@@ -36,7 +36,7 @@ Scoring RNA loop sequences against known 3D motifs
         <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
         <button class="btn btn-danger span1" id="clear">Clear</button>
         &nbsp
-        Motif Atlas Version : 
+        Motif Atlas Version :
         <select id = "version">
         {% for option in options %}
           <option value={{option}}>{{option}}</option>
@@ -113,8 +113,8 @@ Scoring RNA loop sequences against known 3D motifs
               found in the non-redundant dataset and knowledge of RNA nucleotide interactions,
               especially <a href="http://nar.oxfordjournals.org/content/37/7/2294.full">
               isosteric basepairs</a> and their substitution patterns.
-              <li>For each motif group, we form an acceptance region that is consistent with the 
-              geometry and basepairing of that group. If the score is in the cutoff region, we 
+              <li>For each motif group, we form an acceptance region that is consistent with the
+              geometry and basepairing of that group. If the score is in the cutoff region, we
               infer that the new sequence can form the same 3D structure.
               <li>For more infromation you can read:
               <br>
