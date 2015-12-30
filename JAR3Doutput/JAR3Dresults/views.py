@@ -95,7 +95,6 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     group_set =  Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
-    loopnum = str(int(loop_id) + 1)
     if q:
         q = q[0]  # We are interested only in the first one
     elif q.status == 0:
@@ -103,12 +102,12 @@ def single_result(request,uuid,loopid,motifgroup):
         query.save();
         return render_to_response('JAR3Doutput/base_result_loop_pending.html',
                                   {'query_info': q,
-                                  'loopnum': loopnum, 'motifid': motifgroup},
+                                  'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
     elif q.status == -1:
         return render_to_response('JAR3Doutput/base_result_loop_failed.html',
                                   {'query_info': q,
-                                  'loop': loopnum, 'group': motifgroup},
+                                  'loop': loopid, 'group': motifgroup},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
@@ -217,7 +216,7 @@ def single_result(request,uuid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': loopnum, 'motifid': motifgroup, 
+                                  'loopnum': loopid, 'motifid': motifgroup, 
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))

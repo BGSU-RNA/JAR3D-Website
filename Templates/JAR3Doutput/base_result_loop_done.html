@@ -12,7 +12,7 @@
   {{ block.super }}
   Query <a href="http://rna.bgsu.edu/jar3d/result/{{ query_info.query_id }}" target="_blank"> {{ query_info.query_id }}</a>  
   <br>
-  Alignment of Loop {{loopnum}} to 
+  Alignment of Loop {{loopnum|add:"1"}} to 
   <a href="http://rna.bgsu.edu/rna3dhub/motif/view/{{ motifid }}" target="_blank"> {{motifid}} </a>
   <br>
   {% if query_info.group_set|length == 13%}
