@@ -2,7 +2,7 @@
 
 {% block page_subtitle %}
   {{ block.super }}
-  Query {{ query_info.query_id }} Loop {{ loop }} to Motif Group {{ group }} alignment failed
+  Query {{ query_info.query_id }} Loop {{ loop|add:"1" }} to Motif Group {{ group }} alignment failed
 {% endblock page_subtitle %}
 
 {% block page_content %}
