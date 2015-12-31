@@ -91,7 +91,7 @@ def result(request, uuid):
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
 
-def single_result(request,uuid,displayid,loopid,motifgroup):
+def single_result(request,uuid,loopid,motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     group_set =  Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
@@ -102,12 +102,12 @@ def single_result(request,uuid,displayid,loopid,motifgroup):
         query.save();
         return render_to_response('JAR3Doutput/base_result_loop_pending.html',
                                   {'query_info': q,
-                                  'loopnum': displayid, 'motifid': motifgroup},
+                                  'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
     elif q.status == -1:
         return render_to_response('JAR3Doutput/base_result_loop_failed.html',
                                   {'query_info': q,
-                                  'loop': displayid, 'group': motifgroup},
+                                  'loop': loopid, 'group': motifgroup},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
@@ -216,7 +216,7 @@ def single_result(request,uuid,displayid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': displayid, 'motifid': motifgroup, 
+                                  'loopnum': loopid, 'motifid': motifgroup, 
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
@@ -497,9 +497,9 @@ class ResultsMaker():
             loops[0][1] = result 1 for loop 0
             """
             loop_ids = []
-            for i,result in enumerate(results):
+            for result in results:
                 result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
-                result.align_url = '/jar3d/result/%s/%s/%s/' % (str(i), result.query_id, result.loop_id)
+                result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
                 result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
