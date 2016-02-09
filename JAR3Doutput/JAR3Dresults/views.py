@@ -92,8 +92,8 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
 def single_result(request,uuid,loopid,motifgroup):
-    q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
-    group_set =  Query_info.objects.filter(query_id=uuid)[0].group_set
+    q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup).distinct()
+    group_set = Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
     if q:
         q = q[0]  # We are interested only in the first one
@@ -491,7 +491,7 @@ class ResultsMaker():
         self.indices = []
 
     def get_loop_results(self, version):
-        results = Results_by_loop.objects.filter(query_id=self.query_id) \
+        results = Results_by_loop.objects.filter(query_id=self.query_id).distinct() \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-mean_cutoff_score')
