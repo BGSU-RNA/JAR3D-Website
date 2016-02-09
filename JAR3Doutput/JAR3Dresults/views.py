@@ -97,17 +97,22 @@ def single_result(request,uuid,loopid,motifgroup):
     rows = []
     if q:
         q = q[0]  # We are interested only in the first one
-    elif q.status == 0:
+        if q.status == 0:
+            return render_to_response('JAR3Doutput/base_result_loop_pending.html',
+                                  {'query_info': q,
+                                  'loopnum': loopid, 'motifid': motifgroup},
+                                  context_instance=RequestContext(request))
+        elif q.status == -1:
+            return render_to_response('JAR3Doutput/base_result_loop_failed.html',
+                                  {'query_info': q,
+                                  'loop': loopid, 'group': motifgroup},
+                                  context_instance=RequestContext(request))
+    else:
         query = Loop_query_info(query_id = uuid, loop_id = loopid, status = 0, motif_group = motifgroup)
         query.save();
         return render_to_response('JAR3Doutput/base_result_loop_pending.html',
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
-                                  context_instance=RequestContext(request))
-    elif q.status == -1:
-        return render_to_response('JAR3Doutput/base_result_loop_failed.html',
-                                  {'query_info': q,
-                                  'loop': loopid, 'group': motifgroup},
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
