@@ -499,7 +499,7 @@ class ResultsMaker():
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-mean_cutoff_score')
-        if results:
+        if results_qs:
             """
             remove repeated rows
             """
