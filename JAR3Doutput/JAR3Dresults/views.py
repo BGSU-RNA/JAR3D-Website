@@ -114,7 +114,7 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
-    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id').values().distinct()
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     for indx, res in enumerate(seq_res):
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
@@ -494,7 +494,7 @@ class ResultsMaker():
         results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
-                                                   '-mean_cutoff_score').values().distinct()
+                                                   '-mean_cutoff_score')
         if results:
             """
             build a 2d list
