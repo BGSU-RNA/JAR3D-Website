@@ -115,12 +115,6 @@ def single_result(request,uuid,loopid,motifgroup):
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
     seq_res_rep = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
-    seq_res = []
-    ids = set()
-    for res in seq_res_rep:
-        if res.seq_id not in ids:
-            seq_res.append(res)
-            ids.add(res.seq_id)
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
@@ -176,8 +170,8 @@ def single_result(request,uuid,loopid,motifgroup):
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
     color_dict = {'0':'#f8f8f8', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
     edit_lines = []
-    skeys = sorted(sequencealig.keys())
-    for key in skeys:
+    for res in seq_res:
+        key = 'Sequence_' + str(res.seq_id)
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         if len(name) == 0:
             name = 'Sequence' + str(res.seq_id)
@@ -188,8 +182,9 @@ def single_result(request,uuid,loopid,motifgroup):
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
         seq_lines.append(line)
         ed_line = []
-        for key2 in skeys:
+        for res2 in seq_res:
             line1 = sequencealig[key]
+            key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
             edit = str(compare_lists(line1, line2))
             ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
@@ -205,8 +200,9 @@ def single_result(request,uuid,loopid,motifgroup):
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
         line = line + ['','','','']
         ed_line = []
-        for key2 in mkeys:
+        for res2 in seq_res:
             line1 = motifalig[key]
+            key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
             edit = str(compare_lists(line1, line2))
             ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
