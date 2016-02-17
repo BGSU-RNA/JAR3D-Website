@@ -114,15 +114,9 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
-    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id').distinct('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
-    indx = 0
-    seq_ids = set() #list to avoid repeated rows
     for res in seq_res:
-        if res.seq_id in seq_ids:
-            continue
-        else:
-            seq_ids.add(res.seq_id)
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
@@ -140,7 +134,7 @@ def single_result(request,uuid,loopid,motifgroup):
             rows.append(line)
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         if len(name) == 0:
-            name = 'Sequence' + str(indx)
+            name = 'Sequence' + str(res.seq_id)
         cutoff = 'true'
         if res.cutoff == 0:
             cutoff = 'false'
@@ -151,7 +145,6 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
-        indx = indx + 1
     instance_text = '\n'.join(rows)
     version = group_set[2:group_set.index('/')]
     if motifgroup[0] == 'I':
