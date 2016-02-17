@@ -176,8 +176,8 @@ def single_result(request,uuid,loopid,motifgroup):
     insertions = ['Insertion'] + insertions + ['Cutoff','Score','Distance','Distance']
     color_dict = {'0':'#f8f8f8', '1':'#f8eaea', '2':'#f1d4d4', '3':'#eabfbf', '4':'#e3aaaa', '5':'#dc9595'}
     edit_lines = []
-    for res in seq_res:
-        key = 'Sequence_' + str(res.seq_id)
+    skeys = sorted(sequencealig.keys())
+    for key in skeys:
         name = Query_sequences.objects.filter(query_id = uuid, seq_id = res.seq_id, loop_id = loopid)[0].user_seq_id
         if len(name) == 0:
             name = 'Sequence' + str(res.seq_id)
@@ -188,9 +188,8 @@ def single_result(request,uuid,loopid,motifgroup):
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
         seq_lines.append(line)
         ed_line = []
-        for res2 in seq_res:
+        for key2 in skeys:
             line1 = sequencealig[key]
-            key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
             edit = str(compare_lists(line1, line2))
             ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
