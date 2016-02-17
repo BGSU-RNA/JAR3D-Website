@@ -114,7 +114,7 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
-    seq_res_rep = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
