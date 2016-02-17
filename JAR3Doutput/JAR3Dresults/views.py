@@ -114,11 +114,7 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
-    seq_res_qs = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
-    seq_res = []
-    for result in seq_res_qs:
-        if result not in seq_res:
-            seq_res.append(result)
+    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     for indx, res in enumerate(seq_res):
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
@@ -499,14 +495,7 @@ class ResultsMaker():
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-mean_cutoff_score')
-        if results_qs:
-            """
-            remove repeated rows
-            """
-            results = []
-            for result in results_qs:
-                if result not in results:
-                    results.append(result)
+        if results:
             """
             build a 2d list
             loops[0][0] = result 0 for loop 0
