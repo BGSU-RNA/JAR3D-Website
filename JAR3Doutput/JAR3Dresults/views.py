@@ -119,10 +119,10 @@ def single_result(request,uuid,loopid,motifgroup):
     indx = 0
     seq_ids = set() #list to avoid repeated rows
     for res in seq_res:
-        if res.seq_id not in seq_ids:
-            seq_ids.add(res.seq_id)
-        else:
+        if res.seq_id in seq_ids:
             continue
+        else:
+            seq_ids.add(res.seq_id)
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
@@ -512,10 +512,10 @@ class ResultsMaker():
             res_list = set()  #List of tuples to avoid duplicate entries
             for result in results:
                 tup = (result.loop_id,result.motif_id)
-                if tup not in res_list:
-                    res_list.add(tup)
-                else:
+                if tup in res_list:
                     continue
+                else:
+                    res_list.add(tup)
                 result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
                 result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
                 result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
