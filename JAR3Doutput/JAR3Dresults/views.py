@@ -117,10 +117,10 @@ def single_result(request,uuid,loopid,motifgroup):
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     indx = 0
-    seq_ids = [] #list to avoid repeated rows
+    seq_ids = set() #list to avoid repeated rows
     for res in seq_res:
-        if res.seq_id:
-            seq_ids.append(res.seq_id)
+        if res.seq_id not in seq_ids:
+            seq_ids.add(res.seq_id)
         else:
             continue
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
@@ -509,11 +509,11 @@ class ResultsMaker():
             loops[0][1] = result 1 for loop 0
             """
             loop_ids = []
-            res_list = []  #List of tuples to avoid duplicate entries
+            res_list = set()  #List of tuples to avoid duplicate entries
             for result in results:
                 tup = (result.loop_id,result.motif_id)
                 if tup not in res_list:
-                    res_list.append(tup)
+                    res_list.add(tup)
                 else:
                     continue
                 result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
