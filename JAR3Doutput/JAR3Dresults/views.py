@@ -511,7 +511,7 @@ class ResultsMaker():
             loop_ids = []
             res_list = []  #List of tuples to avoid duplicate entries
             for result in results:
-                tup = [result.loop_id,result.motif_id]
+                tup = (result.loop_id,result.motif_id)
                 if tup not in res_list:
                     res_list.append(tup)
                 else:
