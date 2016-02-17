@@ -498,7 +498,7 @@ class ResultsMaker():
         self.indices = []
 
     def get_loop_results(self, version):
-        results_qs = Results_by_loop.objects.filter(query_id=self.query_id) \
+        results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                          .order_by('loop_id',
                                                    '-cutoff_percent',
                                                    '-mean_cutoff_score')
