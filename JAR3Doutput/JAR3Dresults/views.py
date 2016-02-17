@@ -206,9 +206,8 @@ def single_result(request,uuid,loopid,motifgroup):
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
         line = line + ['','','','']
         ed_line = []
-        for res2 in seq_res:
+        for key2 in mkeys:
             line1 = motifalig[key]
-            key2 = 'Sequence_' + str(res2.seq_id)
             line2 = sequencealig[key2]
             edit = str(compare_lists(line1, line2))
             ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
