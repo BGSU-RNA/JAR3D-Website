@@ -116,7 +116,13 @@ def single_result(request,uuid,loopid,motifgroup):
                                   context_instance=RequestContext(request))
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
-    for indx, res in enumerate(seq_res):
+    indx = 0
+    seq_ids = [] #list to avoid repeated rows
+    for res in seq_res:
+        if res.seq_id:
+            seq_ids.append(res.seq_id)
+        else:
+            continue
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
         for corr_line in corrs:
@@ -145,6 +151,7 @@ def single_result(request,uuid,loopid,motifgroup):
         rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+        indx = indx + 1
     instance_text = '\n'.join(rows)
     version = group_set[2:group_set.index('/')]
     if motifgroup[0] == 'I':
@@ -502,7 +509,13 @@ class ResultsMaker():
             loops[0][1] = result 1 for loop 0
             """
             loop_ids = []
+            res_list = []  #List of tuples to avoid duplicate entries
             for result in results:
+                tup = [result.loop_id,result.motif_id]
+                if tup not in res_list:
+                    res_list.append(tup)
+                else:
+                    continue
                 result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
                 result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
                 result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
