@@ -162,8 +162,11 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    col_nums = col_nums + ['','','Interior','Full'] + ['Alignment']*len(sequencealig)
-    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit'] + ['Distance to']*len(sequencealig)
+    col_nums = col_nums + ['','','Interior','Full']
+    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit']
+    if len(seq_res) <= 50:
+        col_nums =  col_nums + ['Alignment']*len(sequencealig)
+        position = position + ['Distance to']*len(sequencealig)
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
@@ -182,12 +185,13 @@ def single_result(request,uuid,loopid,motifgroup):
         line = [name] + sequencealig[key] + [cutoff,res.cutoff_score,res.interioreditdist,res.fulleditdist]
         seq_lines.append(line)
         ed_line = []
-        for res2 in seq_res:
-            line1 = sequencealig[key]
-            key2 = 'Sequence_' + str(res2.seq_id)
-            line2 = sequencealig[key2]
-            edit = str(compare_lists(line1, line2))
-            ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
+        if len(seq_res) <= 50:
+            for res2 in seq_res:
+                line1 = sequencealig[key]
+                key2 = 'Sequence_' + str(res2.seq_id)
+                line2 = sequencealig[key2]
+                edit = str(compare_lists(line1, line2))
+                ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
         edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
@@ -200,12 +204,13 @@ def single_result(request,uuid,loopid,motifgroup):
         motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
         line = line + ['','','','']
         ed_line = []
-        for res2 in seq_res:
-            line1 = motifalig[key]
-            key2 = 'Sequence_' + str(res2.seq_id)
-            line2 = sequencealig[key2]
-            edit = str(compare_lists(line1, line2))
-            ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
+        if len(seq_res) <= 50:
+            for res2 in seq_res:
+                line1 = motifalig[key]
+                key2 = 'Sequence_' + str(res2.seq_id)
+                line2 = sequencealig[key2]
+                edit = str(compare_lists(line1, line2))
+                ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
         edit_lines.append(ed_line)
         motif_lines.append(line)
     motif_data = zip(motif_names,motif_lines,edit_lines)
