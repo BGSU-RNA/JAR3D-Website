@@ -169,8 +169,11 @@ def single_result(request,uuid,loopid,motifgroup):
     col_nums = ['Column']
     for i in range(1, len(header['nodes'])+1):
         col_nums.append(i)
-    col_nums = col_nums + ['','','Interior','Full'] + ['Alignment']*len(sequencealig)
-    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit'] + ['Distance to']*len(sequencealig)
+    col_nums = col_nums + ['','','Interior','Full']
+    position = ['Position'] + header['positions'] + ['Meets','Cutoff','Edit','Edit']
+    if len(seq_res) <= 50:
+        col_nums =  col_nums + ['Alignment']*len(sequencealig)
+        position = position + ['Distance to']*len(sequencealig)
     insertions = []
     for item in header['insertions']:
         insertions.append(item.replace('Insertion', 'I'))
