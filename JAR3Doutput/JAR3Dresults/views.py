@@ -199,7 +199,7 @@ def single_result(request,uuid,loopid,motifgroup):
                 line2 = sequencealig[key2]
                 edit = str(compare_lists(line1, line2))
                 ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
-            edit_lines.append(ed_line)
+        edit_lines.append(ed_line)
     header_zip = zip(col_nums,position,insertions)
     seq_zip = zip(seq_lines, edit_lines)
     mkeys = sorted(motifalig.keys())
@@ -218,7 +218,7 @@ def single_result(request,uuid,loopid,motifgroup):
                 line2 = sequencealig[key2]
                 edit = str(compare_lists(line1, line2))
                 ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
-            edit_lines.append(ed_line)
+        edit_lines.append(ed_line)
         motif_lines.append(line)
     motif_data = zip(motif_names,motif_lines,edit_lines)
     q = Query_info.objects.filter(query_id=uuid)
