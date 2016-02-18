@@ -40,3 +40,5 @@ queue/jar3d_queue_config.pl
 db/
 .python-version
 .agignore
+dev.txt
+default.nix
