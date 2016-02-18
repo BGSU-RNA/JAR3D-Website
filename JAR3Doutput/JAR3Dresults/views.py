@@ -221,7 +221,7 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     version = q.group_set[2:q.group_set.index('/')]
-   
+
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
@@ -230,7 +230,7 @@ def single_result(request,uuid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': loopid, 'motifid': motifgroup, 
+                                  'loopnum': loopid, 'motifid': motifgroup,
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
@@ -386,7 +386,7 @@ class JAR3DValidator():
     def make_query_info(self, query_id, query_type, parsed_input, title, version):
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id=query_id,
-                                group_set='IL'+ version + '/HL' + version,  
+                                group_set='IL'+ version + '/HL' + version,
                                 model_type='default',  # change this
                                 query_type=query_type,
                                 title=title,
