@@ -27,7 +27,7 @@ class ScoringWorker(Worker):
 if __name__ == '__main__':
     config = {
         'queue': settings.QUEUE,
-        'worker': settings.WORKERS['scoring'],
+        'worker': settings.WORKERS['score'],
         'models': {
             'il': os.path.join(settings.MODELS, 'il'),
             'hl': os.path.join(settings.MODELS, 'hl'),
