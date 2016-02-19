@@ -2,8 +2,9 @@
 """
 
 import abc
-
 import json
+import uuid
+import logging
 import beanstalkc
 
 
@@ -15,6 +16,8 @@ class Worker(object):
     implemented. This will ignore the result of the process method as the
     process is expected to save things itself.
     """
+
+    __metaclass__ = abc.ABCMeta
 
     def __init__(self, config, **kwargs):
         """Create a new Worker. This uses the config dictionary to connect to
@@ -63,14 +66,14 @@ class Worker(object):
         """
 
         self.logger.debug("Working on query %s", query['id'])
-        result = self.process(query)
+        self.process(query)
         self.logger.debug("Done working on %s", query['id'])
 
     def __call__(self):
         """The main entry point for all workers. When called this will wait
         until a job can be reserved from the queue and then send it to
         self.work(). The jobs body's are expected to be JSON encoded
-        dictionaries. 
+        dictionaries.
         """
 
         self.logger.info("Starting worker %s", self.name)
@@ -79,6 +82,7 @@ class Worker(object):
             job.bury()
             try:
                 query = json.loads(job.body)
+                print(query)
                 self.work(job, query)
             except Exception as err:
                 self.logger.error("Error working with %s", query['id'])
