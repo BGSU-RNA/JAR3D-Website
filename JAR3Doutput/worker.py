@@ -82,7 +82,6 @@ class Worker(object):
             job.bury()
             try:
                 query = json.loads(job.body)
-                print(query)
                 self.work(job, query)
             except Exception as err:
                 self.logger.error("Error working with %s", query['id'])
