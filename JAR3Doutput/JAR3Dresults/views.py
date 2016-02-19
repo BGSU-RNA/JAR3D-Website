@@ -13,6 +13,7 @@ from JAR3Dresults.models import Results_by_loop_instance
 from JAR3Dresults.models import Loop_query_info
 from JAR3Dresults.models import Correspondence_results
 
+from JAR3Doutput import queue
 from JAR3Doutput import settings
 
 from rnastructure.primary import fold
@@ -346,9 +347,11 @@ class JAR3DValidator():
         except:
             return self.respond("Couldn't save query_positions")
         try:
+            queue.score({'id': query_id, 'version': version})
             query_info.save()
-        except:
+        except Exception as err:
             return self.respond("Couldn't save query_info")
+
         # everything went well, return redirect url
         return self.respond(redirect_url, 'redirect')
 
