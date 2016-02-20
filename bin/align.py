@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
 import os
+import sys
+import logging
 
 import subprocess32 as sp
+
+HERE = os.path.dirname(__file__)
+sys.path.append(os.path.abspath(os.path.join(HERE, "..")))
 
 from JAR3Doutput.worker import Worker
 from JAR3Doutput import settings
@@ -11,13 +16,11 @@ from JAR3Doutput import settings
 class AlignWorker(Worker):
     def process(self, query):
         here = os.path.dirname(__file__)
+        print('Processing %s' % query)
 
-        models = self.config['models']['il']
-        if query['motif_group'].startswith('HL'):
-            models = self.config['models']['hl']
-
+        models = self.models(query['motif_group'][0:2], query['version'])
         command = ['java', '-Xmx500m', '-jar',
-                   os.path.normalize(here, self.worker['jar']),
+                   os.path.abspath(os.path.join(here, self.worker['jar'])),
                    models,
                    query['motif_group'],
                    query['id'],
@@ -32,15 +35,13 @@ if __name__ == '__main__':
     config = {
         'queue': settings.QUEUE,
         'worker': settings.WORKERS['align'],
-        'models': {
-            'il': os.path.join(settings.MODELS, 'il'),
-            'hl': os.path.join(settings.MODELS, 'hl'),
-        },
+        'models': os.path.join(settings.MODELS),
         'db': {
             'user': settings.DATABASES['default']['USER'],
             'password': settings.DATABASES['default']['PASSWORD'],
-            'database': settings.DATABASES['default']['DATABASE'],
+            'database': settings.DATABASES['default']['NAME'],
         },
     }
+    logging.basicConfig()
     worker = AlignWorker(config)
     worker()

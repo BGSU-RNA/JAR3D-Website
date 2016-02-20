@@ -17,16 +17,6 @@ from JAR3Doutput import settings
 
 
 class ScoringWorker(Worker):
-    def models(self, type, version):
-        """A method to return the path to a given type, and version's all.txt
-
-        :param str type: The type, should be one of IL, HL.
-        :param str version: The version string to use.
-        :returns: The full path to the all.txt file for those models.
-        """
-        return '{base}/{type}/{version}/lib/all.txt'.format(
-            base=self.config['models'], type=type, version=version)
-
     def process(self, query):
         """Process the query by calling the jar3d jar file for the given job.
 
