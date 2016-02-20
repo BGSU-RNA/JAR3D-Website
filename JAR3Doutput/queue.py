@@ -12,8 +12,8 @@ def queue(tube, job):
 
 
 def score(job):
-    queue(settings.WORKERS['score']['queue'], job)
+    return queue(settings.WORKERS['score']['queue'], job)
 
 
 def align(job):
-    queue(settings.WORKERS['align']['queue'], job)
+    return queue(settings.WORKERS['align']['queue'], job)
