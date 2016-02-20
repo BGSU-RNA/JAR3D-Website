@@ -42,6 +42,16 @@ class Worker(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+    def models(self, type, version):
+        """A method to return the path to a given type, and version's all.txt
+
+        :param str type: The type, should be one of IL, HL.
+        :param str version: The version string to use.
+        :returns: The full path to the all.txt file for those models.
+        """
+        return '{base}/{type}/{version}/lib/all.txt'.format(
+            base=self.config['models'], type=type, version=version)
+
     @abc.abstractmethod
     def process(self, query):
         """Process the data. This method takes the input query which was placed
@@ -79,6 +89,7 @@ class Worker(object):
         self.logger.info("Starting worker %s", self.name)
         while True:
             job = self.beanstalk.reserve()
+            print("Got job %s", job)
             job.bury()
             try:
                 query = json.loads(job.body)
