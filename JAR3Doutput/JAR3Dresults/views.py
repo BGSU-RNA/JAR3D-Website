@@ -354,8 +354,8 @@ class JAR3DValidator():
         except:
             return self.respond("Couldn't save query_positions")
         try:
-            queue.score({'id': query_id, 'version': version})
             query_info.save()
+            queue.score({'id': query_id, 'version': version})
         except Exception as err:
             return self.respond("Couldn't save query_info")
 
