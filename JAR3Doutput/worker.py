@@ -42,15 +42,20 @@ class Worker(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def models(self, type, version):
+    def models(self, type, version, file='all.txt'):
         """A method to return the path to a given type, and version's all.txt
 
         :param str type: The type, should be one of IL, HL.
         :param str version: The version string to use.
         :returns: The full path to the all.txt file for those models.
         """
-        return '{base}/{type}/{version}/lib/all.txt'.format(
-            base=self.config['models'], type=type, version=version)
+        return '{base}/{type}/{version}/lib/{file}'.format(
+            base=self.config['models'], type=type, version=version, file=file)
+
+    def execute(self, *command):
+        self.logger.info("Running command %s", command)
+        sp.check_call(command, timeout=self.worker['timeout'])
+        self.logger.info("Finished command")
 
     @abc.abstractmethod
     def process(self, query):
