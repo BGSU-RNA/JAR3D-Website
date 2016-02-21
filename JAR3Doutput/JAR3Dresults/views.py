@@ -92,7 +92,7 @@ def result(request, uuid):
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
 
-def single_result(request,uuid,loopid,motifgroup):
+def single_result(request, uuid, loopid, motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     group_set = Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
@@ -114,8 +114,8 @@ def single_result(request,uuid,loopid,motifgroup):
         query.save()
         queue.align({
             'id': uuid, 
-            'loop_id': loop_id, 
-            'motif_group': motif_group,
+            'loop_id': loopid, 
+            'motif_group': motifgroup,
             'version': group_set.split('/')[0][2:]
         })
         return render_to_response('JAR3Doutput/base_result_loop_pending.html',

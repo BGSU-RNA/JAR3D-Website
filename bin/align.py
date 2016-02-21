@@ -16,20 +16,18 @@ from JAR3Doutput import settings
 class AlignWorker(Worker):
     def process(self, query):
         here = os.path.dirname(__file__)
-        print('Processing %s' % query)
 
-        models = self.models(query['motif_group'][0:2], query['version'])
-        command = ['java', '-Xmx500m', '-jar',
-                   os.path.abspath(os.path.join(here, self.worker['jar'])),
-                   models,
-                   query['motif_group'],
-                   query['id'],
-                   query['loop_id'],
-                   self.config['db']['user'],
-                   self.config['db']['password'],
-                   self.config['db']['database']]
-
-        sp.check_call(command, timeout=self.worker['timeout'])
+        models = self.models(query['motif_group'][0:2], query['version'],
+                             file='')
+        self.execute('java', '-Xmx500m', '-jar',
+                     os.path.abspath(os.path.join(here, self.worker['jar'])),
+                     models,
+                     query['motif_group'],
+                     query['id'],
+                     query['loop_id'],
+                     self.config['db']['user'],
+                     self.config['db']['password'],
+                     self.config['db']['database'])
 
 if __name__ == '__main__':
     config = {
