@@ -44,6 +44,7 @@ if __name__ == '__main__':
             'database': settings.DATABASES['default']['NAME'],
         },
     }
-    logging.basicConfig()
+    level = settings.WORKERS['score'].get('log_level', logging.INFO)
+    logging.basicConfig(level=level)
     worker = ScoringWorker(config)
     worker()
