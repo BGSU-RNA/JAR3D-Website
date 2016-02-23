@@ -46,6 +46,7 @@ if __name__ == '__main__':
             'database': settings.DATABASES['default']['NAME'],
         },
     }
-    logging.basicConfig()
+    level = settings.WORKERS['align'].get('log_level', logging.INFO)
+    logging.basicConfig(level=level)
     worker = AlignWorker(config)
     worker()

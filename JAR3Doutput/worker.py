@@ -54,7 +54,7 @@ class Worker(object):
         return '{base}/{type}/{version}/lib/{file}'.format(
             base=self.config['models'], type=type, version=version, file=file)
 
-    def execute(self, job, *args, **kwargs):
+    def execute(self, *args, **kwargs):
         """Run a shell command and check the result of call.
 
         :*args: A list of arguments for the shell command. They are as
