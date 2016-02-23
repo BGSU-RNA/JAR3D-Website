@@ -125,7 +125,6 @@ def single_result(request, uuid, loopid, motifgroup):
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid).filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id = uuid, loop_id = loopid, motif_id = motifgroup)[0].rotation
     seqs = Query_sequences.objects.filter(query_id = uuid, loop_id = loopid)
-    names = 
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id = res.id)
         line_base = 'Sequence_' + str(res.seq_id)
