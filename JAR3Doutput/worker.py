@@ -7,6 +7,8 @@ import uuid
 import logging
 import beanstalkc
 
+import subprocess32 as sp
+
 
 class Worker(object):
     """A base class for all workers. This will pull jobs from the beanstalk
@@ -30,14 +32,14 @@ class Worker(object):
         :kwargs: Keyword arguments to set as attributes of this worker. If no
         name is given then a random UUID is generated as a name.
         """
+
         self.config = dict(config)
         self.worker = self.config['worker']
         self.beanstalk = beanstalkc.Connection(**config['queue']['connection'])
         self.beanstalk.watch(config['worker']['queue'])
         self.beanstalk.ignore('default')
-
         self.name = kwargs.get('name', str(uuid.uuid4()))
-        self.logger = logging.getLogger('queue.Worker:%s' % self.name)
+        self.logger = logging.getLogger('worker.Worker.%s' % self.name)
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -52,37 +54,50 @@ class Worker(object):
         return '{base}/{type}/{version}/lib/{file}'.format(
             base=self.config['models'], type=type, version=version, file=file)
 
-    def execute(self, *command):
-        self.logger.info("Running command %s", command)
-        sp.check_call(command, timeout=self.worker['timeout'])
-        self.logger.info("Finished command")
+    def execute(self, job, *args, **kwargs):
+        """Run a shell command and check the result of call.
+
+        :*args: A list of arguments for the shell command. They are as
+        check_call.
+        :**kwargs: Keyword arguments as for check_call. If no timeout is not
+        given then the default timeout is used.
+        :returns: None.
+        """
+
+        if 'timeout' not in kwargs:
+            kwargs['timeout'] = self.worker.get('timeout', 60)
+
+        self.logger.info("Running command %s", args)
+        result = sp.check_call(args, **kwargs)
+        self.logger.info("Command Finished")
+        return result
+
+    def store(self, job, result):
+        """Store the result of a job. Currently this does nothing as the jar3d
+        jar stores in the database.
+
+        :param dict job: The job that was processed.
+        :param obj result: The result to store.
+        """
+        pass
 
     @abc.abstractmethod
-    def process(self, query):
+    def work(self, job):
         """Process the data. This method takes the input query which was placed
         in the queue and preforms some operation to create the result data
         structure. In addition, the state of the job will be updated. If this
         process fails it should raise an exception to indicate failure. All
         worker subclasses must implement this.
 
-        :param dict query: The query to process.
-        :returns: Nothing.
+        :param dict job: The job to process.
+        :returns: None.
         """
         pass
 
-    def work(self, job, query):
-        """Work on a job. This will work on some job until it is finished. The
-        job will be deleted from the queue if this finishes. The job's status
-        will be set to pending while it is being processed and then to success
-        if it succeeds.
-
-        :param Job job: The job to work on.
-        :param dict query: The query to work on.
+    def mark(self, job, status='succeeded'):
+        """Mark a job status in the database.
         """
-
-        self.logger.debug("Working on query %s", query['id'])
-        self.process(query)
-        self.logger.debug("Done working on %s", query['id'])
+        pass
 
     def __call__(self):
         """The main entry point for all workers. When called this will wait
@@ -94,14 +109,20 @@ class Worker(object):
         self.logger.info("Starting worker %s", self.name)
         while True:
             job = self.beanstalk.reserve()
-            print("Got job %s", job)
             job.bury()
             try:
-                query = json.loads(job.body)
-                print(query)
-                self.work(job, query)
+                current = json.loads(job.body)
+                self.logger.info("Working on current %s", current['id'])
+                self.mark(current, status='pending')
+                self.work(current)
+                self.logger.info("Done working on %s", current['id'])
+                self.mark(job, status='succeeded')
+            except sp.TimeoutExpired as err:
+                self.logger.error("Job ran too long: %s", current['id'])
+                self.mark(current, status='timeout')
             except Exception as err:
-                self.logger.error("Error working with %s", query['id'])
+                self.logger.error("Error working with %s", current['id'])
                 self.logger.exception(err)
+                self.mark(current, status='failed')
             finally:
                 job.delete()

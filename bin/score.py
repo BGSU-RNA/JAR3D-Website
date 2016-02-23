@@ -1,39 +1,37 @@
 #!/usr/bin/env python
 
 """This is a background working for scoring a query against all jar3d motifs.
+The JAR3Doutput folder should be in the PYTHONPATH.
 """
 
 import os
-import sys
 import logging
-
-import subprocess32 as sp
-
-HERE = os.path.dirname(__file__)
-sys.path.append(os.path.abspath(os.path.join(HERE, "..")))
 
 from JAR3Doutput.worker import Worker
 from JAR3Doutput import settings
 
+HERE = os.path.dirname(__file__)
+
 
 class ScoringWorker(Worker):
-    def process(self, query):
-        """Process the query by calling the jar3d jar file for the given job.
+    """The worker to score a loop against all models.
+    """
 
-        :param dict query: A query specifying the query id and and the version.
+    def work(self, job):
+        """Process the job by calling the jar3d jar file for the given job.
+
+        :param dict job: A job specifying the job id and and the version.
         """
 
-        il_models = self.models('IL', query['version'])
-        hl_models = self.models('HL', query['version'])
-        command = ['java', '-Xmx500m', '-jar',
-                   os.path.abspath(os.path.join(HERE, self.worker['jar'])),
-                   il_models,
-                   hl_models,
-                   query['id'],
-                   self.config['db']['user'],
-                   self.config['db']['password'],
-                   self.config['db']['database']]
-        sp.check_call(command, timeout=self.worker['timeout'])
+        jar = os.path.abspath(os.path.join(HERE, self.worker['jar']))
+        return self.execute('java', '-Xmx500m', '-jar',
+                            jar,
+                            self.models('IL', job['version']),
+                            self.models('HL', job['version']),
+                            job['id'],
+                            self.config['db']['user'],
+                            self.config['db']['password'],
+                            self.config['db']['database'])
 
 if __name__ == '__main__':
     config = {
