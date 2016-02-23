@@ -1,33 +1,39 @@
 #!/usr/bin/env python
 
+"""A worker to align a series of loops to a model.
+The JAR3Doutput folder should be in the PYTHONPATH.
+"""
+
 import os
-import sys
 import logging
-
-import subprocess32 as sp
-
-HERE = os.path.dirname(__file__)
-sys.path.append(os.path.abspath(os.path.join(HERE, "..")))
 
 from JAR3Doutput.worker import Worker
 from JAR3Doutput import settings
 
+HERE = os.path.dirname(__file__)
+
 
 class AlignWorker(Worker):
-    def process(self, query):
-        here = os.path.dirname(__file__)
+    """The worker to align against a model.
+    """
 
-        models = self.models(query['motif_group'][0:2], query['version'],
-                             file='')
-        self.execute('java', '-Xmx500m', '-jar',
-                     os.path.abspath(os.path.join(here, self.worker['jar'])),
-                     models,
-                     query['motif_group'],
-                     query['id'],
-                     query['loop_id'],
-                     self.config['db']['user'],
-                     self.config['db']['password'],
-                     self.config['db']['database'])
+    def work(self, job):
+        """Run the aligning jar file on the job.
+
+        :param dict job: The job to run.
+        """
+
+        models = self.models(job['motif_group'][0:2], job['version'], file='')
+        jar = os.path.abspath(os.path.join(HERE, self.worker['jar']))
+        return self.execute('java', '-Xmx500m', '-jar',
+                            jar,
+                            models,
+                            job['motif_group'],
+                            job['id'],
+                            job['loop_id'],
+                            self.config['db']['user'],
+                            self.config['db']['password'],
+                            self.config['db']['database'])
 
 if __name__ == '__main__':
     config = {
@@ -40,6 +46,7 @@ if __name__ == '__main__':
             'database': settings.DATABASES['default']['NAME'],
         },
     }
-    logging.basicConfig()
+    level = settings.WORKERS['align'].get('log_level', logging.INFO)
+    logging.basicConfig(level=level)
     worker = AlignWorker(config)
     worker()
