@@ -13,6 +13,7 @@ from JAR3Dresults.models import Results_by_loop_instance
 from JAR3Dresults.models import Loop_query_info
 from JAR3Dresults.models import Correspondence_results
 
+from JAR3Doutput import queue
 from JAR3Doutput import settings
 
 from rnastructure.primary import fold
@@ -91,7 +92,7 @@ def result(request, uuid):
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
 
-def single_result(request,uuid,loopid,motifgroup):
+def single_result(request, uuid, loopid, motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     group_set = Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
@@ -107,9 +108,16 @@ def single_result(request,uuid,loopid,motifgroup):
                                   {'query_info': q,
                                   'loop': loopid, 'group': motifgroup},
                                   context_instance=RequestContext(request))
+
     else:
         query = Loop_query_info(query_id = uuid, loop_id = loopid, status = 0, motif_group = motifgroup)
-        query.save();
+        query.save()
+        queue.align({
+            'id': uuid, 
+            'loop_id': loopid, 
+            'motif_group': motifgroup,
+            'version': group_set.split('/')[0][2:]
+        })
         return render_to_response('JAR3Doutput/base_result_loop_pending.html',
                                   {'query_info': q,
                                   'loopnum': loopid, 'motifid': motifgroup},
@@ -220,7 +228,7 @@ def single_result(request,uuid,loopid,motifgroup):
     q = Query_info.objects.filter(query_id=uuid)
     q = q[0]  # We are interested only in the first one
     version = q.group_set[2:q.group_set.index('/')]
-   
+
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
     else:
@@ -229,7 +237,7 @@ def single_result(request,uuid,loopid,motifgroup):
         interaction_text = f.read().replace(' ','\t')
     return render_to_response('JAR3Doutput/base_result_loop_done.html',
                                   {'query_info': q, 'header_zip': header_zip,
-                                  'loopnum': loopid, 'motifid': motifgroup, 
+                                  'loopnum': loopid, 'motifid': motifgroup,
                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                   'model_text': model_text, 'inter_text': interaction_text,
                                   'rotation': rotation}, context_instance=RequestContext(request))
@@ -343,8 +351,10 @@ class JAR3DValidator():
             return self.respond("Couldn't save query_positions")
         try:
             query_info.save()
-        except:
+            queue.score({'id': query_id, 'version': version})
+        except Exception as err:
             return self.respond("Couldn't save query_info")
+
         # everything went well, return redirect url
         return self.respond(redirect_url, 'redirect')
 
@@ -385,7 +395,7 @@ class JAR3DValidator():
     def make_query_info(self, query_id, query_type, parsed_input, title, version):
         h = HTMLParser.HTMLParser()
         query_info = Query_info(query_id=query_id,
-                                group_set='IL'+ version + '/HL' + version,  
+                                group_set='IL'+ version + '/HL' + version,
                                 model_type='default',  # change this
                                 query_type=query_type,
                                 title=title,
