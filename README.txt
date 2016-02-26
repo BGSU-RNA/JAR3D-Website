@@ -1,1 +1,0 @@
-This is a django project for displaying JAR3D results stored in a database.
