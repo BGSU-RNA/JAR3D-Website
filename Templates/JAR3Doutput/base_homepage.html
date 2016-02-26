@@ -53,76 +53,106 @@ Scoring RNA loop sequences against known 3D motifs
 
     <div class="row">
         <div class="span4">
-            <h3>Goal</h3>
+            <h2>About</h2>
             <p>
-              <strong>JAR3D</strong> scores RNA hairpin and internal loop sequences against motif groups
+              JAR3D scores RNA hairpin and internal loop sequences against motif groups
               from the <a href="{{BASE}}/rna3dhub/motifs">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and
               by probabilistic scoring and edit distance for novel sequences.
+            </p>
+
+            <p>
               RNA hairpin and internal loops are often represented on secondary structure diagrams as if they are unstructured,
               but in fact most are structured by <a href="http://ndbserver.rutgers.edu/ndbmodule/services/BPCatalog/bpCatalog.html">non-Watson-Crick basepairs</a>, base stacking, and base-backbone interactions.
               Analysis of 3D structures shows that
               different RNA sequences can form the same RNA 3D motif, as is apparent
               in many motif groups in the RNA 3D Motif Atlas.
-              JAR3D scores sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
-              Because the RNA 3D Motif Atlas incorporates new RNA 3D structures every four weeks, the performance of JAR3D will improve over time.
-              <p>
-              Functions of recurrent 3D motifs include:
             </p>
-            <ul>
-                <li>Architectural roles introducing bends in helices (e.g. kink-turns) or changing helical twist (e.g. C-loops)</li>
-                <li>Anchoring RNA tertiary interactions (e.g., GNRA loops and loop-receptors)</li>
-                <li>Providing sites for proteins or small molecules to bind.</li>
-            </ul>
+            
+            <p>
+              JAR3D scores sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
+              As RNA 3D Motif Atlas incorporates new RNA 3D structures, the performance of JAR3D will improve over time.
+            </p>
+
             <p>
               Inferring the 3D structures of hairpin and internal loops is a step on the way toward
               correctly predicting full RNA 3D structures starting from sequence.
             </p>
+
+            <h2>Tutorial</h2>
+            <p>
+              Learn more about JAR3D in the <a href="http://www.bgsu.edu/research/rna/help/tutorials.html">tutorial</a>.
+            </p>
         </div>
         <div class="span4">
-            <h3>Input and Output</h3>
+            <h2>Input</h2>
             <p>
-              JAR3D accepts single or multiple sequences having one or many loops.
-              See the Examples above.
+              JAR3D accepts single or multiple sequences having one or many loops (see <strong>examples</strong> above).
+            </p>
+            <p>
               <b>One loop:</b>
               To specify the break between strands in internal loops, use an asterisk <b>*</b>.
               Sequence(s) without an asterisk are interpreted as hairpins.
               Internal and hairpin loops should include closing Watson-Crick basepairs, with nucleotides running in 5' to 3' order within each strand.
               Individual loops do not need the nucleotides to be aligned.
+            </p>
+            <p>
               <b>Many loops:</b>
               JAR3D will extract internal and hairpin loops from longer sequences if a dot-bracket secondary structure is provided as the first line
               of the input.
               Multiple sequences need to be aligned to one another.
             </p>
+            <h2>Output</h2>
             <p>
-              The output shows the best-scoring motif groups from the RNA 3D Motif Atlas using a variety of metrics.
-              The user can view a representative
-              instance from each motif group and explore the group further at the RNA 3D Motif Atlas page for the motif group.
-              The user can also see how their input input sequences align to known 3D instances of a motif.
+              The output shows the best-scoring motif groups from the RNA 3D Motif Atlas including representative
+              instance from each motif group. It also possible to align input sequences to known 3D instances of a motif.
             </p>
-            <h3>Tutorial</h3>
-            <p>
-            The tutorial can be found <a href="{{ BASE }}/main/jar3d-tutorial/">at this link</a>.
         </div>
         <div class="span4">
-            <h3>Method</h3>
+            <h2>Method</h2>
               <ol>
-                <li>We extract all hairpin and internal loops from a <a href="{{ BASE }}/rna3dhub/nrlist">
-              non-redundant set</a> of RNA 3D structures from the PDB/NDB and cluster them in geometrically
-            similar <a href="{{ BASE }}/rna3dhub/motifs">families</a>.
-              <li>For each recurrent motif, we construct a probabilistic model
-              for sequence variability based on a hybrid <strong>Stochastic
-              Context-Free Grammar/Markov Random Field</strong> (SCFG/MRF) method we developed.
-              <li>To parameterize each model, we use all instances of the motif
-              found in the non-redundant dataset and knowledge of RNA nucleotide interactions,
-              especially <a href="http://nar.oxfordjournals.org/content/37/7/2294.full">
-              isosteric basepairs</a> and their substitution patterns.
-              <li>For each motif group, we form an acceptance region that is consistent with the
-              geometry and basepairing of that group. If the score is in the cutoff region, we
-              infer that the new sequence can form the same 3D structure.
-              <li>For more infromation you can read:
-              <br>
-              Identifying novel sequence variants of RNA 3D motifs, by Craig L. Zirbel, James Roll, Blake A. Sweeney, Anton I. Petrov, Meg Pirrung, and Neocles Leontis. Nucl. Acids Res. (2015) doi: 10.1093/nar/gkv651 <a href="http://nar.oxfordjournals.org/content/early/2015/06/29/nar.gkv651.full">link</a>
+                <li>
+                  <p>
+                    We <strong>extract</strong> all hairpin and internal loops from a <a href="{{ BASE }}/rna3dhub/nrlist">
+                    non-redundant set</a> of RNA 3D structures from PDB/NDB and cluster them in geometrically
+                    similar <a href="{{ BASE }}/rna3dhub/motifs">families</a>.
+                  </p>
+                <li>
+                  <p>
+                    For each recurrent motif, we build a <strong>probabilistic model</strong>
+                    for sequence variability based on a hybrid Stochastic
+                    Context-Free Grammar/Markov Random Field (SCFG/MRF) method.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    To <strong>parameterize</strong> each model, we use all instances of the motif
+                    found in the non-redundant dataset and knowledge of RNA nucleotide interactions,
+                    especially <a href="http://nar.oxfordjournals.org/content/37/7/2294.full">
+                    isosteric basepairs</a> and their substitution patterns.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    For each motif group, we form an <strong>acceptance region</strong> that is consistent with the
+                    geometry and basepairing of that group. If the score is in the cutoff region, we
+                    infer that the new sequence can form the same 3D structure.
+                  </p>
+                </li>
               </ol>
+
+              <p>
+                For more information please see:
+                <blockquote>
+                  <a href="http://nar.oxfordjournals.org/content/43/15/7504.full">Identifying novel sequence variants of RNA 3D motifs</a>.
+                  Craig L. Zirbel, James Roll, Blake A. Sweeney, Anton I. Petrov, Meg Pirrung, and Neocles Leontis.
+                  <em>Nucl. Acids Res. (2015) doi: 10.1093/nar/gkv651</em>
+                  <a href="http://www.ncbi.nlm.nih.gov/pubmed/26130723">Pubmed</a>
+                </blockquote>
+              <p>
+
+              <p>
+                <a href="https://github.com/BGSU-RNA/JAR3D">Standalone version</a> of JAR3D is also available.
+              </p>
         </div>
     </div>
 {% endblock page_content %}
