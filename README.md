@@ -16,4 +16,4 @@ The JAR3D methodology is described in:
 
 ## Feedback
 
-Feel free to [submit an issue](./issues) or [get in touch](http://www.bgsu.edu/research/rna/contact-us.html) with any questions or comments.
+Feel free to [submit an issue](https://github.com/BGSU-RNA/JAR3D-Website/issues) or [get in touch](http://www.bgsu.edu/research/rna/contact-us.html) with any questions or comments.
