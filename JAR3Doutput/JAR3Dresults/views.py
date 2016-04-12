@@ -547,8 +547,25 @@ class ResultsMaker():
                 for ind in loop_inds:
                     if not(ind.column_index in inds):
                         inds.append(ind.column_index)
+                #Convert inds to ranges
+                ind_string = ""
+                last = -2                                                            
+                start = -1
+                for item in inds:
+                    if item != last+1:                        
+                        if start != -1:
+                            if start != last:
+                                p.append(str(start+1)+"_"+str(last+1))
+                            else:
+                                p.append(str(start+1))
+                        start = item
+                    last = item
+                if start != last:
+                    p.append(str(start+1)+"_"+str(last+1))
+                else:
+                    p.append(str(start+1))
                 self.sequences.append(seqs)
-                self.indices.append(", ".join(map(lambda i: str(i + 1), inds)))
+                self.indices.append(", ".join(inds))
 
         else:
             pass
