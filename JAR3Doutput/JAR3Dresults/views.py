@@ -549,21 +549,22 @@ class ResultsMaker():
                         inds.append(ind.column_index)
                 #Convert inds to ranges
                 ind_string = ""
+                ranges = []
                 last = -2                                                            
                 start = -1
                 for item in inds:
                     if item != last+1:                        
                         if start != -1:
                             if start != last:
-                                p.append(str(start+1)+"_"+str(last+1))
+                                ranges.append(str(start+1)+"_"+str(last+1))
                             else:
-                                p.append(str(start+1))
+                                ranges.append(str(start+1))
                         start = item
                     last = item
                 if start != last:
-                    p.append(str(start+1)+"_"+str(last+1))
+                    ranges.append(str(start+1)+"_"+str(last+1))
                 else:
-                    p.append(str(start+1))
+                    ranges.append(str(start+1))
                 self.sequences.append(seqs)
                 self.indices.append(", ".join(inds))
 
