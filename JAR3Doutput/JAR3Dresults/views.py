@@ -35,20 +35,23 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
-    versions = ["1.18","1.17","1.15","1.14","1.13","1.12","1.11","1.10","1.9","1.8","1.7","1.6","1.5","1.4","1.3","1.2","1.1","1.0"]
+    versions = ["1.18","1.17","1.15","1.14","1.13","1.12","1.11","1.10","1.9","1.8","1.7","1.6","1.5","1.4","1.3",
+                "1.2","1.1","1.0"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': q.parsed_input, 'options':versions},
+                                      {'input': q.parsed_input,
+                                       'options': versions},
                                       context_instance=RequestContext(request))
         else:
             return render_to_response('JAR3Doutput/base_homepage.html',
-                                      {'input': 'query id not found', 'options':versions},
+                                      {'input': 'query id not found',
+                                       'options': versions},
                                       context_instance=RequestContext(request))
     else:
         return render_to_response('JAR3Doutput/base_homepage.html',
-                                  {'options':versions},
+                                  {'options': versions},
                                   context_instance=RequestContext(request))
 
 
@@ -77,13 +80,13 @@ def result(request, uuid):
 
     if q.status == 1:
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
-        q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
+        q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
                                    'results': zippedResults},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
-        q.formatted_input = make_input_alignment(q.parsed_input,q.query_type)
+        q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
         return render_to_response('JAR3Doutput/base_result_pending.html',
                                   {'query_info': q, 'num': results.input_stats},
                                   context_instance=RequestContext(request))
@@ -547,13 +550,12 @@ class ResultsMaker():
                 for ind in loop_inds:
                     if not(ind.column_index in inds):
                         inds.append(ind.column_index)
-                #Convert inds to ranges
-                ind_string = ""
+                # Convert inds to ranges
                 ranges = []
-                last = -2                                                            
+                last = -2
                 start = -1
                 for item in inds:
-                    if item != last+1:                        
+                    if item != last+1:
                         if start != -1:
                             if start != last:
                                 ranges.append(str(start+1)+"_"+str(last+1))
@@ -566,7 +568,7 @@ class ResultsMaker():
                 else:
                     ranges.append(str(start+1))
                 self.sequences.append(seqs)
-                self.indices.append(", ".join(inds))
+                self.indices.append(", ".join(ranges))
 
         else:
             pass
