@@ -357,7 +357,7 @@ class JAR3DValidator():
         try:
             query_info.save()
             queue.score({'id': query_id, 'version': version})
-        except Exception as err:
+        except Exception:
             return self.respond("Couldn't save query_info")
 
         # everything went well, return redirect url
@@ -635,8 +635,9 @@ def levenshtein(s1, s2):
 
 
 def sort_loops(loops, indices, sequences):
-    mins = [min(inds.split(', '), key=int) for inds in indices]
-    mins = [str(x) for x in mins]
+    mins = []
+    for ranges in indices:
+        mins.append(ranges.replace(',', '-').split(str="-")[0])
     sorted_lists = sorted(zip(loops, sequences, indices, mins), key=lambda x: int(x[3]))
     return sorted_lists
 
