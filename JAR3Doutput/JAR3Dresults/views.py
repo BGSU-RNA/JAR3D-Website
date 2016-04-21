@@ -562,7 +562,7 @@ class ResultsMaker():
                     if item != last+1:
                         if start != -1:
                             if start != last:
-                                ranges.append(str(start+1)+"_"+str(last+1))
+                                ranges.append(str(start+1)+"-"+str(last+1))
                             else:
                                 ranges.append(str(start+1))
                         start = item
@@ -637,7 +637,7 @@ def levenshtein(s1, s2):
 def sort_loops(loops, indices, sequences):
     mins = []
     for ranges in indices:
-        mins.append(ranges.replace(',', '-').split(str="-")[0])
+        mins.append(ranges.replace(',', '-').split("-")[0])
     sorted_lists = sorted(zip(loops, sequences, indices, mins), key=lambda x: int(x[3]))
     return sorted_lists
 
