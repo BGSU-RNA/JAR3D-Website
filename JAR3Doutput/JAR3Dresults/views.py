@@ -568,7 +568,7 @@ class ResultsMaker():
                         start = item
                     last = item
                 if start != last:
-                    ranges.append(str(start+1)+"_"+str(last+1))
+                    ranges.append(str(start+1)+"-"+str(last+1))
                 else:
                     ranges.append(str(start+1))
                 self.sequences.append(seqs)
