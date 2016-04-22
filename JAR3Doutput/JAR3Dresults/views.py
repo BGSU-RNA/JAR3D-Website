@@ -541,7 +541,7 @@ class ResultsMaker():
                 if len(self.loops) <= result.loop_id:
                     self.loops.append([result])
                 else:
-                    if len(self.loops[-1]) < self.TOPRESULTS:
+                    if len(self.loops[-1]) < self.TOPRESULTS && if result.cutoff_percent > 0:
                         self.loops[-1].append(result)
 
             for loop_id in loop_ids:
