@@ -31,6 +31,9 @@
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
 {{seq}}<br/>
 {% endfor %}</pre>
+    {% if loop|length == 0 %}
+    <strong>No Matches Found</strong>
+    {% else %}
     <strong>Click on headings to reorder table</strong>
     <table class="table table-striped table-condensed table-bordered">
       <thead>
@@ -78,6 +81,7 @@
       </tbody>
     </table>
     </div>
+    {% endif %}
 {% endfor %}
 </div>
 
