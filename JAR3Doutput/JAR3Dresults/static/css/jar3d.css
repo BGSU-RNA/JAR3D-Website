@@ -127,7 +127,7 @@ table .headerSortUp:after {
 }
 
 .input-summary {
-  height: 200px;
+  height: 100px;
   overflow: auto;
   resize: vertical;
 }
