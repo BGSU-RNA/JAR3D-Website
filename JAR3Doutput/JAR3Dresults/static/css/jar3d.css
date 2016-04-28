@@ -151,3 +151,7 @@ table .headerSortUp:after {
   z-index: 1;
   background-color: white;
 }
+
+.loop-result-title {
+  padding-top: 40px;
+}
