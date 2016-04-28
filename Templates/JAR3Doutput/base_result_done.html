@@ -86,6 +86,7 @@
 </div>
 
 <div class="span4 visible-desktop" id="jmol">
+    <h3><a id="jsmol-motif-name" href="" target="_blank" title="View in RNA 3D Motif Atlas"></a></h3>
     <script src="{% static "jsmol/JSmol.min.js" %}"></script>
     <script type="text/javascript">
         function jmolScript(cmd) {Jmol.script(jmolApplet0, cmd)};
@@ -178,6 +179,21 @@
           $( window ).resize(function() {
             position_jmol();
           });
+          
+          (function () {
+            var update_jsmol_title = function(motif_id) {
+              $('#jsmol-motif-name').html('Motif ' + motif_id)
+                                    .attr('href', 'http://rna.bgsu.edu/rna3dhub/motif/view/' + motif_id);            
+            }
+            // set title to the first result
+            update_jsmol_title($('.jmolInline').first().data('coord'));
+            
+            $('input:radio[name="group"]').on('change', function(){
+              if (this.checked) {
+                update_jsmol_title($(this).data('coord'));
+              }
+            });            
+          })();
 
           // fancybox integration
         $(".fancybox").fancybox({
