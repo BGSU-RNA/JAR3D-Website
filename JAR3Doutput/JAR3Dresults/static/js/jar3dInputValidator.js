@@ -443,9 +443,9 @@ var jar3dInputValidator = (function($) {
                     } else if ( self.isFastaMultipleLoops( input ) ) {
                         response.query_type = 'isFastaMultipleLoops';
                     } else if ( self.isFastaMultipleSequencesNoSS( input ) ) {
-                        response.query_type = 'isFastaMultipleSequencesNoSS';
+                        response.msg = 'Please provide secondary structure information';
                     } else if ( self.isFastaSingleSequenceNoSS( input ) ) {
-                        response.query_type = 'isFastaSingleSequenceNoSS';
+                        response.msg = 'Please provide secondary structure information';
                     }
                 } else {
                     // non-fasta input
@@ -454,9 +454,9 @@ var jar3dInputValidator = (function($) {
                     } else if ( self.isNoFastaMultipleLoops( input ) ) {
                         response.query_type = 'isNoFastaMultipleLoops';
                     } else if ( self.isNoFastaSingleSequenceNoSS( input ) ) {
-                        response.query_type = 'isNoFastaSingleSequenceNoSS';
+                        response.msg = 'Please provide secondary structure information';
                     } else if ( self.isNoFastaMultipleSequencesNoSS( input ) ) {
-                        response.query_type = 'isNoFastaMultipleSequencesNoSS';
+                        response.msg = 'Please provide secondary structure information';
                     }
                 }
             }
