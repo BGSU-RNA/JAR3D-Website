@@ -127,7 +127,7 @@ table .headerSortUp:after {
 }
 
 .input-summary {
-  height: 200px;
+  height: 100px;
   overflow: auto;
   resize: vertical;
 }
@@ -150,4 +150,8 @@ table .headerSortUp:after {
 #jmol {
   z-index: 1;
   background-color: white;
+}
+
+.loop-result-title {
+  padding-top: 40px;
 }
