@@ -126,12 +126,10 @@ table .headerSortUp:after {
     width: 120px;
 }
 
-.search-summary {
-  overflow-x: auto;
-  overflow-y: auto;
-  white-space: nowrap;
-  font-family: 'DejaVu Sans Mono', monospace;
-  max-height: 100px;
+.input-summary {
+  height: 200px;
+  overflow: auto;
+  resize: vertical;
 }
 
 .loop-summary {
@@ -143,4 +141,13 @@ table .headerSortUp:after {
 .sequence-input {
   overflow: auto;
   white-space: nowrap;
+}
+
+.margin-top-5px {
+  margin-top: 5px;
+}
+
+#jmol {
+  z-index: 1;
+  background-color: white;
 }
