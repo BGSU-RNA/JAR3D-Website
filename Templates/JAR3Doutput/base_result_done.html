@@ -208,7 +208,9 @@
             $('input:radio[name="group"]').on('change', function(){
               if (this.checked) {
                 update_jsmol_title($(this).data('coord'));
-                $('#jmol').css('top', $(this).parents().find('td').offset().top);
+                // make sure that Jsmol window stays within the content
+                var top = Math.min($(this).parents().find('td').offset().top, $('html').height() - $('#jmol').height() - 50);
+                $('#jmol').css('top', top);
               }
             });            
           })();
