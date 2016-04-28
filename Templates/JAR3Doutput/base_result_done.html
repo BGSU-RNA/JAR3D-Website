@@ -169,10 +169,10 @@
 
           var position_jmol = function() {
             var reference = $('.loop-result-container').first();
-            var reference2 = $('.input-summary').first()
+            var reference2 = $('tbody');
             var offset_left = reference.offset().left + reference.width();
             var offset_top  = reference2.offset().top;
-            $('#jmol').css('position','fixed')
+            $('#jmol').css('position','absolute')
                       .css('left',offset_left)
                       .css('top',offset_top);            
           };
@@ -193,6 +193,7 @@
             $('input:radio[name="group"]').on('change', function(){
               if (this.checked) {
                 update_jsmol_title($(this).data('coord'));
+                $('#jmol').css('top', $(this).parents().find('td').offset().top);
               }
             });            
           })();

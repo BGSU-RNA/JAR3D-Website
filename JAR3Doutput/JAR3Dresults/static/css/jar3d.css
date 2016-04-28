@@ -146,3 +146,8 @@ table .headerSortUp:after {
 .margin-top-5px {
   margin-top: 5px;
 }
+
+#jmol {
+  z-index: 1;
+  background-color: white;
+}
