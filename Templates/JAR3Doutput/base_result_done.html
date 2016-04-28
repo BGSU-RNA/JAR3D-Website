@@ -31,12 +31,15 @@
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
 {{seq}}<br/>
 {% endfor %}</pre>
+    {% if loop|length == 0 %}
+    <strong>No Matches Found</strong>
+    {% else %}
     <strong>Click on headings to reorder table</strong>
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
           <th class='table-header' data-header-name='index'>#</th>
-          <th class='table-header' data-header-name='motif'>Motif ID and Additional Information</th>
+          <th class='table-header' data-header-name='motif' style='min-width:200px'>Matching motif</th>
           <th class='table-header' data-header-name='percent'>Acceptance Rate</th>
           <th class='table-header' data-header-name='mean-score'>Mean Cutoff Score</th>
           <th class='table-header' data-header-name='full-edit'>Full Edit Distance</th>
@@ -49,14 +52,19 @@
       <tr>
         <td>{{ forloop.counter }}</td>
         <td class="hover-link">
-          <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
-                 class='jmolInline' data-coord='{{ result.motif_id }}'>
-          <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>{{ result.motif_id }}</label>
-          View <a href="{{ result.motif_url }}" target="_blank">{{ result.motif_id }}</a>
-
-          <br>{{result.signature}}<br>
-
-        <a class='btn btn-primary' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
+          <p>
+            <strong>Motif <a href="{{ result.motif_url }}" target="_blank">{{ result.motif_id }}</a></strong>
+          </p>
+          <p>
+            Basepair signature: {{result.signature}}
+          </p>
+          <p>
+            <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
+                   class='jmolInline' data-coord='{{ result.motif_id }}'>
+            <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>View motif example in 3D</label>
+            <br>
+            <a class='btn btn-default' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
+          </p>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
         <td>{{ result.mean_cutoff_score|floatformat:2 }}</td>
@@ -73,6 +81,7 @@
       </tbody>
     </table>
     </div>
+    {% endif %}
 {% endfor %}
 </div>
 
