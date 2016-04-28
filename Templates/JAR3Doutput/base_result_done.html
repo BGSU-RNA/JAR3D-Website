@@ -85,7 +85,7 @@
 {% endfor %}
 </div>
 
-<div class="span4" id="jmol">
+<div class="span4 visible-desktop" id="jmol">
     <script src="{% static "jsmol/JSmol.min.js" %}"></script>
     <script type="text/javascript">
         function jmolScript(cmd) {Jmol.script(jmolApplet0, cmd)};
@@ -164,16 +164,20 @@
               showPrevId: 'prev'
           });
 
-          // position jmol
-          (function(){
-              var reference = $('.loop-result-container').first();
-              var reference2 = $('.input-summary').first()
-              var offset_left = reference.offset().left + reference.width();
-              var offset_top  = reference2.offset().top;
-              $('#jmol').css('position','fixed')
-                        .css('left',offset_left)
-                        .css('top',offset_top);
-          })();
+          var position_jmol = function() {
+            var reference = $('.loop-result-container').first();
+            var reference2 = $('.input-summary').first()
+            var offset_left = reference.offset().left + reference.width();
+            var offset_top  = reference2.offset().top;
+            $('#jmol').css('position','fixed')
+                      .css('left',offset_left)
+                      .css('top',offset_top);            
+          };
+
+          position_jmol();
+          $( window ).resize(function() {
+            position_jmol();
+          });
 
           // fancybox integration
         $(".fancybox").fancybox({
