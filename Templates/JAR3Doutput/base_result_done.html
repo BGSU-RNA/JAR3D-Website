@@ -58,12 +58,13 @@
           <p>
             Basepair signature: {{result.signature}}
           </p>
-          <p class="visible-desktop">
-            <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
-                   class='jmolInline' data-coord='{{ result.motif_id }}'>
-            <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>View motif example in 3D</label>
-            <br>
-            <a class='btn btn-default' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
+          <p>
+            <span class="visible-desktop">
+              <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
+                     class='jmolInline' data-coord='{{ result.motif_id }}'>
+              <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>View motif example in 3D</label>
+            </span>
+            <a class='btn btn-default margin-top-5px' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
           </p>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
