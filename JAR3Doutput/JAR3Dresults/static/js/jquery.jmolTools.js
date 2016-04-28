@@ -326,15 +326,15 @@ if ( typeof Object.create !== 'function' ) {
         },
 
         reportLoadingBegan: function() {
-            // jmolScript('set echo top left; color echo green; echo Loading...;');
+            jmolScript('set echo top left; color echo green; echo Loading...;');
         },
 
         reportLoadingComplete: function() {
-            // jmolScript('set echo top left; color echo green; echo Done;');
+            jmolScript('set echo top left; color echo green; echo Done;');
         },
 
         reportClear: function() {
-            // jmolScript('set echo top left; echo ;');
+            jmolScript('set echo top left; echo ;');
         },
 
         bindEvents: function() {
