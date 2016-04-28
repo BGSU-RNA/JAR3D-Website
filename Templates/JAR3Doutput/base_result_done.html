@@ -21,10 +21,24 @@
 
 {% block page_content %}
 {{ block.super }}
+
+{% if results|length > 1 %}
+<div class="row">
+  <div class="span12">
+    <h4>View results for:</h4>
+    <ul class="margin-top-5px">
+    {% for loop,sequences,indices in results %}
+      <li><a href="#loop-{{forloop.counter}}">Loop {{ forloop.counter }}</a> Column numbers: {{ indices }}</li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endif %}
+
 <div class="row">
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
-    <h3>
+    <h3 id="loop-{{ forloop.counter }}" class="loop-result-title">
     Loop {{ forloop.counter }}
     </h3>
     Column Numbers: {{ indices }}
