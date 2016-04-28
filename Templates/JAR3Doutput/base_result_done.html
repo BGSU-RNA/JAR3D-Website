@@ -58,12 +58,13 @@
           <p>
             Basepair signature: {{result.signature}}
           </p>
-          <p class="visible-desktop">
-            <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
-                   class='jmolInline' data-coord='{{ result.motif_id }}'>
-            <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>View motif example in 3D</label>
-            <br>
-            <a class='btn btn-default' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
+          <p>
+            <span class="visible-desktop">
+              <input type='radio' name="group" id='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'
+                     class='jmolInline' data-coord='{{ result.motif_id }}'>
+              <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>View motif example in 3D</label>
+            </span>
+            <a class='btn btn-default margin-top-5px' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
           </p>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
@@ -114,12 +115,14 @@
         };
         jmolApplet0 = Jmol.getApplet("jmolApplet0", config);
     </script>
-
-    <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
-    <input type='button' id='stereo' class='btn' value="Show stereo">
-    <input type='button' id='prev' class='btn' value='Previous'>
-    <input type='button' id='next' class='btn' value="Next">
-    <label><input type="checkbox" id="showNtNums">Numbers</label>
+  
+    <div class="margin-top-5px">
+      <input type='button' id='neighborhood' class='btn' value="Show neighborhood">
+      <input type='button' id='stereo' class='btn' value="Show stereo">
+      <input type='button' id='prev' class='btn' value='Previous'>
+      <input type='button' id='next' class='btn' value="Next">
+      <label><input type="checkbox" id="showNtNums">Nucleotide numbers</label>
+    </div>
 </div>
 
 <div id="popup-text">
@@ -167,10 +170,10 @@
 
           var position_jmol = function() {
             var reference = $('.loop-result-container').first();
-            var reference2 = $('.input-summary').first()
+            var reference2 = $('tbody');
             var offset_left = reference.offset().left + reference.width();
             var offset_top  = reference2.offset().top;
-            $('#jmol').css('position','fixed')
+            $('#jmol').css('position','absolute')
                       .css('left',offset_left)
                       .css('top',offset_top);            
           };
@@ -191,6 +194,7 @@
             $('input:radio[name="group"]').on('change', function(){
               if (this.checked) {
                 update_jsmol_title($(this).data('coord'));
+                $('#jmol').css('top', $(this).parents().find('td').offset().top);
               }
             });            
           })();
