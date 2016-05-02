@@ -27,7 +27,18 @@
 
 {% block page_content %}
 <div>
-Input sequences are initially listed on the top, with a grey background.  Sequences from 3D structures are initially listed on the bottom, with a white background.  Click on a column header to sort by that column.  Holding shift and clicking on multiple column headers will sort by each column in order.
+Input sequences are initially listed on the top, with a grey background.  Sequences from 3D structures are initially listed on the bottom, with a white background.  
+<br>
+Click on a column header to sort by that column.  Holding shift and clicking on multiple column headers will sort by each column in order.
+<br>
+Meets Cutoff is True if the sequence meets the group's cutoff critera and False if it does not.
+<br>
+Cutoff Score ranges from 0 to 100 for sequences that meet the cutoff, with 100 being the best possible score. 
+Sequences outside the cutoff region have a negative score.
+<br>
+Interior edit distance is the minimum Levenshtein edit distance from the sequence to a sequence from 3D, not counting flanking basepairs.  Full edit distance includes the flanking basepairs.
+<br>
+The alignment distance columns show the differences from the named sequence to the sequence in each row, summing the edit distances in each column of the alignment.
 {% if rotation == 1 %}
 <br>
 The strands of your internal loop have been switched to match the strand ordering seen in {{motifid}}.  They are still in 5' to 3' order.
