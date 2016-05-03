@@ -63,14 +63,14 @@ The strands of your internal loop have been switched to match the strand orderin
               <td style='text-align:center;font-family:sans-serif;'>
               {% for char in cell %}
                 {% if cell == "A" %}
-                  <font color = "#990012">{{char}}</font></td>
+                  <font color = "#990012">{{char}}</font>
                 {% elif cell == "C" %}
                   <font color = "#EAC117">{{char}}</font>
                 {% elif cell == "G" %}
                   <font color = "#347C17">{{char}}</font>
                 {% elif cell == "U" %}
                   <font color = "#000080">{{char}}</font>
-                {% else}
+                {% else %}
                   {{char}}
                 {% endif %}
               {% endfor %}
