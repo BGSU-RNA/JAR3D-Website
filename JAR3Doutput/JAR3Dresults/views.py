@@ -199,7 +199,8 @@ def single_result(request, uuid, loopid, motifgroup):
         cutoff = 'True'
         if res.cutoff == 0:
             cutoff = 'False'
-        line = [name] + sequencealig[key] + [cutoff, res.cutoff_score, res.interioreditdist, res.fulleditdist]
+        line = [name] + sequencealig[key] + [cutoff, str(res.cutoff_score),
+                                             str(res.interioreditdist), str(res.fulleditdist)]
         seq_lines.append(line)
         ed_line = []
         if len(seq_res) <= 50:
