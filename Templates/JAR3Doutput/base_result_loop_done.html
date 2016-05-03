@@ -57,16 +57,24 @@ The strands of your internal loop have been switched to match the strand orderin
       {% for line, eds in seq_zip %}
         <tr style='background-color:#f8f8f8'>
           {% for cell in line %}
-            {% if cell == "A" %}
-              <td style='text-align:center;font-family:sans-serif;'><font color = "#990012">{{cell}}</font></td>
-            {% elif cell == "C" %}
-              <td style='text-align:center;font-family:sans-serif;'><font color = "#EAC117">{{cell}}</font></td>
-            {% elif cell == "G" %}
-              <td style='text-align:center;font-family:sans-serif;'><font color = "#347C17">{{cell}}</font></td>
-            {% elif cell == "U" %}
-              <td style='text-align:center;font-family:sans-serif;'><font color = "#000080">{{cell}}</font></td>
-            {% else}
+            {if fourloop.counter == 0}
               <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
+            {% else %}
+              <td style='text-align:center;font-family:sans-serif;'>
+              {% for char in cell %}
+                {% if cell == "A" %}
+                  <font color = "#990012">{{char}}</font></td>
+                {% elif cell == "C" %}
+                  <font color = "#EAC117">{{char}}</font>
+                {% elif cell == "G" %}
+                  <font color = "#347C17">{{char}}</font>
+                {% elif cell == "U" %}
+                  <font color = "#000080">{{char}}</font>
+                {% else}
+                  {{char}}
+                {% endif %}
+              {% endfor %}
+              <\td>
             {% endif %}
           {% endfor %}
           {% for cell in eds %}
