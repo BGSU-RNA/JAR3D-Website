@@ -57,7 +57,7 @@ The strands of your internal loop have been switched to match the strand orderin
       {% for line, eds in seq_zip %}
         <tr style='background-color:#f8f8f8'>
           {% for cell in line %}
-            {% if fourloop.first %}
+            {% if forloop.first %}
               <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
             {% else %}
 <td style='text-align:center;font-family:sans-serif;'>
