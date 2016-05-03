@@ -59,8 +59,8 @@ The strands of your internal loop have been switched to match the strand orderin
           {% for cell in line %}
             {% if forloop.first or forloop.revcounter < 5 %}
               <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
-            {% else %}<strong>
-              <td style='text-align:center;font-family:sans-serif;'>{% for char in cell %}{% if char == "A" %}<font color = "#990012">{{char}}</font>{% elif char == "C" %}<font color = "#EAC117">{{char}}</font>{% elif char == "G" %}<font color = "#347C17">{{char}}</font>{% elif char == "U" %}<font color = "#000080">{{char}}</font>{% else %}{{char}}{% endif %}{% endfor %}</td></strong>
+            {% else %}
+              <td style='text-align:center;font-family:sans-serif;font-weight:bold;'>{% for char in cell %}{% if char == "A" %}<font color = "#990012">{{char}}</font>{% elif char == "C" %}<font color = "#EAC117">{{char}}</font>{% elif char == "G" %}<font color = "#347C17">{{char}}</font>{% elif char == "U" %}<font color = "#000080">{{char}}</font>{% else %}{{char}}{% endif %}{% endfor %}</td>
             {% endif %}
           {% endfor %}
           {% for cell in eds %}
@@ -76,8 +76,8 @@ The strands of your internal loop have been switched to match the strand orderin
           {% for cell in line %}
             {% if forloop.first or forloop.revcounter < 5 %}
               <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
-            {% else %}<strong>
-              <td style='text-align:center;font-family:sans-serif;'>{% for char in cell %}{% if char == "A" %}<font color = "#990012">{{char}}</font>{% elif char == "C" %}<font color = "#EAC117">{{char}}</font>{% elif char == "G" %}<font color = "#347C17">{{char}}</font>{% elif char == "U" %}<font color = "#000080">{{char}}</font>{% else %}{{char}}{% endif %}{% endfor %}</td></strong>
+            {% else %}
+              <td style='text-align:center;font-family:sans-serif;font-weight:bold;'>{% for char in cell %}{% if char == "A" %}<font color = "#990012">{{char}}</font>{% elif char == "C" %}<font color = "#EAC117">{{char}}</font>{% elif char == "G" %}<font color = "#347C17">{{char}}</font>{% elif char == "U" %}<font color = "#000080">{{char}}</font>{% else %}{{char}}{% endif %}{% endfor %}</td>
             {% endif %}
           {% endfor %}
           {% for cell in eds %}
