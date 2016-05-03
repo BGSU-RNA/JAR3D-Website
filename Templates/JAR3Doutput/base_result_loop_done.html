@@ -57,21 +57,21 @@ The strands of your internal loop have been switched to match the strand orderin
       {% for line, eds in seq_zip %}
         <tr style='background-color:#f8f8f8'>
           {% for cell in line %}
-            {% if fourloop.counter == 0 %}
+            {% if fourloop.counter == 1 %}
               <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
             {% else %}
               <td style='text-align:center;font-family:sans-serif;'>
               {% for char in cell %}
                 {% if cell == "A" %}
-                  <font color = "#990012">{{char}}</font>
+<font color = "#990012">{{char}}</font>
                 {% elif cell == "C" %}
-                  <font color = "#EAC117">{{char}}</font>
+<font color = "#EAC117">{{char}}</font>
                 {% elif cell == "G" %}
-                  <font color = "#347C17">{{char}}</font>
+<font color = "#347C17">{{char}}</font>
                 {% elif cell == "U" %}
-                  <font color = "#000080">{{char}}</font>
+<font color = "#000080">{{char}}</font>
                 {% else %}
-                  {{char}}
+{{char}}
                 {% endif %}
               {% endfor %}
               </td>
