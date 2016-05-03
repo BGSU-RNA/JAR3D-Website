@@ -88,7 +88,25 @@ The strands of your internal loop have been switched to match the strand orderin
           	<a href="http://rna.bgsu.edu/rna3dhub/loops/view/{{name}}" target="_blank"> {{ name }}</a>
           </td> 
           {% for cell in line %}
-          <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
+            {% if forloop.first or forloop.revcounter < 5 %}
+              <td style='text-align:center;font-family:sans-serif;'>{{cell}}</td>
+            {% else %}
+              <td style='text-align:center;font-family:sans-serif;'>
+              {% for char in cell %}
+                {% if cell == "A" %}
+                  <font color = "#990012">{{char}}</font>
+                {% elif cell == "C" %}
+                  <font color = "#EAC117">{{char}}</font>
+                {% elif cell == "G" %}
+                  <font color = "#347C17">{{char}}</font>
+                {% elif cell == "U" %}
+                  <font color = "#000080">{{char}}</font>
+                {% else %}
+                  {{char}}
+                {% endif %}
+              {% endfor %}
+            </td>
+            {% endif %}
           {% endfor %}
           {% for cell in eds %}
           <td style='text-align:center;font-family:sans-serif;background-color:{{cell.1}};'>{{cell.0}}</td>
