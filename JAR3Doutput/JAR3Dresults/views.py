@@ -578,6 +578,8 @@ class ResultsMaker():
             loop_ids = []
             res_list = set()  # List of tuples to avoid duplicate entries
             for result in results:
+                if self.loop_id >= 0:
+                    result.loop_id = 0
                 tup = (result.loop_id, result.motif_id)
                 if tup in res_list:
                     continue
