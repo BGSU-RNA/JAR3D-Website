@@ -96,6 +96,47 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
 
+def all_result(request, uuid, loop_id):
+
+    q = Query_info.objects.filter(query_id=uuid)
+    if q:
+        q = q[0]  # We are interested only in the first one
+    else:
+        return render_to_response('JAR3Doutput/base_result_not_found.html',
+                                  {'query_id': uuid},
+                                  context_instance=RequestContext(request))
+    version = q.group_set[2:q.group_set.index('/')]
+
+    results = ResultsMaker(query_id=uuid, loop=loop_id, num=9999)
+    results.get_loop_results(version)
+    results.get_input_stats()
+
+    """
+        status codes:
+        -1 - failed
+        0  - submitted to the queue
+        1  - done
+        2  - submitted to JAR3D
+    """
+
+    if q.status == 1:
+        zippedResults = sort_loops(results.loops, results.indices, results.sequences)
+        q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
+        return render_to_response('JAR3Doutput/base_result_done.html',
+                                  {'query_info': q, 'num': results.input_stats,
+                                   'results': zippedResults},
+                                  context_instance=RequestContext(request))
+    elif q.status == 0 or q.status == 2:
+        q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
+        return render_to_response('JAR3Doutput/base_result_pending.html',
+                                  {'query_info': q, 'num': results.input_stats},
+                                  context_instance=RequestContext(request))
+    else:
+        return render_to_response('JAR3Doutput/base_result_failed.html',
+                                  {'query_info': q, 'num': results.input_stats},
+                                  context_instance=RequestContext(request))
+
+
 def single_result(request, uuid, loopid, motifgroup):
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
     group_set = Query_info.objects.filter(query_id=uuid)[0].group_set
@@ -502,12 +543,13 @@ class ResultsMaker():
     """
         Class for producing html of JAR3D results
     """
-    def __init__(self, query_id=None):
+    def __init__(self, query_id=None, loop=-1, num=10):
         self.query_id = query_id
+        self.loop_id = loop
         self.loops = []
         self.input_stats = dict()
         self.problem_loops = []
-        self.TOPRESULTS = 10
+        self.TOPRESULTS = num
         self.RNA3DHUBURL = getattr(settings, 'RNA3DHUB',
                                    'http://rna.bgsu.edu/rna3dhub/')
         self.SSURL = getattr(settings, 'SSURL',
@@ -516,10 +558,15 @@ class ResultsMaker():
         self.indices = []
 
     def get_loop_results(self, version):
-        results = Results_by_loop.objects.filter(query_id=self.query_id) \
-                                         .order_by('loop_id',
-                                                   '-cutoff_percent',
-                                                   '-mean_cutoff_score')
+        if self.loop_id == -1:
+            results = Results_by_loop.objects.filter(query_id=self.query_id) \
+                                             .order_by('loop_id',
+                                                       '-cutoff_percent',
+                                                       '-mean_cutoff_score')
+        else:
+            results = Results_by_loop.objects.filter(query_id=self.query_id, loop_id=self.loop_id) \
+                                             .order_by('-cutoff_percent',
+                                                       '-mean_cutoff_score')
         if results:
             """
             build a 2d list
