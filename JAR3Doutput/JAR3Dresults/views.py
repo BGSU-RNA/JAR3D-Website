@@ -118,13 +118,13 @@ def all_result(request, uuid, loopid):
         1  - done
         2  - submitted to JAR3D
     """
-
+    displayid = loopid + 1
     if q.status == 1:
         zippedResults = sort_loops(results.loops, results.indices, results.sequences)
         q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
-                                   'results': zippedResults, 'compress': True, 'loop_id': loopid+1},
+                                   'results': zippedResults, 'compress': True, 'loop_id': displayid},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
         q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
