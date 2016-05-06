@@ -558,12 +558,14 @@ class ResultsMaker():
         self.indices = []
 
     def get_loop_results(self, version):
+        ignore_cutoff = False   # Only show results with cutoff precent > 0
         if self.loop_id == -1:
             results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                              .order_by('loop_id',
                                                        '-cutoff_percent',
                                                        '-mean_cutoff_score')
         else:
+            ignore_cutoff = True   # Show results regardless of cutoff
             results = Results_by_loop.objects.filter(query_id=self.query_id, loop_id=self.loop_id) \
                                              .order_by('-cutoff_percent',
                                                        '-mean_cutoff_score')
@@ -587,12 +589,12 @@ class ResultsMaker():
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
                 if len(self.loops) <= result.loop_id:
-                    if result.cutoff_percent > 0:
+                    if result.cutoff_percent > 0 or ignore_cutoff:
                         self.loops.append([result])
                     else:
                         self.loops.append([])
                 else:
-                    if len(self.loops[-1]) < self.TOPRESULTS and result.cutoff_percent > 0:
+                    if len(self.loops[-1]) < self.TOPRESULTS and (result.cutoff_percent > 0 or ignore_cutoff):
                         self.loops[-1].append(result)
 
             for loop_id in loop_ids:
