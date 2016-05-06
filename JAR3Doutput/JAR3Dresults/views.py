@@ -579,7 +579,9 @@ class ResultsMaker():
             res_list = set()  # List of tuples to avoid duplicate entries
             for result in results:
                 if self.loop_id >= 0:
-                    result.loop_id = 0
+                    count_id = 0
+                else:
+                    count_id = result.loop_id
                 tup = (result.loop_id, result.motif_id)
                 if tup in res_list:
                     continue
@@ -590,7 +592,7 @@ class ResultsMaker():
                 result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
                 if not(result.loop_id in loop_ids):
                     loop_ids.append(result.loop_id)
-                if len(self.loops) <= result.loop_id:
+                if len(self.loops) <= count_id:
                     if result.cutoff_percent > 0 or ignore_cutoff:
                         self.loops.append([result])
                     else:
