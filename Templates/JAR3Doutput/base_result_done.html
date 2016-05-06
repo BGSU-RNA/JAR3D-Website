@@ -42,7 +42,7 @@
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
     <h3 id="loop-{{ forloop.counter }}" class="loop-result-title">
-    {% if not loopid %}
+    {% if not compress %}
     Loop {{ forloop.counter }}
     {% else %}
     Loop {{ loop_id }}
