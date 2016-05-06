@@ -101,7 +101,9 @@
     </div>
     {% endif %}
     {% if not compress %}
-    <a href="{{ result.align_url }}" target="_blank">{{ View All Results for this Loop }}</a>
+    <strong>
+    <a href="{{ result.align_url }}" target="_blank">View All Results for this Loop</a>
+    </strong>
     {% endif %}
 {% endfor %}
 </div>
