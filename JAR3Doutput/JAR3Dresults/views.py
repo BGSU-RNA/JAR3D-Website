@@ -96,7 +96,7 @@ def result(request, uuid):
                                   context_instance=RequestContext(request))
 
 
-def all_result(request, uuid, loop_id):
+def all_result(request, uuid, loopid):
 
     q = Query_info.objects.filter(query_id=uuid)
     if q:
@@ -107,7 +107,7 @@ def all_result(request, uuid, loop_id):
                                   context_instance=RequestContext(request))
     version = q.group_set[2:q.group_set.index('/')]
 
-    results = ResultsMaker(query_id=uuid, loop=loop_id, num=9999)
+    results = ResultsMaker(query_id=uuid, loop=loopid, num=9999)
     results.get_loop_results(version)
     results.get_input_stats()
 
