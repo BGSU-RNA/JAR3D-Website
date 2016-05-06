@@ -124,7 +124,7 @@ def all_result(request, uuid, loopid):
         q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
         return render_to_response('JAR3Doutput/base_result_done.html',
                                   {'query_info': q, 'num': results.input_stats,
-                                   'results': zippedResults, 'compress': True, 'loopid': loopid},
+                                   'results': zippedResults, 'compress': True, 'loopid': loopid+1},
                                   context_instance=RequestContext(request))
     elif q.status == 0 or q.status == 2:
         q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
