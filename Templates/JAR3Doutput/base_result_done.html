@@ -42,7 +42,11 @@
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
     <h3 id="loop-{{ forloop.counter }}" class="loop-result-title">
+    {{if not compress}}
     Loop {{ forloop.counter }}
+    {{else}}
+    Loop {{ loopid + 1}}
+    {{endif}}
     </h3>
     Column Numbers: {{ indices }}
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
@@ -100,7 +104,7 @@
     </table>
     {% if not compress %}
     <strong>
-    <a href="/jar3d/result/{{query_info.query_id}}/{{loop.loop_id}}/" target="_blank">View All Results for this Loop</a>
+    <a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter-1}}/" target="_blank">View All Results for this Loop</a>
     </strong>
     {% endif %}
     </div>
