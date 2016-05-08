@@ -20,7 +20,10 @@
 {% endblock page_subtitle %}
 
 {% block page_content %}
+
+{% if not compress %}
 {{ block.super }}
+{% endif %}
 
 {% if results|length > 1 %}
 <div class="row">
@@ -39,7 +42,11 @@
 {% for loop,sequences,indices,mins in results %}
     <div class="span8 loop-result-container">
     <h3 id="loop-{{ forloop.counter }}" class="loop-result-title">
+    {% if not compress %}
     Loop {{ forloop.counter }}
+    {% else %}
+    Loop {{ loop_id }}
+    {% endif %}
     </h3>
     Column Numbers: {{ indices }}
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
@@ -48,7 +55,7 @@
     {% if loop|length == 0 %}
     <strong>No Matches Found</strong>
     {% else %}
-    <strong>Click on headings to reorder table</strong>
+    <strong>Click on headings to reorder table</strong>{% if not compress %} - <strong><a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter0}}/" target="_blank">View All Results for this Loop</a></strong>{% endif %}
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
