@@ -55,7 +55,7 @@
     {% if loop|length == 0 %}
 <strong>No Matches Found
 <a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter0}}/" target="_blank">View All Results for this Loop</a></strong>
-    {% else %}
+{% else %}
 <strong>Click on headings to reorder table</strong>{% if not compress %} - <strong><a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter0}}/" target="_blank">View All Results for this Loop</a></strong>{% endif %}
     <table class="table table-striped table-condensed table-bordered">
       <thead>
