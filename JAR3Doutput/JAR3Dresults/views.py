@@ -35,8 +35,8 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
-    versions = ["1.18", "1.17", "1.15", "1.14", "1.13", "1.12", "1.11", "1.10", "1.9",
-                "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"]
+    versions = ["3.2", "1.18", "1.17", "1.15", "1.14", "1.13", "1.12", "1.11", "1.10", 
+                "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
