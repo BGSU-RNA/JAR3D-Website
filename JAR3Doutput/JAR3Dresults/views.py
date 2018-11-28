@@ -35,8 +35,8 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
-    versions = ["1.18", "1.17", "1.15", "1.14", "1.13", "1.12", "1.11", "1.10", "1.9",
-                "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"]
+    versions = ["3.2", "1.18", "1.17", "1.15", "1.14", "1.13", "1.12", "1.11", "1.10", 
+                "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
         if q:
@@ -167,12 +167,14 @@ def single_result(request, uuid, loopid, motifgroup):
                                   {'query_info': q,
                                    'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
+
     seq_res = Results_by_loop_instance.objects.filter(query_id=uuid) \
                                       .filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
     rotation = Results_by_loop.objects.filter(query_id=uuid,
                                               loop_id=loopid,
                                               motif_id=motifgroup)[0].rotation
     seqs = Query_sequences.objects.filter(query_id=uuid, loop_id=loopid)
+
     for res in seq_res:
         corrs = Correspondence_results.objects.filter(result_instance_id=res.id)
         line_base = 'Sequence_' + str(res.seq_id)
@@ -204,6 +206,7 @@ def single_result(request, uuid, loopid, motifgroup):
         rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
         rows.append(line_base + ' has_cutoff_value ' + cutoff)
         rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+
     version = group_set[2:group_set.index('/')]
     if motifgroup[0] == 'I':
         filenamewithpath = settings.MODELS + '/IL/' + version + '/lib/' + motifgroup + '_correspondences.txt'
