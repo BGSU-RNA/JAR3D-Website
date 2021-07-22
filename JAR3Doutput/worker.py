@@ -12,7 +12,7 @@ import subprocess32 as sp
 
 class Worker(object):
     """A base class for all workers. This will pull jobs from the beanstalk
-    queue. It does not yet update the databaase with pending status and the
+    queue. It does not yet update the database with pending status and the
     like but could in the future. Currently it only logs what it is doing. To
     use this it should be subclassed and the process method should be
     implemented. This will ignore the result of the process method as the
