@@ -25,6 +25,7 @@ class AlignWorker(Worker):
 
         models = self.models(job['motif_group'][0:2], job['version'], file='')
         jar = os.path.abspath(os.path.join(HERE, self.worker['jar']))
+
         return self.execute('java', '-Xmx500m', '-jar',
                             jar,
                             models,
