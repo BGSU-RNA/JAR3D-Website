@@ -35,7 +35,7 @@ def home(request, uuid=None):
         If a query_id is passed in, then input sequences are retrieved,
         otherwise the usual homepage is shown
     """
-    versions = ["3.2", "1.18", "1.17", "1.15", "1.14", "1.13", "1.12", "1.11", "1.10", 
+    versions = ["3.2", "1.18", "1.17", "1.15", "1.14", "1.13", "1.12", "1.11", "1.10",
                 "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"]
     if uuid:
         q = Query_info.objects.filter(query_id=uuid)[0]
@@ -138,7 +138,29 @@ def all_result(request, uuid, loopid):
 
 
 def single_result(request, uuid, loopid, motifgroup):
+
+    # these jobs are accessed repeatedly by bots
+    # it would be better to cache the results, but for now,
+    # we'll just ignore these requests.  2021-07-23
+
+    exclude_list = ['0aca9b23-945e-4a6e-8297-b46a35848396',
+    '4295f189-9518-47f9-a4bb-e3d013c3c4f9',
+    '96fb3f5b-a700-4fde-aa7a-8b33539d7c4e',
+    '5d7362a1-61a0-476e-945d-c96e9aef90cf',
+    'a223a5a5-67f9-4011-be6c-60be02d50134']
+
     q = Loop_query_info.objects.filter(query_id=uuid, loop_id=loopid, motif_group=motifgroup)
+
+    ShowResult = True
+
+    if uuid in exclude_list:
+        ShowResult = False
+        logger.info("views.py is Excluding %s" % uuid)
+        return render_to_response('JAR3Doutput/base_result_loop_failed.html',
+                                  {'query_info': q,
+                                   'loop': loopid, 'group': motifgroup},
+                                  context_instance=RequestContext(request))
+
     group_set = Query_info.objects.filter(query_id=uuid)[0].group_set
     rows = []
     if q:
@@ -149,6 +171,7 @@ def single_result(request, uuid, loopid, motifgroup):
                                        'loopnum': loopid, 'motifid': motifgroup},
                                       context_instance=RequestContext(request))
         elif q.status == -1:
+            ShowResult = False
             return render_to_response('JAR3Doutput/base_result_loop_failed.html',
                                       {'query_info': q,
                                        'loop': loopid, 'group': motifgroup},
@@ -168,130 +191,138 @@ def single_result(request, uuid, loopid, motifgroup):
                                    'loopnum': loopid, 'motifid': motifgroup},
                                   context_instance=RequestContext(request))
 
-    seq_res = Results_by_loop_instance.objects.filter(query_id=uuid) \
-                                      .filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
-    rotation = Results_by_loop.objects.filter(query_id=uuid,
-                                              loop_id=loopid,
-                                              motif_id=motifgroup)[0].rotation
-    seqs = Query_sequences.objects.filter(query_id=uuid, loop_id=loopid)
+    if ShowResult:
+        # retrieve alignment results for each sequence, this loop in the 2d, against this motif group
+        seq_res = Results_by_loop_instance.objects.filter(query_id=uuid) \
+                                          .filter(loop_id=loopid).filter(motif_id=motifgroup).order_by('seq_id')
 
-    for res in seq_res:
-        corrs = Correspondence_results.objects.filter(result_instance_id=res.id)
-        line_base = 'Sequence_' + str(res.seq_id)
-        seq_r = seqs.filter(seq_id=res.seq_id)[0]
-        seq = seq_r.loop_sequence
-        seq = seq.replace('-', '')
-        seq = seq.replace('_', '')
-        if rotation == 1:
-            strands = seq.split('*')
-            seq = strands[1] + '*' + strands[0]
-        # Reproduce text for alignment calculation
-        for corr_line in corrs:
-            line = (line_base + '_Position_' + str(corr_line.sequence_position) + '_' +
-                    seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id +
-                    '_Node_' + str(corr_line.node) + '_Position_' + corr_line.node_position)
-            if corr_line.is_insertion:
-                line = line + '_Insertion'
-            rows.append(line)
-        name = seq_r.user_seq_id
-        if len(name) == 0:
-            name = 'Sequence' + str(res.seq_id)
-        cutoff = 'true'
-        if res.cutoff == 0:
-            cutoff = 'false'
-        rows.append(line_base + ' has_name ' + name)
-        rows.append(line_base + ' has_score ' + str(res.score))
-        rows.append(line_base + ' hase_alignment_score_deficit ' + 'N/A')
-        rows.append(line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist))
-        rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
-        rows.append(line_base + ' has_cutoff_value ' + cutoff)
-        rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+        #
+        rotation = Results_by_loop.objects.filter(query_id=uuid,
+                                                  loop_id=loopid,
+                                                  motif_id=motifgroup)[0].rotation
 
-    version = group_set[2:group_set.index('/')]
-    if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/' + version + '/lib/' + motifgroup + '_correspondences.txt'
-    else:
-        filenamewithpath = settings.MODELS + '/HL/' + version + '/lib/' + motifgroup + '_correspondences.txt'
-    with open(filenamewithpath, "r") as f:
-        model_text = f.readlines()
-    header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text, rows)
-    seq_text = '\n'.join(rows)
-    model_text = '\n'.join(model_text)
-    seq_lines = []
-    motif_lines = []
-    motif_names = []
-    col_nums = ['Column']
-    for i in range(1, len(header['nodes'])+1):
-        col_nums.append(i)
-    col_nums = col_nums + ['', '', 'Interior', 'Full']
-    position = ['Position'] + header['positions'] + ['Meets', 'Cutoff', 'Edit', 'Edit']
-    if len(seq_res) <= 50:
-        col_nums = col_nums + ['Alignment']*len(sequencealig)
-        position = position + ['Distance to']*len(sequencealig)
-    insertions = []
-    for item in header['insertions']:
-        insertions.append(item.replace('Insertion', 'I'))
-    insertions = ['Insertion'] + insertions + ['Cutoff', 'Score', 'Distance', 'Distance']
-    color_dict = {'0': '#f8f8f8', '1': '#f8eaea', '2': '#f1d4d4', '3': '#eabfbf', '4': '#e3aaaa', '5': '#dc9595'}
-    edit_lines = []
-    for res in seq_res:
-        key = 'Sequence_' + str(res.seq_id)
-        name = Query_sequences.objects.filter(query_id=uuid, seq_id=res.seq_id, loop_id=loopid)[0].user_seq_id
-        if len(name) == 0:
-            name = 'Sequence' + str(res.seq_id)
-        insertions.append(name)
-        cutoff = 'True'
-        if res.cutoff == 0:
-            cutoff = 'False'
-        line = [name] + sequencealig[key] + [cutoff, str(res.cutoff_score),
-                                             str(res.interioreditdist), str(res.fulleditdist)]
-        seq_lines.append(line)
-        ed_line = []
+        # the sequences from this particular loop in the 2d
+        seqs = Query_sequences.objects.filter(query_id=uuid, loop_id=loopid)
+
+        for res in seq_res:
+            # This seems to be the very slow query that bogs down the database
+            # Maybe because it is repeated so many times
+            corrs = Correspondence_results.objects.filter(result_instance_id=res.id)
+            line_base = 'Sequence_' + str(res.seq_id)
+            seq_r = seqs.filter(seq_id=res.seq_id)[0]
+            seq = seq_r.loop_sequence
+            seq = seq.replace('-', '')
+            seq = seq.replace('_', '')
+            if rotation == 1:
+                strands = seq.split('*')
+                seq = strands[1] + '*' + strands[0]
+            # Reproduce text for alignment calculation
+            for corr_line in corrs:
+                line = (line_base + '_Position_' + str(corr_line.sequence_position) + '_' +
+                        seq[corr_line.sequence_position-1] + ' aligns_to_JAR3D ' + res.motif_id +
+                        '_Node_' + str(corr_line.node) + '_Position_' + corr_line.node_position)
+                if corr_line.is_insertion:
+                    line = line + '_Insertion'
+                rows.append(line)
+            name = seq_r.user_seq_id
+            if len(name) == 0:
+                name = 'Sequence' + str(res.seq_id)
+            cutoff = 'true'
+            if res.cutoff == 0:
+                cutoff = 'false'
+            rows.append(line_base + ' has_name ' + name)
+            rows.append(line_base + ' has_score ' + str(res.score))
+            rows.append(line_base + ' hase_alignment_score_deficit ' + 'N/A')
+            rows.append(line_base + ' has_minimum_interior_edit_distance ' + str(res.interioreditdist))
+            rows.append(line_base + ' has_minimum_full_edit_distance ' + str(res.fulleditdist))
+            rows.append(line_base + ' has_cutoff_value ' + cutoff)
+            rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
+
+        version = group_set[2:group_set.index('/')]
+        if motifgroup[0] == 'I':
+            filenamewithpath = settings.MODELS + '/IL/' + version + '/lib/' + motifgroup + '_correspondences.txt'
+        else:
+            filenamewithpath = settings.MODELS + '/HL/' + version + '/lib/' + motifgroup + '_correspondences.txt'
+        with open(filenamewithpath, "r") as f:
+            model_text = f.readlines()
+        header, motifalig, sequencealig = alignsequencesandinstancesfromtext(model_text, rows)
+        seq_text = '\n'.join(rows)
+        model_text = '\n'.join(model_text)
+        seq_lines = []
+        motif_lines = []
+        motif_names = []
+        col_nums = ['Column']
+        for i in range(1, len(header['nodes'])+1):
+            col_nums.append(i)
+        col_nums = col_nums + ['', '', 'Interior', 'Full']
+        position = ['Position'] + header['positions'] + ['Meets', 'Cutoff', 'Edit', 'Edit']
         if len(seq_res) <= 50:
-            for res2 in seq_res:
-                line1 = sequencealig[key]
-                key2 = 'Sequence_' + str(res2.seq_id)
-                line2 = sequencealig[key2]
-                edit = str(compare_lists(line1, line2))
-                ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
-        edit_lines.append(ed_line)
-    header_zip = zip(col_nums, position, insertions)
-    seq_zip = zip(seq_lines, edit_lines)
-    mkeys = sorted(motifalig.keys())
-    edit_lines = []
-    color_dict['0'] = '#ffffff'
-    for key in mkeys:
-        line = motifalig[key]
-        parts = key.split('_')
-        motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
-        line = line + ['', '', '', '']
-        ed_line = []
-        if len(seq_res) <= 50:
-            for res2 in seq_res:
-                line1 = motifalig[key]
-                key2 = 'Sequence_' + str(res2.seq_id)
-                line2 = sequencealig[key2]
-                edit = str(compare_lists(line1, line2))
-                ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
-        edit_lines.append(ed_line)
-        motif_lines.append(line)
-    motif_data = zip(motif_names, motif_lines, edit_lines)
-    q = Query_info.objects.filter(query_id=uuid)
-    q = q[0]  # We are interested only in the first one
-    version = q.group_set[2:q.group_set.index('/')]
+            col_nums = col_nums + ['Alignment']*len(sequencealig)
+            position = position + ['Distance to']*len(sequencealig)
+        insertions = []
+        for item in header['insertions']:
+            insertions.append(item.replace('Insertion', 'I'))
+        insertions = ['Insertion'] + insertions + ['Cutoff', 'Score', 'Distance', 'Distance']
+        color_dict = {'0': '#f8f8f8', '1': '#f8eaea', '2': '#f1d4d4', '3': '#eabfbf', '4': '#e3aaaa', '5': '#dc9595'}
+        edit_lines = []
+        for res in seq_res:
+            key = 'Sequence_' + str(res.seq_id)
+            name = Query_sequences.objects.filter(query_id=uuid, seq_id=res.seq_id, loop_id=loopid)[0].user_seq_id
+            if len(name) == 0:
+                name = 'Sequence' + str(res.seq_id)
+            insertions.append(name)
+            cutoff = 'True'
+            if res.cutoff == 0:
+                cutoff = 'False'
+            line = [name] + sequencealig[key] + [cutoff, str(res.cutoff_score),
+                                                 str(res.interioreditdist), str(res.fulleditdist)]
+            seq_lines.append(line)
+            ed_line = []
+            if len(seq_res) <= 50:
+                for res2 in seq_res:
+                    line1 = sequencealig[key]
+                    key2 = 'Sequence_' + str(res2.seq_id)
+                    line2 = sequencealig[key2]
+                    edit = str(compare_lists(line1, line2))
+                    ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
+            edit_lines.append(ed_line)
+        header_zip = zip(col_nums, position, insertions)
+        seq_zip = zip(seq_lines, edit_lines)
+        mkeys = sorted(motifalig.keys())
+        edit_lines = []
+        color_dict['0'] = '#ffffff'
+        for key in mkeys:
+            line = motifalig[key]
+            parts = key.split('_')
+            motif_names.append(parts[2]+'_'+parts[3]+'_'+parts[4])
+            line = line + ['', '', '', '']
+            ed_line = []
+            if len(seq_res) <= 50:
+                for res2 in seq_res:
+                    line1 = motifalig[key]
+                    key2 = 'Sequence_' + str(res2.seq_id)
+                    line2 = sequencealig[key2]
+                    edit = str(compare_lists(line1, line2))
+                    ed_line.append((edit, color_dict.setdefault(edit, '#df8080')))
+            edit_lines.append(ed_line)
+            motif_lines.append(line)
+        motif_data = zip(motif_names, motif_lines, edit_lines)
+        q = Query_info.objects.filter(query_id=uuid)
+        q = q[0]  # We are interested only in the first one
+        version = q.group_set[2:q.group_set.index('/')]
 
-    if motifgroup[0] == 'I':
-        filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
-    else:
-        filenamewithpath = settings.MODELS + '/HL/'+version+'/lib/' + motifgroup + '_interactions.txt'
-    with open(filenamewithpath, "r") as f:
-        interaction_text = f.read().replace(' ', '\t')
-    return render_to_response('JAR3Doutput/base_result_loop_done.html',
-                              {'query_info': q, 'header_zip': header_zip,
-                               'loopnum': loopid, 'motifid': motifgroup,
-                               'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
-                               'model_text': model_text, 'inter_text': interaction_text,
-                               'rotation': rotation}, context_instance=RequestContext(request))
+        if motifgroup[0] == 'I':
+            filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
+        else:
+            filenamewithpath = settings.MODELS + '/HL/'+version+'/lib/' + motifgroup + '_interactions.txt'
+        with open(filenamewithpath, "r") as f:
+            interaction_text = f.read().replace(' ', '\t')
+        return render_to_response('JAR3Doutput/base_result_loop_done.html',
+                                  {'query_info': q, 'header_zip': header_zip,
+                                   'loopnum': loopid, 'motifid': motifgroup,
+                                   'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
+                                   'model_text': model_text, 'inter_text': interaction_text,
+                                   'rotation': rotation}, context_instance=RequestContext(request))
 
 
 @csrf_exempt
