@@ -21,6 +21,12 @@ class Worker(object):
 
     __metaclass__ = abc.ABCMeta
 
+    # Change logging configuration, added 2021-07-22
+    logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
+
     def __init__(self, config, **kwargs):
         """Create a new Worker. This uses the config dictionary to connect to
         the queue and worker. That dictionary must contain a cache dictionary
@@ -107,9 +113,11 @@ class Worker(object):
         """
 
         self.logger.info("Starting worker %s", self.name)
+
         while True:
             job = self.beanstalk.reserve()
             job.bury()
+
             try:
                 current = json.loads(job.body)
                 self.logger.info("Working on current %s", current['id'])
