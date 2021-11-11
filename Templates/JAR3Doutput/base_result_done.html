@@ -86,6 +86,7 @@
                      class='jmolInline' data-coord='{{ result.motif_id }}'>
               <label for='s{{ forloop.parentloop.counter }}-{{ forloop.counter }}'>View motif example in 3D</label>
             </span>
+            <a class='btn btn-default margin-top-5px' href="{{result.align_url}}{{result.motif_id}}" target="_blank">Align sequences</a>
           </p>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>
