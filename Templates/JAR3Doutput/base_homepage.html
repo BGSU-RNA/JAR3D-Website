@@ -38,7 +38,7 @@ Scoring RNA loop sequences against known 3D motifs
           <button class="btn btn-default span1" id="clear">Clear</button>
 
           <span class="span5">
-            Choose <a href="http://rna.bgsu.edu/motifs">Motif Atlas</a> version (optional):
+            Choose <a href="http://rna.bgsu.edu/motifs">Motif Atlas</a> version:
             <select id="version" class="span2">
               {% for option in options %}
                 <option value={{option}}>{{option}}{% if forloop.first %} (current){% endif %}</option>
