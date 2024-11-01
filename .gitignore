@@ -1,6 +1,7 @@
 *.py[co]
 
 old_files/
+logs/
 
 # Packages
 *.egg

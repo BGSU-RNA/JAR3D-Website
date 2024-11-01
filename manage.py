@@ -1,3 +1,7 @@
+"""
+Run this program to update the database schema
+"""
+
 #!/usr/bin/env python
 import os
 import sys
