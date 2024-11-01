@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}JAR3D | Home{% endblock %}
+
+{% block page_specific_css_class %}homepage{% endblock page_specific_css_class %}
+
+{% block page_subtitle %}
+Scoring RNA loop sequences against known 3D motifs
+<a href="https://www.bgsu.edu/research/rna/help/tutorials.html" class="btn btn-success pull-right">Tutorial</a>
+{% endblock page_subtitle %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="span8">
+            <textarea id='title-input' class="span8" rows='1' tabindex="1"
+            placeholder="Optional title for search"></textarea>
+            <br>
+            <textarea id='input' class="span8" rows='10' tabindex="1"
+            placeholder="Single or aligned RNA/DNA sequences or single/multiple loops
+            (fasta-formatted descriptions and secondary structures are optional)">{{input}}</textarea>
+        </div>
+        <div class="span4">
+            <h4>Examples</h4>
+            <ul class="examples unstyled">
+                <li><a href='#' id="isNoFastaSingleLoop">Single sequence, one loop</a></li>
+                <li><a href='#' id="isNoFastaMultipleLoops">Multiple sequences, one loop</a></li>
+                <li><a href='#' id="isFastaMultipleLoops">Multiple sequences, one loop (fasta)</a></li>
+                <li><a href='#' id="isNoFastaSingleSequenceSS">Single sequence, many loops, with secondary structure</a></li>
+                <li><a href='#' id="isFastaSingleSequenceSS">Single sequence, many loops, with secondary structure (fasta)</a></li>
+                <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure</a></li>
+                <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure (fasta)</a></li>
+            <ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-horizontal">
+          <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
+          <button class="btn btn-default span1" id="clear">Clear</button>
+
+          <span class="span5">
+            Choose <a href="https://rna.bgsu.edu/rna3dhub/motifs">Motif Atlas</a> version:
+            <select id="version" class="span2">
+              {% for option in options %}
+                <option value={{option}}>{{option}}{% if forloop.first %} (current){% endif %}</option>
+              {% endfor %}
+            </select>
+          </span>
+        </div>
+        <div id="message" class="span3 alert"></div>
+    </div>
+
+    <br><br>
+
+    <div class="row">
+        <div class="span4">
+            <h2>About</h2>
+            <p>
+              The JAR3D web server was upgraded on October 4, 2024.
+              It seems to be working as intended.
+              Please report any errors to Craig Zirbel at <a href="mailto:zirbel@bgsu.edu">zirbel@bgsu.edu</a>.
+            </p>
+            <p>
+              JAR3D scores RNA hairpin and internal loop sequences against motif groups
+              from the <a href="{{BASE}}/rna3dhub/motifs">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and
+              by probabilistic scoring and edit distance for novel sequences.
+            </p>
+
+            <p>
+              RNA hairpin and internal loops are often represented on secondary structure diagrams as if they are unstructured,
+              but in fact most are structured by <a href="https://www.nakb.org/ndbmodule/bp-catalog/">non-Watson-Crick basepairs</a>, base stacking, and base-backbone interactions.
+              Analysis of 3D structures shows that
+              different RNA sequences can form the same RNA 3D motif, as is apparent
+              in many motif groups in the RNA 3D Motif Atlas.
+            </p>
+
+            <p>
+              JAR3D scores sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
+              As RNA 3D Motif Atlas incorporates new RNA 3D structures, the performance of JAR3D will improve over time.
+            </p>
+
+            <p>
+              Inferring the 3D structures of hairpin and internal loops is a step on the way toward
+              correctly predicting full RNA 3D structures starting from sequence.
+            </p>
+
+            <h2>Tutorial</h2>
+            <p>
+              Learn more about JAR3D in the <a href="https://www.bgsu.edu/research/rna/help/tutorials.html">tutorial</a>.
+            </p>
+        </div>
+        <div class="span4">
+            <h2>Input</h2>
+            <p>
+              JAR3D accepts single or multiple sequences with one or many loops (see <strong>Examples</strong> above).
+            </p>
+            <p>
+              <b>One loop:</b>
+              To specify the break between strands in internal loops, use an asterisk <b>*</b>.
+              Sequence(s) without an asterisk are interpreted as hairpins.
+              Internal and hairpin loops should include closing Watson-Crick basepairs, with nucleotides running in 5' to 3' order within each strand.
+              Individual loops do not need the nucleotides to be aligned.
+            </p>
+            <p>
+              <b>Many loops:</b>
+              JAR3D will extract internal and hairpin loops from longer sequences if a dot-bracket secondary structure is provided as the first line
+              of the input.
+              Multiple sequences need to be aligned to one another.
+            </p>
+            <p>
+              Several online services can predict RNA secondary structure and provide output that can be used as input to JAR3D, for example:
+              <a target="_blank" href="http://rna.tbi.univie.ac.at/cgi-bin/RNAWebSuite/RNAfold.cgi">RNAfold</a>,
+              <a target="_blank" href="http://www.unafold.org/">UNAFold</a>, or
+              <a target="_blank" href="https://s-will.github.io/LocARNA/">LocaRNA</a>.
+            </p>
+            <h2>Output</h2>
+            <p>
+              The output shows the best-scoring motif groups from the RNA 3D Motif Atlas including representative
+              instance from each motif group. It also possible to align input sequences to known 3D instances of a motif.
+            </p>
+        </div>
+        <div class="span4">
+            <h2>Method</h2>
+              <ol>
+                <li>
+                  <p>
+                    We <strong>extract</strong> hairpin and internal loops from a <a href="{{ BASE }}/rna3dhub/nrlist">
+                    representative set</a> of x-ray RNA 3D structures at 3.5 Angstrom resolution or better from PDB/NDB and cluster them in geometrically
+                    similar <a href="{{ BASE }}/rna3dhub/motifs">motif groups</a>.
+                  </p>
+                <li>
+                  <p>
+                    For each recurrent motif, we build a <strong>probabilistic model</strong>
+                    for sequence variability based on a hybrid Stochastic
+                    Context-Free Grammar/Markov Random Field (SCFG/MRF) method.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    To <strong>parameterize</strong> each model, we use all instances of the motif
+                    found in the non-redundant dataset and knowledge of RNA nucleotide interactions,
+                    especially <a href="https://nar.oxfordjournals.org/content/37/7/2294.full">
+                    isosteric basepairs</a> and their substitution patterns.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    For each motif group, we form an <strong>acceptance region</strong> that is consistent with the
+                    geometry and basepairing of that group. If the score is in the cutoff region, we
+                    infer that the new sequence can form the same 3D structure.
+                  </p>
+                </li>
+              </ol>
+
+              <p>
+                For more information please see:
+                <blockquote>
+                  <a href="https://nar.oxfordjournals.org/content/43/15/7504.full">Identifying novel sequence variants of RNA 3D motifs</a>.
+                  Craig L. Zirbel, James Roll, Blake A. Sweeney, Anton I. Petrov, Meg Pirrung, and Neocles Leontis.
+                  <em>Nucl. Acids Res. (2015) doi: 10.1093/nar/gkv651</em>
+                  <a href="https://www.ncbi.nlm.nih.gov/pubmed/26130723">Pubmed</a>
+                </blockquote>
+              <p>
+
+              <p>
+                A <a href="https://github.com/BGSU-RNA/JAR3D">standalone version of JAR3D</a> is also available on GitHub.
+              </p>
+        </div>
+    </div>
+{% endblock page_content %}
+
+{% block page_specific_js %}
+    <script src="{% static 'js/jar3dInputValidator.js' %}"></script>
+    <script src="{% static 'js/homepage.js' %}"></script>
+{% endblock page_specific_js %}

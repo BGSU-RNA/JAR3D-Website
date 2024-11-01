@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}JAR3D{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon_j.ico' %}"/>
+
+    <!-- Le styles -->
+    <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'bootstrap/css/bootstrap-responsive.css' %}" rel="stylesheet">
+    <link href="{% static 'css/jar3d.css' %}" rel="stylesheet">
+
+    {% block custom_css %}{% endblock custom_css %}
+  </head>
+
+  <body>
+
+    {% block navigation %}
+      {% include "sitewide_menu.html" %}
+    {% endblock navigation %}
+
+    <!-- Main content -->
+    <div class="container {% block page_specific_css_class %}{% endblock page_specific_css_class %}">
+
+        <div class="content">
+
+            <div class="page-header">
+                <h1>
+                    {% block page_header %}
+                    <a href="{% url 'home' %}">JAR3D</a>
+                    {% endblock page_header %}
+                    <small>{% block page_subtitle %}{% endblock page_subtitle %}</small>
+                </h1>
+            </div>
+
+            {% block page_content %}
+            {% endblock page_content %}
+
+        </div>
+
+        <footer>
+          {% block footer %}<p>&copy;&nbsp;BGSU RNA group {% now "Y" %}</p>{% endblock footer %}
+        </footer>
+
+    </div> <!-- /container -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="{% static 'js/bootstrap-dropdown.js' %}"></script>
+
+    {% block page_specific_js %}
+    {% endblock page_specific_js %}
+
+    {% block inline_js %}
+    {% endblock inline_js %}
+
+    {# Google Analytics tracking code #}
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-9081629-8']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+    {# Google Analytics tracking code #}
+
+  </body>
+</html>

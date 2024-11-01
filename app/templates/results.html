@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>JAR3D Results</title>
+</head>
+<body>
+<pre>
+<link rel="stylesheet" media="all" type="text/css" href="/static/css/nrslists.css">
+<script language='javascript' src='/static/js/sorttable.js'></script>
+
+<a href="https://docs.google.com/View?id=dhnt3bqf_206fwss55c6">JAR3D Motif Inference User Manual</a>
+<table class='sortable' border=1>
+<th>Group</th>
+<th>Mean Log<br>Probability</th>
+<th>Median Log<br>Probability</th>
+<th>Mean<br>Percentile</th>
+<th>Median<br>Percentile</th>
+<th>Mean Interior<br>Edit Distance</th>
+<th>Mean Full<br>Edit Distance</th>
+<th width="30%">Signature</th>
+
+{% for r in query %}
+<tr><td><a href="/JAR3Doutput/GroupResults/{{ r.id }}/{{ r.groupnum }}/">Group {{ r.groupnum }}</a></td>
+<td>{{ r.meanscore }}</td><td>{{ r.medianscore }}</td>
+<td>{{ r.meanpercentile }}</td><td>{{ r.medianpercentile }}</td><td>{{ r.meaninterioreditdist }}</td>
+<td>{{ r.meanfulleditdist }}</td><td>{{ r.signature }}</td></tr>
+{% endfor %}
+
+</table>
+</pre>
+</body>
+</html>

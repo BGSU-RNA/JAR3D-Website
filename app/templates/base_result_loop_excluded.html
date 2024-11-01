@@ -1,0 +1,11 @@
+{% extends "base_result.html" %}
+
+{% block page_subtitle %}
+  {{ block.super }}
+  Query {{ query_info.query_id }} Loop {{ loop|add:"1" }} to Motif Group {{ group }} alignment excluded due to long processing times
+{% endblock page_subtitle %}
+
+{% block page_content %}
+There was a problem with your query.
+{{ block.super }}
+{% endblock page_content %}
