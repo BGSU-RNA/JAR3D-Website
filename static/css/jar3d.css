@@ -47,11 +47,11 @@ footer {
 }
 
 
-table.paleblue tr td { 
-  width: 1px; 
+table.paleblue tr td {
+  width: 1px;
 }
-table.paleblue tr td:first-child { 
-  width: 1%; 
+table.paleblue tr td:first-child {
+  width: 1%;
 }
 
 /* Tablesorter styling */
@@ -128,8 +128,10 @@ table .headerSortUp:after {
 
 .input-summary {
   height: 100px;
-  overflow: auto;
-  resize: vertical;
+  overflow-y: auto; /* Vertical scrollbar */
+  overflow-x: auto; /* Horizontal scrollbar */
+  resize: both; /* Allows resizing */
+  white-space: nowrap; /* Prevents line breaks to force horizontal scrolling */
 }
 
 .loop-summary {
