@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
+
+{% block custom_css %}
+  <link rel="stylesheet" href="{% static 'js/fancybox/jquery.fancybox.css' %}" type="text/css" media="screen" />
+  <link rel="stylesheet" href="{% static 'css/tipsy.css' %}" type="text/css"/>
+{% endblock custom_css %}
+
+{% block page_subtitle %}
+  {{ block.super }}
+  RFAM families with loops matching {{ motif_ids|join:" or " }}
+  <br>
+{% endblock page_subtitle %}
+
+{% block page_content %}
+ <table class="table table-striped table-condensed table-bordered">
+      <thead>
+        <tr>
+          <th class='table-header' data-header-name='query'>RFAM Family-<br>JAR3D Version</th>
+          <th class='table-header' data-header-name='loop'>Loop ID</th>
+          <th class='table-header' data-header-name='motif'>Motif Group</th>
+          <th class='table-header' data-header-name='annotation'>Annotation</th>
+          <th class='table-header' data-header-name='percent'>Acceptance<br>Rate</th>
+          <th class='table-header' data-header-name='score'>Mean Cutoff<br>Score</th>
+          <th class='table-header' data-header-name='fulldist'>Full Edit<br>Distance</th>
+          <th class='table-header' data-header-name='intdist'>Interior Edit<br>Distance</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in results %}
+      <tr>
+        <td class="hover-link">
+            <strong><a href="https://rna.bgsu.edu/jar3d/result/{{ row.query_id }}" target="_blank">{{ row.query_id }}</a></strong>
+        </td>
+        <td class="hover-link">
+            <strong><a href="https://rna.bgsu.edu/jar3d/result/{{ row.query_id }}#loop-{{ row.loop_id }}" target="_blank">{{ row.loop_id }}</a></strong>
+        </td>
+        <td class="hover-link">
+            <strong><a href="https://rna.bgsu.edu/rna3dhub/motif/view/{{ row.motif_id }}" target="_blank">{{ row.motif_id }}</a></strong>
+        </td>
+        <td>
+          {{ row.annotation }}
+         </td>
+        <td>
+          {{ row.cutoff_percent|floatformat:2 }}
+         </td>
+        <td>
+          {{ row.mean_cutoff_score|floatformat:2 }}
+         </td>
+         <td>
+          {{ row.medianfulleditdist|floatformat:2 }}
+         </td>
+          <td>
+          {{ row.medianinterioreditdist|floatformat:2 }}
+         </td>
+
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+
+{% endblock page_content %}
+
+{% block page_specific_js %}
+    {{ block.super }}
+        {{ block.super }}
+    <script src="{% static "js/jquery.tablesorter.min.js" %}"></script>
+    <script src="{% static "js/fancybox/jquery.fancybox.pack.js" %}"></script>
+    <script src="{% static "js/jquery.tipsy.js" %}"></script>
+
+    <script>
+      $(document).ready(function() {
+          $("table").tablesorter({theme:'blue'});
+
+          // fancybox integration
+        $(".fancybox").fancybox({
+          openEffect	: 'none',
+          closeEffect	: 'none'
+        });
+
+        $(".table-header").tipsy({
+            gravity: 's',
+            title: function() {
+              var name = $(this).data('header-name');
+              return $(".help-text[data-header-name='" + name + "']").text();
+            }
+        });
+      });
+    </script>
+{% endblock page_specific_js %}
+
