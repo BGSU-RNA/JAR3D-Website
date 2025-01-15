@@ -134,6 +134,8 @@ var Examples = {
         response.title = $("#title-input").val();
         response.version = $("#version").val();
 
+        // Send the request to views.py process_input method
+
         $.ajax({
           type: 'POST',
           url: url + '/process_input/',
