@@ -54,6 +54,10 @@ def align(parameters):
     parameters is a dictionary with these fields
     'id': uuid,
     'loop_id': loopid,
+
+    !!!!!!!!!!! note that the java code seems to shift the loop number up by 1,
+    so what we pass in is the loop number we want minus 1, then it shifts it up again
+
     'motif_group': motifgroup,
     'version': group_set.split('/')[0][2:]
     """
@@ -78,6 +82,11 @@ def align(parameters):
     # suppress output so it does not appear in syslog
     command = f'/usr/bin/java -Xmx500m -jar {jar} {models} {motifgroup} {uuid} {loopid} {user} {password} {database} > /dev/null 2>&1'
 
+    # put the command and output in the syslog for debugging
+    command = f'/usr/bin/java -Xmx500m -jar {jar} {models} {motifgroup} {uuid} {loopid} {user} {password} {database}'
+    print(command)
+
+    # not sure where logger.debug actually goes
     logger.debug('run_jar3d: align command: %s', command)
 
     exit_status = os.system(command)
