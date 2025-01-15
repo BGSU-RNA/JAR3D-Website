@@ -400,6 +400,18 @@ var jar3dInputValidator = (function($) {
         },
 
         /*
+            RF00001
+            RF02543
+        */
+
+        isRfamFamily: function( str ) {
+            // if lines[0] starts with 'RF' and is followed by 5 digits,
+            // then it's a Rfam ID
+            const pattern = /^RF\d{5}$/;
+            return pattern.test(str);
+        },
+
+        /*
             ========================
             Main validation function
             ========================
@@ -457,17 +469,34 @@ var jar3dInputValidator = (function($) {
                         response.msg = 'Please provide secondary structure information';
                     } else if ( self.isNoFastaMultipleSequencesNoSS( input ) ) {
                         response.msg = 'Please provide secondary structure information';
+                    } else if ( self.isRfamFamily( input ) ) {
+                        const LSU = ['RF02543','RF02540','RF02541','RF02546'];
+                        const SSU = ['RF01960','RF01959','RF00177','RF02545','RF02542'];
+                        const tRNA = ['RF00005'];
+                        if (LSU.includes(input)) {
+                            response.msg = 'Rfam Ribosomal LSU families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + input;
+                        } else if (SSU.includes(input)) {
+                            response.msg = 'Rfam Ribosomal SSU families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + input;
+                        } else if (tRNA.includes(input)) {
+                            response.msg = 'Rfam tRNA families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + input;
+                        } else {
+                            response.query_type = 'isRfamFamily';
+                        }
                     }
                 }
             }
 
             if ( response.query_type ) {
                 response.valid = true;
-                if ( !response.query_type.match(/NoFasta/) && lines.length > 1 ) {
+                if (response.query_type == 'isRfamFamily') {
+                    response.data = lines;
+                } else if ( !response.query_type.match(/NoFasta/) && lines.length > 1 ) {
                     $.each(lines, function(ind, line) {
                         if ( ind % 2 == 0 ) {
+                            // header lines
                             response.fasta.push(line);
                         } else {
+                            // sequence lines
                             response.data.push(line);
                         }
                     });
@@ -479,8 +508,6 @@ var jar3dInputValidator = (function($) {
             return response;
 
         }
-
-
     };
 
     return Validator;
