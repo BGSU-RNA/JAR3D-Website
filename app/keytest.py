@@ -12,13 +12,13 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
 
   for a in InstanceToGroup.iterkeys():
     m = re.search("(.+Instance_[0-9]+)",a)
-    print m.group(1)
+    print(m.group(1))
     Name = HasName[m.group(1)]                               # use the name as the key; very informative
     motifalig[Name] = [''] * len(ModelToColumn)     # start empty
 
   for a in sorted(InstanceToGroup.iterkeys()):
     m = re.search("(.+Instance_[0-9]+)",a)
-    print m.group(1)
+    print(m.group(1))
     Name = HasName[m.group(1)]                               # use the name as the key; very informative
     t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
     motifalig[Name][t-1] += a[len(a)-1]
@@ -123,12 +123,12 @@ def alignsequencesandinstancesfromfiles(MotifCorrespondenceFile,SequenceCorrespo
   with open(MotifCorrespondenceFile,"r") as f:
     MotifLines = f.readlines()
 
-  print "Read motif correspondence file " + MotifCorrespondenceFile
+  print("Read motif correspondence file " + MotifCorrespondenceFile)
 
   with open(SequenceCorrespondenceFile,"r") as f:
     SequenceLines = f.readlines()
 
-  print "Read sequence correspondence file " + SequenceCorrespondenceFile
+  print("Read sequence correspondence file " + SequenceCorrespondenceFile)
 
   header, motifalig, sequencealig = alignsequencesandinstancesfromtext(MotifLines,SequenceLines)
 
@@ -136,10 +136,10 @@ def alignsequencesandinstancesfromfiles(MotifCorrespondenceFile,SequenceCorrespo
 
 if __name__ == "__main__":
 #  alignsequencesandinstancesfromfiles(sys.argv[1],sys.argv[2])
-#  print t
+#  print(t
 
   header, motifalig, sequencealig = alignsequencesandinstancesfromfiles(sys.argv[1],sys.argv[2])
-  print "Result from alignsequencesandinstancesfromfiles: "
-  print header
-  print motifalig
-  print sequencealig
+  print("Result from alignsequencesandinstancesfromfiles: ")
+  print(header)
+  print(motifalig)
+  print(sequencealig)

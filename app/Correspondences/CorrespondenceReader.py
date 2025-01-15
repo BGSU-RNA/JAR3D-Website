@@ -35,12 +35,12 @@ with open(FN,"r") as f:
 
 for nt in InstanceToPDB.iterkeys():
   if GroupToModel[InstanceToGroup[nt]] != SequenceToModel[InstanceToSequence[nt]]:
-    print nt, GroupToModel[InstanceToGroup[nt]], SequenceToModel[InstanceToSequence[nt]]
-      
-      
+    print(nt, GroupToModel[InstanceToGroup[nt]], SequenceToModel[InstanceToSequence[nt]])
+
+
  # Loop through instances from 3D and from the sequence alignment and put in an alignment to display
 
- 
+
 aligdata = {}                                      # new dictionary
 
 for a in InstanceToGroup.iterkeys():
@@ -50,7 +50,7 @@ for a in InstanceToGroup.iterkeys():
 for a in SequenceToModel.iterkeys():
   m = re.search("(Sequence_[0-9]+)",a)
   aligdata[m.group(1)] = []
-  
+
 for a in aligdata.iterkeys():
   for j in range(0,len(ModelToColumn)):
     aligdata[a].append('')
@@ -67,11 +67,11 @@ for a in sorted(SequenceToModel.iterkeys()):
 
 #for a,b in aligdata.iteritems():
 #  for i in range(0,len(b)-1):
-#    print '<td>'+aligdata[a][i]+'</td>',
+#    print('<td>'+aligdata[a][i]+'</td>'),
 #  print
-  
+
 f = open("testalign.html","w")
-f.write("<html>"+FN+" alignment\n<table>")    
+f.write("<html>"+FN+" alignment\n<table>")
 for a in sorted(aligdata.iterkeys()):
   f.write('<tr><td>'+a+'</td>')
   for i in range(0,len(aligdata[a])-1):
@@ -80,4 +80,4 @@ for a in sorted(aligdata.iterkeys()):
 f.write("</table></html>")
 f.close()
 
-print "Wrote html file with alignment of 3D instances and sequences"
+print("Wrote html file with alignment of 3D instances and sequences")

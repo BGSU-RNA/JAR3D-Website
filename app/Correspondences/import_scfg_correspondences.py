@@ -84,7 +84,7 @@ files = os.listdir(data_folder)
 
 for file in files:
     if re.search('_correspondences.txt', file):
-        print file
+        print(file)
         f = open( os.path.join(data_folder, file) )
 
         m = re.match("(.+)_correspondences.txt", file)
@@ -97,4 +97,4 @@ for file in files:
                                         correspondences = correspondences) )
 session.commit()
 
-print 'Done'
+print('Done')

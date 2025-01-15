@@ -66,7 +66,7 @@ def alignmentrowshtml(DisplayColor,aligdata):
     for i in range(0,len(aligdata[a])-1):
       t = t + '<td><font color = "' + DisplayColor[a] + '">'+aligdata[a][i]+'</td>'
     t = t + '</tr>\n'
-  
+
   return t
 
 def alignmentheaderhtml(ModelToColumn):
@@ -99,11 +99,11 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromtext(SequenceCorrespondenceText)
 
   motifalig = {}
-  
+
   for a in InstanceToGroup.iterkeys():
     m = re.search("(Instance_[0-9]+)",a)
     motifalig[m.group(1)] = [''] * len(ModelToColumn)     # start empty
-  
+
   for a in sorted(InstanceToGroup.iterkeys()):
     m = re.search("(Instance_[0-9]+)",a)
     t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
@@ -114,7 +114,7 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   for a in SequenceToModel.iterkeys():
     m = re.search("(Sequence_[0-9]+)",a)
     sequencealig[m.group(1)] = [''] * len(ModelToColumn)  # start empty
-    
+
   for a in sorted(SequenceToModel.iterkeys()):
     m = re.search("(Sequence_[0-9]+)",a)
     t = int(ModelToColumn[SequenceToModel[a]])
@@ -125,7 +125,7 @@ def alignsequencesandinstancesfromtext(MotifCorrespondenceText,SequenceCorrespon
   header['nodes'] = [''] * len(ModelToColumn)
   header['positions'] = [''] * len(ModelToColumn)
   header['insertions'] = [''] * len(ModelToColumn)
-  
+
   for a in ModelToColumn.iterkeys():
     header['columnname'][int(ModelToColumn[a])-1] = a
 
@@ -151,9 +151,9 @@ def alignsequencesandinstancesfromfiles(MotifCorrespondenceFile,SequenceCorrespo
 
   header, motifalig, sequencealig = alignsequencesandinstancesfromtext(MotifLines,SequenceLines)
 
-  print header
-  print motifalig
-  print sequencealig
+  print(header)
+  print(motifalig)
+  print(sequencealig)
 
 # Use JAR3D to create a file of sequence-to-model correspondences
 # Next, specify a motif correspondence file and a file of sequence to model correspondences
@@ -163,29 +163,29 @@ def alignsequencesandinstancesfromfileshtml(MotifCorrespondenceFile,SequenceCorr
     InstanceToGroup, InstanceToPDB, InstanceToSequence, GroupToModel, ModelToColumn, NotSequenceToModel = readcorrespondencesfromfile(MotifCorrespondenceFile)
 
     NotInstanceToGroup, NotInstanceToPDB, NotInstanceToSequence, NotGroupToModel, NotModelToColumn, SequenceToModel = readcorrespondencesfromfile(SequenceCorrespondenceFile)
-    
+
     DisplayColor = {}
-    
+
     for i in InstanceToPDB.iterkeys():
       a = re.search("(Instance_[0-9]+)",i)
       DisplayColor[a.group(1)] = 'black'            # default display color
-      
+
     for i in SequenceToModel.iterkeys():
       a = re.search("(Sequence_[0-9]+)",i)
       DisplayColor[a.group(1)] = 'black'            # default display color
-                
+
     # Loop through instances from 3D and from the sequence alignment and put in an alignment to display
-     
+
     aligdata = {}                                      # new dictionary
-    
+
     for a in InstanceToGroup.iterkeys():
       m = re.search("(Instance_[0-9]+)",a)
       aligdata[m.group(1)] = []
-    
+
     for a in SequenceToModel.iterkeys():
       m = re.search("(Sequence_[0-9]+)",a)
       aligdata[m.group(1)] = []
-      
+
     for a in aligdata.iterkeys():
       for j in range(0,len(ModelToColumn)):
         aligdata[a].append('')                        # clumsy but effective
@@ -194,7 +194,7 @@ def alignsequencesandinstancesfromfileshtml(MotifCorrespondenceFile,SequenceCorr
       m = re.search("(Instance_[0-9]+)",a)
       t = int(ModelToColumn[GroupToModel[InstanceToGroup[a]]])
       aligdata[m.group(1)][t-1] += a[len(a)-1]
-    
+
     for a in sorted(SequenceToModel.iterkeys()):
       m = re.search("(Sequence_[0-9]+)",a)
       t = int(ModelToColumn[SequenceToModel[a]])
@@ -204,19 +204,19 @@ def alignsequencesandinstancesfromfileshtml(MotifCorrespondenceFile,SequenceCorr
     t = t + alignmentheaderhtml(ModelToColumn)+'\n'
     t = t + alignmentrowshtml(DisplayColor,aligdata)
     t = t + '<table>'
-  
-    return t
-      
-      
-# python CorrespondenceUtilities.py "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\lib\\IL\\0.6\\bp_models\\IL_01239.1_correspondences.txt" "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\diagnostic\\IL\\0.6\\bp_models\\IL_01239.1_diagnostics.txt"      
-      
-if __name__ == "__main__":
-  t = alignsequencesandinstancesfromfileshtml(sys.argv[1],sys.argv[2])  
-  print t
-  
-  header, motifalig, sequencealig = alignsequencesandinstancesfromfiles(sys.argv[1],sys.argv[2])  
-  print header
-  print motifalig
-  print sequencealig
 
-  
+    return t
+
+
+# python CorrespondenceUtilities.py "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\lib\\IL\\0.6\\bp_models\\IL_01239.1_correspondences.txt" "C:\\Documents and Settings\\zirbel\\My Documents\\My Dropbox\\BGSURNA\\Motifs\\diagnostic\\IL\\0.6\\bp_models\\IL_01239.1_diagnostics.txt"
+
+if __name__ == "__main__":
+  t = alignsequencesandinstancesfromfileshtml(sys.argv[1],sys.argv[2])
+  print(t)
+
+  header, motifalig, sequencealig = alignsequencesandinstancesfromfiles(sys.argv[1],sys.argv[2])
+  print(header)
+  print(motifalig)
+  print(sequencealig)
+
+
