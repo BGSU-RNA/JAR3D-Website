@@ -12,14 +12,16 @@
   <h2>{{query_info.title}}</h2>
     <h3>Input Summary</h3>
   </div>
-
     <div class="span8">
       <pre class="input-summary">
-{{query_info.formatted_input|linebreaksbr}}
+      {{query_info.formatted_input|linebreaksbr}}
       </pre>
+
+      {% if not hide_refine_button %}
       <button id='refine' class='btn btn-primary pull-right' data-id="{{query_info.query_id}}">
         Refine query
       </button>
+      {% endif %}
     </div>
 
 {% comment %}
@@ -39,7 +41,7 @@
 {% block page_specific_js %}
     <script>
     $('#refine').click(function(){
-        window.location.href = '{% url 'refine' query_info.query_id %}';
+        window.location.href = "{% url 'refine' query_info.query_id %}";
     });
     </script>
 {% endblock page_specific_js %}

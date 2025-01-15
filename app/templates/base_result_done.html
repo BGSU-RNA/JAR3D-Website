@@ -25,6 +25,21 @@
 {{ block.super }}
 {% endif %}
 
+{% if pdb_count >= 0 %}
+<div class="row">
+  <div class="span12">
+    {% if pdb_count > 0 %}
+    <p>There are {{ pdb_count }} chains in PDB that we map to Rfam family {{ rfam_family }}.
+      See them at <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current/all" target="_blank">RNA 3D Hub</a>
+      by filtering on {{ rfam_family }}.
+    </p>
+    {% else %}
+    <p>There are no chains in PDB that we map to Rfam family {{ rfam_family }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
 {% if results|length > 1 %}
 <div class="row">
   <div class="span12">
@@ -50,13 +65,14 @@
     </h3>
     Column Numbers: {{ indices }}
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
-{{seq}}<br/>
-{% endfor %}</pre>
+    {{seq}}<br/>
+    {% endfor %}</pre>
     {% if loop|length == 0 %}
     <strong>No Matches Found
-    <a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter0}}/" target="_blank">View All Results for this Loop</a></strong></div>
+    <a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter}}/" target="_blank">View All Results for this Loop</a></strong></div>
     {% else %}
-    <strong>Click on headings to reorder table</strong>{% if not compress %} - <strong><a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter0}}/" target="_blank">View All Results for this Loop</a></strong>{% endif %}
+    <strong>Click on headings to reorder table</strong>
+    {% if not compress %} - <strong><a href="/jar3d/result/{{query_info.query_id}}/{{forloop.counter}}/" target="_blank">View All Results for this Loop</a></strong>{% endif %}
     <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
@@ -66,7 +82,7 @@
           <th class='table-header' data-header-name='mean-score'>Mean Cutoff Score</th>
           <th class='table-header' data-header-name='full-edit'>Full Edit Distance</th>
           <th class='table-header' data-header-name='interior-edit'>Interior Edit Distance</th>
-          <th class='table-header' data-header-name='signature'>Basepair Diagram</th>
+          <th class='table-header' data-header-name='signature'>Basepair Diagram and most common annotation</th>
         </tr>
       </thead>
       <tbody>
@@ -100,7 +116,10 @@
               title="Loop {{ forloop.parentloop.counter }} - Hit {{ forloop.counter }} - Motif group {{ result.motif_id }}">
               <img class="ss-thumbnail" src="{{ result.ssurl }}"></img>
           </a>
-          </td>
+          <p>
+            {{ result.annotation }}
+          </p>
+        </td>
       </tr>
       {% endfor %}
       </tbody>
