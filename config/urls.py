@@ -4,7 +4,6 @@ from app import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-
 # ChatGPT suggests that \w{8} below may not match lowercase letters, and suggests:
 # re_path(r'^result/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/$', views.result, name='result'),
 # If that becomes a problem, then we will know what to do.
@@ -12,10 +11,15 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('process_input/', views.process_input, name='process_input'),
-    re_path(r'^result/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/(?P<loopid>\d)/(?P<motifgroup>[^\s/]+)/?', views.single_result, name='single_result'),
-    re_path(r'^result/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/(?P<loopid>\d)/?', views.all_result, name='all_result'),
+    re_path(r'^result/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/(?P<loopid>\d+)/(?P<motifgroup>[^\s/]+)/?', views.single_result, name='single_result'),
+    re_path(r'^result/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/(?P<loopid>\d+)/?', views.all_result, name='all_result'),
     re_path(r'^result/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/?', views.result, name='result'),
     re_path(r'^refine/(?P<uuid>[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/?', views.home, name='refine'),
+    re_path(r'^result/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/(?P<loopid>\d+)/(?P<motifgroup>[^\s/]+)/?', views.single_result, name='single_result'),
+    re_path(r'^result/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/(?P<loopid>\d+)/?', views.all_result, name='all_result'),
+    re_path(r'^result/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/?', views.result, name='result'),
+    re_path(r'^refine/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/?', views.home, name='refine'),
+    re_path(r'^rfam/(?P<motifgroup>[^\s/]+)/?', views.motif_hits, name='motif_hits'),
     path('', views.home, name='home'),
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
