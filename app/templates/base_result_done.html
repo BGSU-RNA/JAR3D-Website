@@ -25,16 +25,64 @@
 {{ block.super }}
 {% endif %}
 
-{% if pdb_count >= 0 %}
+{% if rfam_family %}
 <div class="row">
   <div class="span12">
-    {% if pdb_count > 0 %}
-    <p>There are {{ pdb_count }} chains in PDB that we map to Rfam family {{ rfam_family }}.
-      See them at <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current/all" target="_blank">RNA 3D Hub</a>
-      by filtering on {{ rfam_family }}.
-    </p>
+    {% if rfam_pdb_chains|length > 1 %}
+      <p>Rfam family
+        <a href="https://rfam.org/family/{{ rfam_family }}" target="_blank">{{ rfam_family }}</a>
+        maps to these {{ rfam_pdb_chains|length }} chains:
+        {% for pdb_chain in rfam_pdb_chains %}
+          <a href="https://rna.bgsu.edu/rna3dhub/pdb/{{ pdb_chain }}/motifs" target="_blank">{{ pdb_chain }}</a>{% if forloop.counter < rfam_pdb_chains|length %},{% endif %}
+        {% endfor %}
+        See more about them at <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current/all" target="_blank">RNA 3D Hub</a>
+        by filtering on the chain or the Rfam family.
+      </p>
+    {% elif rfam_pdb_chains|length == 1 %}
+      <p>Rfam family
+        <a href="https://rfam.org/family/{{ rfam_family }}" target="_blank">{{ rfam_family }}</a>
+        maps to one chain:
+        {% for pdb_chain in rfam_pdb_chains %}
+          <a href="https://rna.bgsu.edu/rna3dhub/pdb/{{ pdb_chain }}/motifs" target="_blank">{{ pdb_chain }}</a>{% if forloop.counter < rfam_pdb_chains|length %},{% endif %}
+        {% endfor %}
+        See more about it at <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current/all" target="_blank">RNA 3D Hub</a>
+        by filtering on the chain or the Rfam family.
+      </p>
     {% else %}
-    <p>There are no chains in PDB that we map to Rfam family {{ rfam_family }}</p>
+      <p>There are no chains in PDB that we map to Rfam family
+        <a href="https://rfam.org/family/{{ rfam_family }}" target="_blank">{{ rfam_family }}</a>.</p>
+    {% endif %}
+    {% if clan %}
+      {% if clan_pdb_chains|length > 0 %}
+        <p>Rfam family <a href="https://rfam.org/family/{{ rfam_family }}" target="_blank">{{ rfam_family }}</a>
+        is part of clan <a href="https://rfam.org/clan/{{ clan }}" target="_blank">{{ clan }}</a>, which includes Rfam families
+        {% for cf in clan_families %}
+          <a href="https://rfam.org/family/{{ cf }}" target="_blank">{{ cf }}</a>{% if forloop.counter < clan_families|length %},{% endif %}
+        {% endfor %}.
+        {% if clan_pdb_chains|length > 1 %}
+          <br>There are {{ clan_pdb_chains|length }} chains in PDB that we map to these Rfam families:
+          {% for pdb_chain in clan_pdb_chains %}
+            <a href="https://rna.bgsu.edu/rna3dhub/pdb/{{ pdb_chain }}/motifs" target="_blank">{{ pdb_chain }}</a>{% if forloop.counter < clan_pdb_chains|length %},{% endif %}
+          {% endfor %}.
+          See them at <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current/all" target="_blank">RNA 3D Hub</a>
+          by filtering on Rfam family, clan, or chain.
+        {% else %}
+          <br>There is {{ clan_pdb_chains|length }} chain in PDB that we map to these Rfam families:
+          {% for pdb_chain in clan_pdb_chains %}
+            <a href="https://rna.bgsu.edu/rna3dhub/pdb/{{ pdb_chain }}/motifs" target="_blank">{{ pdb_chain }}</a>{% if forloop.counter < clan_pdb_chains|length %},{% endif %}
+          {% endfor %}.
+          See it at <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current/all" target="_blank">RNA 3D Hub</a>
+          by filtering on Rfam family, clan, or chain.
+        {% endif %}
+      {% else %}
+        <p>Rfam family <a href="https://rfam.org/family/{{ rfam_family }}" target="_blank">{{ rfam_family }}</a>
+          is part of clan <a href="https://rfam.org/family/{{ clan }}" target="_blank">{{ clan }}</a>,
+          which includes Rfam families
+          {% for cf in clan_families %}
+            <a href="https://rfam.org/family/{{ cf }}" target="_blank">{{ cf }}</a>{% if forloop.counter < clan_families|length %},{% endif %}
+          {% endfor %}.
+          However, there are no chains in PDB that we map to the Rfam families in that clan.
+      {% endif %}
     {% endif %}
   </div>
 </div>
@@ -45,7 +93,7 @@
   <div class="span12">
     <h4>View results for:</h4>
     <ul class="margin-top-5px">
-    {% for loop,sequences,indices,mins in results %}
+    {% for loop,sequences,indices,mins,unit_ids in results %}
       <li><a href="#loop-{{forloop.counter}}">Loop {{ forloop.counter }}</a> Column numbers: {{ indices }}</li>
     {% endfor %}
     </ul>
@@ -53,8 +101,12 @@
 </div>
 {% endif %}
 
+{% if results|length == 0 %}
+  No loops found in this secondary structure.
+{% endif %}
+
 <div class="row">
-{% for loop,sequences,indices,mins in results %}
+{% for loop,sequences,indices,mins,unit_ids in results %}
     <div class="span8 loop-result-container">
     <h3 id="loop-{{ forloop.counter }}" class="loop-result-title">
     {% if not compress %}
@@ -64,6 +116,11 @@
     {% endif %}
     </h3>
     Column Numbers: {{ indices }}
+    {% if unit_ids|length > 0 %}
+      - <a href="https://rna.bgsu.edu/rna3dhub/display3D/multiple/{{unit_ids}}" target="_blank">View nucleotides in PDB file(s)</a>
+    {% elif rfam_pdb_chains|length > 0 %}
+      - This loop does not map to nucleotides in a 3D structure with xyz coordinates.
+    {% endif %}
     <pre class="pre-scrollable loop-summary">{% for seq in sequences %}
     {{seq}}<br/>
     {% endfor %}</pre>
@@ -129,6 +186,7 @@
 {% endfor %}
 </div>
 
+{% if results|length > 0 %}
 <div class="span4 visible-desktop" id="jmol">
     <h3><a id="jsmol-motif-name" href="" target="_blank" title="View in RNA 3D Motif Atlas"></a></h3>
     <script src="{% static 'jsmol/JSmol.min.js' %}"></script>
@@ -171,6 +229,7 @@
     </select>
   </div>
 </div>
+{% endif %}
 
 <div id="popup-text">
   <div class="help-text" hidden data-header-name="percent">
