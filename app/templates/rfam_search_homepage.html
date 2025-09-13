@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Rfam Motif Search with JAR3D{% endblock title %}
+
+{% block page_specific_css_class %}homepage{% endblock page_specific_css_class %}
+
+{% block page_header %}
+<a href="https://rna.bgsu.edu/jar3d/rfam/">Rfam search with JAR3D</a>
+{% endblock page_header %}
+
+{% block page_subtitle %}
+Search for RNA 3D Motifs in Rfam
+{% endblock page_subtitle %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="span4">
+            <textarea id='input' class="span4" rows='10' tabindex="1"
+            placeholder="Single or multiple RNA 3D Motif Atlas motif Group IDs">{{input|default:''}}</textarea>
+        </div>
+        <div class="span4">
+            <h4>Internal Loop Examples</h4>
+            <ul class="examples unstyled">
+                <li><a href='#' id="kinkturn">Kink turn internal loop</a></li>
+                <li><a href='#' id="sarcinricin">Sarcin-ricin internal loop</a></li>
+                <li><a href='#' id="doublesheared">Double sheared pair internal loop</a></li>
+                <li><a href='#' id="triplesheared">Triple sheared pair internal loop</a></li>
+                <li><a href='#' id="cloop">C-loop internal loop</a></li>
+                <li><a href='#' id="uaagan">UAA/GAN internal loop</a></li>
+                <li><a href='#' id="receptor11">Receptor of 11nt loop-receptor internal loop</a></li>
+                <li><a href='#' id="tandemnoncww">Tandem non-canonical cWW pair internal loop</a></li>
+                <li><a href='#' id="loope">Bacterial 5S loop E internal loop</a></li>
+            <ul>
+        </div>
+        <div class="span4">
+            <h4>Hairpin Loop Examples</h4>
+            <ul class="examples unstyled">
+                <li><a href='#' id="gnra">GNRA hairpin loop</a></li>
+                <li><a href='#' id="uncg">UNCG hairpin loop</a></li>
+                <li><a href='#' id="tloop">T-loop hairpin loop</a></li>
+                <li><a href='#' id="anticodon">tRNA anticodon hairpin loop</a></li>
+                <li><a href='#' id="dloop">tRNA D-loop hairpin loop</a></li>
+
+            <ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-horizontal">
+          <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
+          <button class="btn btn-default span1" id="clear">Clear</button>
+
+          <span class="span5">
+            Choose <a href="https://rna.bgsu.edu/rna3dhub/motifs">Motif Atlas</a> version (optional):
+            <select id="version" class="span2">
+              {% for option in options %}
+                <option value={{option}}>{{option}}{% if forloop.first %} (current){% endif %}</option>
+              {% endfor %}
+            </select>
+          </span>
+        </div>
+        <div id="message" class="span3 alert"></div>
+    </div>
+
+    <br><br>
+
+    <div class="row">
+        <div class="span4">
+            <h2>About JAR3D</h2>
+            <p>
+              JAR3D scores RNA hairpin and internal loop sequences against motif groups
+              from the <a href="{{BASE}}/rna3dhub/motifs">RNA 3D Motif Atlas</a>, by exact sequence match for sequences already observed in 3D and
+              by probabilistic scoring and edit distance for novel sequences.
+            </p>
+
+            <p>
+              RNA hairpin and internal loops are often represented on secondary structure diagrams as if they are unstructured,
+              but in fact most are structured by <a href="http://ndbserver.rutgers.edu/ndbmodule/services/BPCatalog/bpCatalog.html">non-Watson-Crick basepairs</a>, base stacking, and base-backbone interactions.
+              Analysis of 3D structures shows that
+              different RNA sequences can form the same RNA 3D motif, as is apparent
+              in many motif groups in the RNA 3D Motif Atlas.
+            </p>
+
+            <p>
+              JAR3D scores sequences to motif groups based on the ability of the sequences to form the same pattern of interactions observed in 3D structures of the motif.
+              As RNA 3D Motif Atlas incorporates new RNA 3D structures, the performance of JAR3D will improve over time.
+            </p>
+
+            <p>
+              Inferring the 3D structures of hairpin and internal loops is a step on the way toward
+              correctly predicting full RNA 3D structures starting from sequence.
+            </p>
+
+            <h2>More About JAR3D</h2>
+            <p>
+              At the <a href="https://rna.bgsu.edu/jar3d/">JAR3D Homepage</a> you can search for motif group matches in single sequencs, multiple sequence alignments, or Rfam seed alignments.
+            </p>
+            <p>
+              Learn more about JAR3D in the <a href="http://www.bgsu.edu/research/rna/help/tutorials.html">tutorial</a>.
+            </p>
+        </div>
+        <div class="span4">
+            <h2>Rfam Search Input</h2>
+            <p>
+              The JAR3D Rfam search accepts single or multiple <a href = "https://rna.bgsu.edu/rna3dhub/motifs">RNA 3D Motif Atlas</a> internal loop and hairpin loop motif group IDs from a supported RNA 3D Motif Atlas release.
+              Currently the supported RNA 3D Motif Atlas releases are 3.48 and 3.98 (coming soon).
+              The RNA 3D Motif Atlas may have multiple motif groups for related loop structures,
+              due to differences in geometry.
+              For example, in Motif Atlas release 3.48 there are 15 groups for kink turns.
+              To facilitate searching for all kink turns in Rfam families, multiple RNA 3D Motif Atlas
+              motif group IDs may be entered into the search at once.
+            </p>
+            <p>
+              The <strong>Examples</strong> section above will fill in RNA 3D Motif Atlas motif group
+              IDs for a number of common internal and hairpin loop structures.
+              You can also search the most recent supported release of the RNA 3D Motif Atlas for
+              <a href="https://rna.bgsu.edu/rna3dhub/motifs/release/hl/3.48">hairpin loops</a>,
+              <a href="https://rna.bgsu.edu/rna3dhub/motifs/release/il/3.48">internal loops</a>,
+              <a href="https://rna.bgsu.edu/rna3dhub/motifs/release/j3/3.48">3-way junctions</a>, or
+              <a href="https://rna.bgsu.edu/rna3dhub/motifs/release/j4/3.48">4-way junctions</a>
+            </p>
+
+            <h2>Rfam Search Output</h2>
+            <p>
+              The output shows the loops from <a href = "https://rfam.org/">Rfam</a> families that
+              have an acceptance rate of 80% or higher for the JAR3D group for the searched
+              RNA 3D Motif Atlas motif group ID.
+              Links are provided to full JAR3D search results, as well as to the motif group
+              the match was made to.
+              Also shown are JAR3D match statistics cutoff rate, mean cutoff score,
+              and median full and interior edit distance.
+              Finally, two counts for PDB chains matching the Rfam family are shown, one for
+              the number of matches when the RNA 3D Motif
+              Atlas release used for the search, and one for all chains currently in the PDB.
+            </p>
+        </div>
+        <div class="span4">
+            <h2>Rfam Search Method</h2>
+              <ol>
+                <li>
+                  <p>
+                    We retrieve all seed alignments from Rfam, with the exception of ribosomal families, as the alignments are too large.
+                  </p>
+                <li>
+                  <p>
+                    For select JAR3D releases, loops are extracted from the Rfam seed alignments and scored against JAR3D models, using the Rfam consensus secondary structure.
+                  </p>
+                </li>
+                <li>
+                  <p>
+                    When an RFAM-JAR3D search is initiated, we retrieve all loops from Rfam families for which at least 80% of the loops in the seed alignment are accepted by the JAR3D model.
+                  </p>
+                </li>
+              </ol>
+
+              <p>
+                For more information please see:
+                <blockquote>
+                  <a href="http://nar.oxfordjournals.org/content/43/15/7504.full">Identifying novel sequence variants of RNA 3D motifs</a>.
+                  Craig L. Zirbel, James Roll, Blake A. Sweeney, Anton I. Petrov, Meg Pirrung, and Neocles Leontis.
+                  <em>Nucl. Acids Res. (2015) doi: 10.1093/nar/gkv651</em>
+                  <a href="http://www.ncbi.nlm.nih.gov/pubmed/26130723">Pubmed</a>
+                </blockquote>
+                <p>
+                  <blockquote>
+                    <a href="https://academic.oup.com/nar/article/44/W1/W320/2499388" target="_blank">JAR3D Webserver: Scoring and aligning RNA loop sequences to known 3D motifs</a>.
+                    James Roll, Craig L. Zirbel, Blake A. Sweeney, Anton I. Petrov, and Neocles Leontis.
+                    <em>Nucl. Acids Res. (2016) doi: 10.1093/nar/gkw453</em>
+                  </blockquote>
+                <p>
+               A <a href="https://github.com/BGSU-RNA/JAR3D">standalone version of JAR3D</a> is also available.
+              </p>
+        </div>
+    </div>
+{% endblock page_content %}
+
+{% block page_specific_js %}
+    <script src="{% static 'js/rfamSearchValidator.js' %}"></script>
+    <script src="{% static 'js/rfamSearchHomepage.js' %}"></script>
+{% endblock page_specific_js %}
