@@ -19,7 +19,9 @@ urlpatterns = [
     re_path(r'^result/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/(?P<loopid>\d+)/?', views.all_result, name='all_result'),
     re_path(r'^result/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/?', views.result, name='result'),
     re_path(r'^refine/(?P<uuid>RF[0-9]{5}-[0-9]+\.[0-9]+)/?', views.home, name='refine'),
-    re_path(r'^rfam/(?P<motifgroup>[^\s/]+)/?', views.motif_hits, name='motif_hits'),
+    re_path(r'^rfam/(?P<version>\d+\.\d+)/(?P<motifgroup>[^\s/]+)/?', views.motif_hits, name='motif_hits'),
+    re_path(r'^rfam/(?P<version>\d+\.\d+)/?', views.rfam_search, name='rfam_search'),
+    re_path(r'^rfam/?', views.rfam_search, name='rfam_search'),
     path('', views.home, name='home'),
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
