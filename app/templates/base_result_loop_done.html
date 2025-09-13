@@ -41,7 +41,10 @@ Interior edit distance is the minimum Levenshtein edit distance from the sequenc
 The alignment distance columns show the differences from the named sequence to the sequence in each row, summing the edit distances in each column of the alignment.
 {% if rotation == 1 %}
 <br>
-The strands of your internal loop have been switched to match the strand ordering seen in {{motifid}}.  They are still in 5' to 3' order.
+The strands of the input loop sequences have been cycled left once to match the strand ordering seen in {{motifid}}.
+{% elif rotation > 1 %}
+<br>
+The strands of the input loop sequences have been cycled left {{rotation}} times to match the strand ordering seen in {{motifid}}.
 {% endif %}
     <table class='table table-condensed table-bordered'>
       <thead>
