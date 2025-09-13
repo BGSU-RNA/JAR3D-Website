@@ -1,11 +1,7 @@
-python==3.6
-mysql-connector-python==8.0.29
+Bio==1.7.1
+celery==5.1.2
+ConfigParser==7.1.0
 Django==3.2.25
--e git+git@github.com:BGSU-RNA/RNA-Structure-utils.git@cb8973c056f0b177e52652ed79bbd07f5ec07983#egg=RNAStructure-dev
-# not sure about the ones below
-argparse==1.4.0
-subprocess32==3.2.7
-virtualenv==1.11.6
-virtualenv-clone==0.2.5
-virtualenvwrapper==4.2
-wsgiref==0.1.2
+requests==2.20.0
+SQLAlchemy==1.4.52
+subprocess32==3.5.4
