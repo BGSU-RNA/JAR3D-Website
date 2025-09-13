@@ -57,6 +57,8 @@ var Examples = {
                                'GUCAGAGGUGAAAUUCUUGGAUU',
                                'GGUAGGAGUGAAAUCCUGUAAUC'].join('\n'),
 
+    isRfamFamily: 'RF03064',
+
 };
 
 (function() {
@@ -65,6 +67,7 @@ var Examples = {
         submit   = $('#submit'),
         message  = $('#message'),
         clear    = $('#clear'),
+        clean    = $('#clean'),
         examples = $('.examples');
 
     function init() {
@@ -73,6 +76,11 @@ var Examples = {
     };
 
     function bindEvents() {
+
+        clean.on('click', function() {
+            var cleaned = jar3dInputValidator.clean(input.val());
+            input.val(cleaned).focus();
+        })
 
         clear.on('click', function() {
             input.val('').focus();
