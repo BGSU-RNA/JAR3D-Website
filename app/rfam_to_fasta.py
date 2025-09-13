@@ -39,7 +39,9 @@ def download_rfam_alignment(rfam_id):
             # print(f"{dt} Downloaded Rfam alignment for {rfam_id} and saved to {stockholm_filename}")
             return stockholm_text
         else:
+            print(f"Unable to download alignment for {rfam_id}. Status code: {response.status_code}")
             return ""
+            return f"Unable to download alignment for {rfam_id}. Status code: {response.status_code}"
             raise Exception(f"Failed to download alignment for {rfam_id}. Status code: {response.status_code}")
 
 # def remove_pseudoknots(stockholm_alignment):
