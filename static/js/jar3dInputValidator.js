@@ -10,8 +10,9 @@ var jar3dInputValidator = (function($) {
     var Validator = {
 
         params: {
-            maxLoopLength: 25,
+            maxLoopLength: 35,
             maxSequenceLength: 1000,
+            maxSequences: 1000,
             closingPairs: ['AU', 'UA', 'GC', 'CG', 'GU', 'UG']
         },
 
@@ -49,7 +50,7 @@ var jar3dInputValidator = (function($) {
         },
 
         /*
-            <= 25 characters, internal or hairpin loops, case-insensitive,
+            <= 35 characters, internal or hairpin loops, case-insensitive,
             A, C, G, U, T, and "*"
             closing basepairs must be complementary
         */
@@ -61,7 +62,7 @@ var jar3dInputValidator = (function($) {
 
             return L <= self.params.maxLoopLength &&
                    L == validCharsNum &&
-                   chainBreaks < 2
+                   chainBreaks < 4
                    // && self.complementaryClosingBases( line )
         },
 
@@ -408,8 +409,45 @@ var jar3dInputValidator = (function($) {
             // if lines[0] starts with 'RF' and is followed by 5 digits,
             // then it's a Rfam ID
             const pattern = /^RF\d{5}$/;
-            return pattern.test(str);
+            return pattern.test(str.toUpperCase());
         },
+
+
+        countSequences: function( input ) {
+            // count the number of input sequences
+
+            var count = 0;
+            lines = input.split('\n');
+            for (i=0; i < lines.length; i++) {
+                if (!lines[i].startsWith('>')) {
+                    count = count + 1;
+                }
+            }
+            return count;
+        },
+
+        clean: function( input ) {
+            // replace characters found in SSCONS line with simpler ones
+
+            lines = input.split('\n');
+            for (i=0; i < lines.length; i++) {
+                if (!lines[i].startsWith('>')) {
+                    newtext = lines[i];
+                    newtext = newtext.replace(/\./g,"-");
+                    newtext = newtext.replace(/,/g,"-");
+                    newtext = newtext.replace(/_/g,"-");
+                    newtext = newtext.replace(/~/g,"-");
+                    newtext = newtext.replace(/:/g,"-");
+                    newtext = newtext.replace(/</g,"(");
+                    newtext = newtext.replace(/>/g,")");
+                    newtext = newtext.replace(/[ \t\d]/g, "");
+                    lines[i] = newtext;
+                }
+            }
+            modified = lines.join('\n');
+            return modified
+        },
+
 
         /*
             ========================
@@ -419,8 +457,11 @@ var jar3dInputValidator = (function($) {
         validate: function( input ) {
             var self = jar3dInputValidator,
                 lines = self.splitLines(input),
-                l = lines.length,
-                title = $('#title-input').text();
+                l = lines.length
+                // title = $('#title-input').text();
+
+            lines = lines.map(line => line.trim());
+            input = lines.join('\n');
 
             var response = {
                 valid: false,
@@ -431,7 +472,13 @@ var jar3dInputValidator = (function($) {
                 parsed_input: lines.join('\n'),
             };
 
-            if ( l == 0 ) { return response; }
+            if ( l == 0 ) { response.length = 0; return response; }
+
+            num_sequences = self.countSequences( input );
+            if ( num_sequences > self.params.maxSequences) {
+                response.msg = 'Found ' + num_sequences + ' sequences, but the limit is ' + self.params.maxSequences;
+                return response;
+            }
 
             if ( self.isSecondaryStructure( lines[0] ) ) {
                 response.ss = lines.shift();
@@ -470,14 +517,15 @@ var jar3dInputValidator = (function($) {
                     } else if ( self.isNoFastaMultipleSequencesNoSS( input ) ) {
                         response.msg = 'Please provide secondary structure information';
                     } else if ( self.isRfamFamily( input ) ) {
-                        const LSU = ['RF02543','RF02540','RF02541','RF02546'];
+                        input_upper = input.toUpperCase();
+                        const LSU = ['RF00001','RF00002','RF02543','RF02540','RF02541','RF02546'];
                         const SSU = ['RF01960','RF01959','RF00177','RF02545','RF02542'];
                         const tRNA = ['RF00005'];
-                        if (LSU.includes(input)) {
+                        if (LSU.includes(input_upper)) {
                             response.msg = 'Rfam Ribosomal LSU families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + input;
-                        } else if (SSU.includes(input)) {
+                        } else if (SSU.includes(input_upper)) {
                             response.msg = 'Rfam Ribosomal SSU families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + input;
-                        } else if (tRNA.includes(input)) {
+                        } else if (tRNA.includes(input_upper)) {
                             response.msg = 'Rfam tRNA families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + input;
                         } else {
                             response.query_type = 'isRfamFamily';
