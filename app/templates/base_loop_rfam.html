@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}Rfam Motif Search with JAR3D{% endblock %}
+
 {% block page_specific_css_class %}results-done{% endblock page_specific_css_class %}
 
 {% block custom_css %}
@@ -8,32 +10,46 @@
   <link rel="stylesheet" href="{% static 'css/tipsy.css' %}" type="text/css"/>
 {% endblock custom_css %}
 
+{% block page_header %}
+<a href="https://rna.bgsu.edu/jar3d/rfam/">Rfam search with JAR3D</a>
+{% endblock page_header %}
+
 {% block page_subtitle %}
   {{ block.super }}
-  RFAM families with loops matching {{ motif_ids|join:" or " }}
+  Rfam families with loops matching {{ motif_ids|join:" or " }}
+  <br>
+  from JAR3D release {{ version }}
   <br>
 {% endblock page_subtitle %}
 
 {% block page_content %}
+{% if results %}
  <table class="table table-striped table-condensed table-bordered">
       <thead>
         <tr>
-          <th class='table-header' data-header-name='query'>RFAM Family-<br>JAR3D Version</th>
-          <th class='table-header' data-header-name='loop'>Loop ID</th>
+          <th class='table-header' data-header-name='query'>Rfam<br>Accession</th>
+          <th class='table-header' data-header-name='rfam_name'>Rfam Name</th>
+          <th class='table-header' data-header-name='loop'>Loop Number,<br>Links to Results</th>
           <th class='table-header' data-header-name='motif'>Motif Group</th>
-          <th class='table-header' data-header-name='annotation'>Annotation</th>
+          <th class='table-header' data-header-name='annotation'>Motif Group<br>Annotation</th>
           <th class='table-header' data-header-name='percent'>Acceptance<br>Rate</th>
           <th class='table-header' data-header-name='score'>Mean Cutoff<br>Score</th>
           <th class='table-header' data-header-name='fulldist'>Full Edit<br>Distance</th>
           <th class='table-header' data-header-name='intdist'>Interior Edit<br>Distance</th>
+          <th class='table-header' data-header-name='clan'>Rfam clan,<br>if any</th>
+          <th class='table-header' data-header-name='pdbcountthen'>PDB count<br>motif atlas<br>release {{ version }}</th>
+          <th class='table-header' data-header-name='pdbcountcurrent'>PDB count<br>today</th>
         </tr>
       </thead>
       <tbody>
       {% for row in results %}
       <tr>
         <td class="hover-link">
-            <strong><a href="https://rna.bgsu.edu/jar3d/result/{{ row.query_id }}" target="_blank">{{ row.query_id }}</a></strong>
+            <strong><a href="https://rfam.org/family/{{ row.rfam_family }}" target="_blank">{{ row.rfam_family }}</a></strong>
         </td>
+        <td>
+          {{ row.rfam_name }}
+         </td>
         <td class="hover-link">
             <strong><a href="https://rna.bgsu.edu/jar3d/result/{{ row.query_id }}#loop-{{ row.loop_id }}" target="_blank">{{ row.loop_id }}</a></strong>
         </td>
@@ -55,12 +71,71 @@
           <td>
           {{ row.medianinterioreditdist|floatformat:2 }}
          </td>
-
+         <td class="hover-link">
+          <strong><a href="https://rfam.org/clan/{{ row.clan }}" target="_blank">{{ row.clan }}</a></strong>
+         </td>
+         <td>
+          {{ row.pdbcountthen }}
+         </td>
+         <td>
+          {{ row.pdbcountcurrent }}
+         </td>
       </tr>
       {% endfor %}
       </tbody>
     </table>
 
+    <div id="popup-text">
+      <div class="help-text" hidden data-header-name="query">
+      Rfam family that a match was found in, links to the family page on Rfam.
+      </div>
+
+      <div class="help-text" hidden data-header-name="rfam_name">
+      Text name for the Rfam family.
+      </div>
+
+      <div class="help-text" hidden data-header-name="loop">
+      The loop in the Rfam family that a match was found for, links to a JAR3D search for that Rfam family's seed alignment at that loop.
+      </div>
+
+      <div class="help-text" hidden data-header-name="motif">
+      The motif group that was found in the Rfam family, links to the RNA 3D Motif Atlas page for that motif group.
+      </div>
+
+      <div class="help-text" hidden data-header-name="annotation">
+      The common annotation for the motif group, if one is available.
+      </div>
+
+      <div class="help-text" hidden data-header-name="percent">
+      Percentage of input sequences which meet the criteria to match the motif.  80% or above is good.
+      </div>
+
+      <div class="help-text" hidden data-header-name="score">
+      The mean cutoff score indicates how well the sequences match the motif group.  100 is the best, 0 is right on the cutoff line, negative is outside of the cutoff region.
+      </div>
+
+      <div class="help-text" hidden data-header-name="fulldist">
+      The median of the minimum edit distance between each input sequence and sequences of each motif from 3D structures.
+      </div>
+
+      <div class="help-text" hidden data-header-name="intdist">
+      The median of the minimum edit distance between each input sequence and sequences of each motif from 3D structures, aside from the flanking basepairs.
+      </div>
+
+      <div class="help-text" hidden data-header-name="clan">
+      Rfam clan that the Rfam family belongs to, if any.  Links to the clan's page on Rfam.
+      </div>
+
+      <div class="help-text" hidden data-header-name="pdbcountthen">
+      Number of PDB chains matching the Rfam clan (or Rfam family, for families without a clan) and part of the specified Motif Atlas release.
+      </div>
+
+      <div class="help-text" hidden data-header-name="pdbcountcurrent">
+      Number of PDB chains matching the Rfam clan (or Rfam family, for families without a clan) today.
+      </div>
+{% else %}
+No loops matching {{ motif_ids|join:" or " }} were found in Rfam families, aside from ribosomal families, which are not included in this search.
+{% endif %}
 {% endblock page_content %}
 
 {% block page_specific_js %}
