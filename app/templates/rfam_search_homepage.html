@@ -49,16 +49,23 @@ Search for RNA 3D Motifs in Rfam
           <button class="btn btn-large btn-primary span2" id="submit" tabindex="2">Submit</button>
           <button class="btn btn-default span1" id="clear">Clear</button>
 
-          <span class="span5">
-            Choose <a href="https://rna.bgsu.edu/rna3dhub/motifs">Motif Atlas</a> version (optional):
+          <span class="span3">
+            <a href="https://rna.bgsu.edu/rna3dhub/motifs">Motif Atlas</a> version:
             <select id="version" class="span2">
               {% for option in options %}
                 <option value={{option}}>{{option}}{% if forloop.first %} (current){% endif %}</option>
               {% endfor %}
             </select>
           </span>
+          <span class="span3">
+            Secondary structure:
+            <select id="secondary" class="span2">
+                <option value="Rfam">Rfam (default)</option>
+                <option value="CaCoFold">CaCoFold</option>
+            </select>
+          </span>
         </div>
-        <div id="message" class="span3 alert"></div>
+        <div id="message" class="span2 alert"></div>
     </div>
 
     <br><br>
