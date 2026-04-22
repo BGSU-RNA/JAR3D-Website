@@ -29,7 +29,8 @@ Scoring RNA loop sequences against known 3D motifs
                 <li><a href='#' id="isFastaSingleSequenceSS">Single sequence, many loops, with secondary structure (fasta)</a></li>
                 <li><a href='#' id="isNoFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure</a></li>
                 <li><a href='#' id="isFastaMultipleSequencesSS">Multiple sequences, many loops, with secondary structure (fasta)</a></li>
-                <li><a href='#' id="isRfamFamily">Rfam family</a></li>
+                <li><a href='#' id="isRfamFamily">Rfam family, using Rfam secondary structure</a></li>
+                <li><a href='#' id="isRfamFamilyCCF">Rfam family, using CaCoFold secondary structure</a></li>
             <ul>
         </div>
     </div>
@@ -113,6 +114,7 @@ Scoring RNA loop sequences against known 3D motifs
             <p>
             <b>Rfam:</b>
             You can input an Rfam identifier to see motif matches for all loops in the Rfam secondary structure.
+            To use the CaCoFold predicted secondary structure, append -CCF to the Rfam family identifier.
           </p>
             <p>
               Several online services can predict RNA secondary structure and provide output that can be used as input to JAR3D, for example:
