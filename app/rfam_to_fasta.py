@@ -9,20 +9,28 @@ import requests
 import os
 import sys
 
-def download_rfam_alignment(rfam_id):
+def download_rfam_alignment(rfam_id,stockholm_filename=""):
     """
     Download a Stockholm alignment from Rfam given an Rfam ID.
     Returns the filename of the downloaded file.
     """
-    stockholm_filename = f"{rfam_id}.sto"
+
+    if not stockholm_filename:
+        stockholm_filename = f"{rfam_id}.sto"
 
     print("%s Looking for %s" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),stockholm_filename))
 
     if os.path.exists(stockholm_filename):
-        with open(stockholm_filename, "r") as file:
-            stockholm_text = file.read()
-        return stockholm_text
-    else:
+        try:
+            with open(stockholm_filename, "r", encoding="utf-8") as file:
+                stockholm_text = file.read()
+            return stockholm_text
+        except:
+            with open(stockholm_filename, "r", encoding="latin-1") as file:
+                stockholm_text = file.read()
+            return stockholm_text
+
+    elif not "cacofold" in stockholm_filename:
         url = f"https://rfam.org/family/{rfam_id}/alignment/stockholm"
 
         print("%s Trying to open %s" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),url))
@@ -43,6 +51,9 @@ def download_rfam_alignment(rfam_id):
             return ""
             return f"Unable to download alignment for {rfam_id}. Status code: {response.status_code}"
             raise Exception(f"Failed to download alignment for {rfam_id}. Status code: {response.status_code}")
+    else:
+        print(f"Unable to read alignment file {stockholm_filename} for {rfam_id}.")
+        return ""
 
 # def remove_pseudoknots(stockholm_alignment):
 #     """
@@ -136,12 +147,17 @@ def convert_to_fasta(stockholm_text, rfam_id):
 
     return fasta_text, title
 
-def process_rfam_alignment(rfam_id):
+def process_rfam_alignment(rfam_id,secondary=""):
     """
     Main function to download the alignment, process it, save it as FASTA, and delete the Stockholm file.
     """
     print("%s Downloading Stockholm file" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    stockholm_text = download_rfam_alignment(rfam_id)
+
+    if secondary == "CCF":
+        stockholm_file = os.path.join("/usr/local/pipeline/alignments/alignments",rfam_id+"_cacofold.sto")
+        stockholm_text = download_rfam_alignment(rfam_id,stockholm_file)
+    else:
+        stockholm_text = download_rfam_alignment(rfam_id)
 
     if not stockholm_text:
         return "", ""
@@ -149,20 +165,8 @@ def process_rfam_alignment(rfam_id):
     print("%s Converting to fasta" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     fasta_text, title = convert_to_fasta(stockholm_text, rfam_id)
 
-    # Remove the Stockholm file after conversion
-    # os.remove(stockholm_filename)
-    # print(f"Deleted temporary Stockholm file: {stockholm_filename}")
-
     if not fasta_text:
         return "", ""
-
-    # with open(fasta_filename, "r") as file:
-    #     fasta_data = file.read()
-
-    # Remove the fasta file now that we read it
-    # os.remove(fasta_filename)
-
-    # print(f"Process complete. FASTA alignment saved as {fasta_filename}")
 
     return fasta_text, title
 
@@ -171,14 +175,18 @@ if __name__ == "__main__":
     # Parse command line arguments
     argv = sys.argv
 
-    if len(argv) != 2:
+    if len(argv) < 2:
         rfam_id = "RF00005"  # Example Rfam ID for 5S ribosomal RNA
     else:
         rfam_id = argv[1]
+        if len(argv) > 2:
+            secondary = argv[2]
+        else:
+            secondary = ""
 
     # print timestamp and message
     print("%s Processing Rfam alignment for %s" % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), rfam_id))
-    fasta_data,title = process_rfam_alignment(rfam_id)
+    fasta_data,title = process_rfam_alignment(rfam_id,secondary)
     print(" ")
     print(fasta_data[0:1000])
     print(title)
