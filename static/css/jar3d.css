@@ -157,3 +157,25 @@ table .headerSortUp:after {
 .loop-result-title {
   padding-top: 40px;
 }
+
+.gridlist {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.gridlist li {
+  display: grid;
+  grid-template-columns: 15px 60px 20px 450px;  /* column widths */
+  align-items: baseline;               /* align text nicely */
+  column-gap: 2px;                    /* space between columns */
+  padding: 0px 0;
+}
+
+.gridlist li::before {
+  content: "•";           /* bullet character */
+  color: black;
+  text-align: right;
+  padding-right: 5px;
+  font-size: 1.3em;  /* increase bullet size relative to text */
+  line-height: 1;    /* keeps it centered vertically */
+}
