@@ -19,6 +19,11 @@
   Rfam families with loops matching {{ motif_ids|join:" or " }}
   <br>
   from JAR3D release {{ version }}
+  {% if secondary %}
+  using CaCoFold secondary structures. <a href="https://rna.bgsu.edu/jar3d/rfam/{{ version }}/{{ motif_ids|join:','}}">Search with Rfam secondary structures.</a>
+  {% else %}
+  using Rfam secondary structures. <a href="https://rna.bgsu.edu/jar3d/rfam/CCF-{{ version }}/{{ motif_ids|join:','}}">Search with CaCoFold secondary structures.</a>
+  {% endif %}
   <br>
 {% endblock page_subtitle %}
 
