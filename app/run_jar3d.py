@@ -47,11 +47,11 @@ def score(parameters):
     # suppress output so it does not appear in syslog
     command = f'/usr/bin/java -Xmx500m -jar {jar} {IL} {HL} {query_id} {user} {password} {database} > /dev/null 2>&1'
 
-    logger.debug('run_jar3d: score command: %s', command)
+    print('run_jar3d: score command: %s' % command)
 
     exit_status = os.system(command)
 
-    logger.debug('Ran os.system(command) and got exit_status: %s' % exit_status)
+    logger.debug('Ran %s and got exit_status: %s' % (command,exit_status))
 
     return exit_status
 
