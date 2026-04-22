@@ -7,6 +7,7 @@ from django.db.models import Q
 # from django.http import JsonResponse
 # from django.template import RequestContext
 
+from collections import defaultdict
 import html
 import json
 import logging
@@ -90,16 +91,193 @@ def rfam_search(request, version='3.98'):
     return render(request,'rfam_search_homepage.html',{'input': '', 'options': versions, 'version': version})
 
 
+def rfam_loop_stats(request, version='3.98', looptype='IL'):
+    """
+    Collect statistics about the specified loop type across Rfam
+    https://rna.bgsu.edu/jar3d/rfam/3.98/J4
+    https://rna.bgsu.edu/jar3d/rfam/CCF-3.98/J4
+    """
+
+    IL_length_cutoff = 6
+
+    if not version.split('-')[-1] in ['3.48','3.98']:
+        return HttpResponse("Version %s not recognized" % version, content_type="text/plain")
+
+    # if the output file is already written, simply use that
+    filename = "/var/www/jar3d/app/rfam_loop_stats_%s_%s.txt" % (version,looptype)
+    if os.path.exists(filename):
+        with open(filename,'rt') as f:
+            lines = f.readlines()
+
+        # once we have the results correct, simply read them and display; faster
+        # return HttpResponse(lines, content_type="text/plain")
+
+    # find PDB files that are mapped to Rfam
+    with open('/usr/local/pipeline/hub-core/aux/manual_consensus_names.tsv','rt') as f:
+        lines = f.readlines()
+    rfam_with_pdb = set()
+    for line in lines:
+        data = line.strip().split('\t')
+        if len(data) < 2:
+            continue  # Skip lines that do not have enough data
+        rfam_id = data[0]
+        rfam_with_pdb.add(rfam_id)
+
+    # get IL sequence lengths to identify those that are too short to work with
+    # select query_id,seq_id,loop_id,loop_sequence,status from jar3d_query_sequences where query_id like 'RF%-3.98' and loop_type = 'IL'  and status = 0 order by query_id, loop_id  into outfile '/var/lib/mysql/jar3d_query_sequences.txt';
+    if looptype == "IL":
+        seq_results = ( Query_sequences.objects.filter(
+            loop_type='IL',
+            status=0,
+            query_id__regex=r'^RF[0-9]{5}-' + re.escape(version) + '$',
+        )
+        .values('query_id','loop_id','loop_sequence','status')
+        )
+
+        query_loop_sequence_length = {}
+        for data_dict in seq_results:
+            query_id = data_dict["query_id"]
+            if not query_id in query_loop_sequence_length:
+                query_loop_sequence_length[query_id] = {}
+            loop_id = data_dict["loop_id"]
+            if not loop_id in query_loop_sequence_length[query_id]:
+                query_loop_sequence_length[query_id][loop_id] = []
+            sequence = data_dict["loop_sequence"]
+            sequence_length = len(sequence.replace("-","").replace("*",""))
+            query_loop_sequence_length[query_id][loop_id].append(sequence_length)
+
+    # get Rfam loop matches with mean cutoff score >= 0 in this version, this looptype
+    results = (
+        Results_by_loop.objects.filter(
+            # mean_cutoff_score__gt=0,
+            query_id__regex=r'^RF[0-9]{5}-' + re.escape(version) + '$',
+            motif_id__regex=r'^' + re.escape(looptype) + r'_[0-9]{5}\.[0-9]+$'
+        )
+        .values('query_id','cutoff_percent','mean_cutoff_score','loop_id','motif_id')
+    )
+
+    # sort raw data for simple output, group by motif, then decreasing mean cutoff score
+    results_no_pdb = []
+    for data_dict in results:
+        query_id = data_dict['query_id']
+        rfam_id = query_id.split("-")[0]
+        if rfam_id in rfam_with_pdb:
+            continue
+        for h in ['cutoff_percent','mean_cutoff_score']:
+            data_dict[h] = float(data_dict[h])
+        results_no_pdb.append(data_dict)
+
+    sorted_results = sorted(results_no_pdb, key = lambda x : (x["motif_id"],-x["mean_cutoff_score"]))
+
+    # accumulate data for tables, plus raw output
+    query_to_loop_to_best_data = defaultdict(dict)
+    type_to_query_to_loop = {}
+    query_loop_motif_seen = set()
+    raw_output = []
+    raw_output.append("motif_group\trfam_and_version\tloop_number\tacceptance_rate\tmean_cutoff_score")
+    for data_dict in sorted_results:
+        query_id = data_dict['query_id']
+        if not query_id in query_to_loop_to_best_data:
+            query_to_loop_to_best_data[query_id] = defaultdict(dict)
+
+        loop_id = data_dict['loop_id']
+        motif_id = data_dict['motif_id']
+        cutoff_percent = data_dict['cutoff_percent']
+        mean_cutoff_score = data_dict['mean_cutoff_score']
+
+        query_loop_motif = (query_id, loop_id, data_dict['motif_id'])
+        if query_loop_motif in query_loop_motif_seen:
+            output.append("Duplicate query_loop_id found: %s" % str(query_loop_motif))
+        query_loop_motif_seen.add(query_loop_motif)
+
+        if not loop_id in query_to_loop_to_best_data[query_id]:
+            query_to_loop_to_best_data[query_id][loop_id] = []
+
+        query_to_loop_to_best_data[query_id][loop_id].append(data_dict)
+
+        if mean_cutoff_score >= 0:
+            raw_output.append('%s\t%s\t%s\t%0.3f\t%0.3f' % (motif_id,query_id,loop_id,cutoff_percent,mean_cutoff_score))
+
+    loop_type = looptype
+
+    counter = {}
+    motif_cutoff_to_count_over_cutoff = {}
+    for cutoff in [80, 60, 40, 20, 0]:
+        loop_count = 0
+        cutoff_count = 0
+        accept_count = 0
+        both_count = 0
+        for query_id in query_to_loop_to_best_data:
+            rfam_id = query_id.split("-")[0]
+            if rfam_id in rfam_with_pdb:
+                # omit Rfam families that have a PDB structure associated
+                continue
+            for loop_id in query_to_loop_to_best_data[query_id]:
+                data = query_to_loop_to_best_data[query_id][loop_id]
+                if loop_type == "IL":
+                    if not query_id in query_loop_sequence_length:
+                        continue
+                    if not loop_id in query_loop_sequence_length[query_id]:
+                        continue
+                    average_length = sum(query_loop_sequence_length[query_id][loop_id]) / len(query_loop_sequence_length[query_id][loop_id])
+                    if average_length < IL_length_cutoff:
+                        continue
+                if loop_type in data[0]['motif_id']:
+                    loop_count += 1
+                    for data in query_to_loop_to_best_data[query_id][loop_id]:
+                        if data['mean_cutoff_score'] >= cutoff:
+                            cutoff_count += 1
+                            break
+
+                    for data in query_to_loop_to_best_data[query_id][loop_id]:
+                        if data['mean_cutoff_score'] >= cutoff:
+                            if not data['motif_id'] in motif_cutoff_to_count_over_cutoff:
+                                motif_cutoff_to_count_over_cutoff[data['motif_id']] = defaultdict(int)
+                            motif_cutoff_to_count_over_cutoff[data['motif_id']][cutoff] += 1
+
+        counter['all'] = loop_count
+        counter[cutoff] = cutoff_count
+
+    count_all = []
+    count_all.append("Generated 2025-11-06")
+    count_all.append("")
+    count_all.append("loop_type\ttotal\tmean_cutoff_gte_0\tmean_cutoff_gte_20\tmean_cutoff_gte_40\tmean_cutoff_gte_60\tmean_cutoff_gte_80")
+    count_all.append("%s\t%d\t%d\t%d\t%d\t%d\t%d" % (loop_type,counter['all'],counter[0],counter[20],counter[40],counter[60],counter[80]))
+    count_all.append("")
+
+    count_by_group = []
+    count_by_group.append("motif_id\tmean_cutoff_gte_0\tmean_cutoff_gte_20\tmean_cutoff_gte_40\tmean_cutoff_gte_60\tmean_cutoff_gte_80")
+    for motif_id, cutoff_to_count_over_cutoff in sorted(motif_cutoff_to_count_over_cutoff.items(), key = lambda x : (-x[1][80],-x[1][60],-x[1][40],-x[1][20],-x[1][0],x[0])):
+        data_line = "%s\t" % motif_id
+        for cutoff in [0,20,40,60,80]:
+            data_line += "\t%d" % (cutoff_to_count_over_cutoff[cutoff])
+        count_by_group.append(data_line)
+    count_by_group.append("")
+
+    output = count_all + count_by_group + raw_output
+
+    lines = "\n".join(output)
+    with open(filename,'wt') as f:
+        f.write(lines)
+
+    return HttpResponse(lines, content_type="text/plain")
+
+
 def result(request, uuid):
     """
+    URL input, or redirected to a URL
     Display the result of one query of one or more loops, with one or more sequences
     The uuid is the query_id and the results must be retrieved from the database.
     """
 
-    # recognize and bounce LSU, SSU, tRNA Rfam families
-    if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', uuid):
+    # recognize and bounce LSU, SSU, tRNA Rfam families, or process all Rfam families
+    if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', uuid) or re.match(r'^RF[0-9]{5}-CCF-[0-9]+\.[0-9]+$', uuid):
         rfam_result = True
         rfam_family = uuid.split('-')[0]
+        if "-CCF-" in uuid:
+            secondary = "CCF"
+        else:
+            secondary = ""
         value = ""
         if rfam_family in LSU:
             value = 'Rfam ribosomal LSU families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + rfam_family
@@ -114,10 +292,16 @@ def result(request, uuid):
             # special instruction to run all Rfam families against JAR3D,
             # starting at 4000 if we pass in RF94000.
             start = int(rfam_family[3:])
-            for n in range(start,4311):
+            for n in range(start,4500):   # change upper limit for next Rfam release
                 rf = 'RF%05d' % n
                 if not rf in LSU + SSU + tRNA:
-                    u = rf + '-' + uuid.split('-')[1]
+                    if "-CCF-" in uuid:
+                        # use CaCoFold alignment and secondary structure on the given version
+                        u = rf + '-CCF-' + uuid.split('-')[2]
+                    else:
+                        # use Rfam alignment and secondary structure
+                        u = rf + '-' + uuid.split('-')[1]
+
                     q = Query_info.objects.filter(query_id=u)
                     if not q:
                         # process the request like a brand new one
@@ -127,6 +311,7 @@ def result(request, uuid):
     else:
         rfam_result = False
         rfam_family = ""
+        secondary = ""
 
     # get basic information about the query from the uuid
     q = Query_info.objects.filter(query_id=uuid)
@@ -165,7 +350,7 @@ def result(request, uuid):
     version = q.group_set[2:q.group_set.index('/')]
 
     results = ResultsMaker(query_id=uuid)
-    results.get_loop_results(version, rfam_family)
+    results.get_loop_results(version, rfam_family, secondary)
     results.get_input_stats()
 
     """
@@ -212,7 +397,9 @@ def result(request, uuid):
                                    'clan': clan,
                                    'clan_families': clan_families,
                                    'clan_pdb_chains' : clan_pdb_chains,
-                                   'hide_refine_button': rfam_result})
+                                   'hide_refine_button': rfam_result,
+                                   'secondary':secondary,
+                                   'version':version})
     elif q.status == 0 or q.status == 2:
         logger.debug("views.py: database status 0 or 2, about to run make_input_alignment")
         q.formatted_input = make_input_alignment(q.parsed_input, q.query_type)
@@ -229,9 +416,13 @@ def all_result(request, uuid, loopid):
     """
 
     # recognize and bounce LSU, SSU, tRNA Rfam families
-    if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', uuid):
+    if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', uuid) or re.match(r'^RF[0-9]{5}-CCF-[0-9]+\.[0-9]+$', uuid):
         rfam_result = True
         rfam_family = uuid.split('-')[0]
+        if "-CCF-" in uuid:
+            secondary = "CCF"
+        else:
+            secondary = ""
         value = ""
         if rfam_family in LSU:
             value = 'Rfam ribosomal LSU families are not supported, see 3D structures by visiting the <a href="https://rna.bgsu.edu/rna3dhub/nrlist/release/rna/current" target= "_blank">Representative Sets</a> page and filtering on ' + rfam_family
@@ -244,6 +435,7 @@ def all_result(request, uuid, loopid):
     else:
         rfam_result = False
         rfam_family = ""
+        secondary = ""
 
     q = Query_info.objects.filter(query_id=uuid)
     if q:
@@ -254,7 +446,7 @@ def all_result(request, uuid, loopid):
     version = q.group_set[2:q.group_set.index('/')]
 
     results = ResultsMaker(query_id=uuid, loop=loopid, num=9999)
-    results.get_loop_results(version, rfam_family)
+    results.get_loop_results(version, rfam_family, secondary)
     results.get_input_stats()
 
     """
@@ -307,21 +499,30 @@ def all_result(request, uuid, loopid):
 
 def motif_hits(request, version, motifgroup):
     """
-    Query the database to find all Rfam families with a good hit for one motif group
+    Query the database to find all Rfam families with a good hit for one or more motif groups
     Make sure the uuid, which is Rfam family plus version, matches the given version
+    version can be "3.98" or "CCF-3.98" depending on what secondary structure the user wants
     """
 
     # here is the mysql query for how to get the list of hits:
     # SELECT query_id, loop_id, motif_id, cutoff_percent FROM jar3d_results_by_loop WHERE cutoff_percent > 80 AND query_id LIKE 'RF%-%.%' AND motif_id in ('IL_04346.4','IL_35110.4');
+    # SELECT query_id, loop_id, motif_id, cutoff_percent FROM jar3d_results_by_loop WHERE cutoff_percent > 80 AND query_id LIKE 'RF%-CCF-%.%' AND motif_id in ('IL_26307.2');
+
+    fields = version.split("-")
+    full_version = version
+    if len(fields) == 2:
+        secondary = fields[0]
+        version = fields[1]
+    else:
+        secondary = ""
 
     motif_groups = motifgroup.split(",")
+
     results = (
         Results_by_loop.objects.filter(
             Q(mean_cutoff_score__gt=0) | Q(cutoff_percent__gte=80),
-            # mean_cutoff_score__gt=0,  # mean cutoff score > 0
-            # cutoff_percent__gt=cutoff_percent,  # cutoff_percent > 80
             # query_id__regex=r'^RF[0-9]+-[0-9]+\.[0-9]+$',  # query_id LIKE 'RF%-%.%'
-            query_id__regex=r'^RF[0-9]{5}-' + re.escape(version) + '$',  # query_id LIKE 'RF%-3.48' when version is 3.48
+            query_id__regex=r'^RF[0-9]{5}-' + re.escape(full_version) + '$',  # query_id LIKE 'RF%-3.48' when version is 3.48
             # motif_id__in=['IL_04346.4', 'IL_35110.4']  # motif_id IN (...)
             motif_id__in=motif_groups  # motif_id IN (...)
         )
@@ -331,10 +532,10 @@ def motif_hits(request, version, motifgroup):
     # Sort by query_id, then loop_id, then motif_id
     results = sorted(results, key=lambda x: (x['query_id'], x['loop_id'], x['motif_id']))
 
-    # get names of queries so we can extract the Rfam text name for each family
+    # get query titles so we can extract the Rfam text name for each family
     queries = (
         Query_info.objects.filter(
-            query_id__regex=r'^RF[0-9]+-' + version + '+$',  # query_id LIKE 'RF%-3.48' when version is 3.48
+            query_id__regex=r'^RF[0-9]+-' + full_version + '+$',  # query_id LIKE 'RF%-3.48' when version is 3.48
         )
         .values('query_id', 'title')  # SELECT specific fields
     )
@@ -383,7 +584,7 @@ def motif_hits(request, version, motifgroup):
     # return HttpResponse(response_text, content_type="text/plain")
 
     return render(request,'base_loop_rfam.html',
-                        {'motif_ids': motif_groups, 'results': results, 'version': version})
+                        {'motif_ids': motif_groups, 'results': results, 'version': version, 'secondary': secondary})
 
 
 def single_result(request, uuid, loopid, motifgroup):
@@ -393,7 +594,7 @@ def single_result(request, uuid, loopid, motifgroup):
 
     # recognize and bounce LSU, SSU, tRNA Rfam families
     # check pattern that looks like RF12345-3.48
-    if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', uuid):
+    if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', uuid) or re.match(r'^RF[0-9]{5}-CCF-[0-9]+\.[0-9]+$', uuid):
         rfam_family = uuid.split('-')[0]
         value = ""
         if rfam_family in LSU:
@@ -405,10 +606,6 @@ def single_result(request, uuid, loopid, motifgroup):
         if value:
             return HttpResponse(value)
 
-    # I'm not happy about this, but it seems to help
-    java_loopid = str(int(loopid) - 1)
-
-    # should be fixed now in the java code, which was starting loops at 0
     java_loopid = loopid
 
     # these alignments are made separately from the screening that was done earlier
@@ -507,14 +704,10 @@ def single_result(request, uuid, loopid, motifgroup):
         else:
             return HttpResponse("Query %s not found" % uuid)
 
-        # print('Line 504')
-
         # retrieve alignment results for each sequence, this loop in the 2d, against this motif group
         # this query can only supply cutoff score, edit distance, not a specific mapping
         seq_res = Results_by_loop_instance.objects.filter(query_id=uuid) \
                                           .filter(loop_id=java_loopid).filter(motif_id=motifgroup).order_by('seq_id')
-
-        # print('Line 511')
 
         if len(seq_res) == 0:
             return HttpResponse("Query %s,%s,%s has no results by loop instance" % (uuid,loopid,motifgroup))
@@ -524,8 +717,6 @@ def single_result(request, uuid, loopid, motifgroup):
         rbl = Results_by_loop.objects.filter(query_id=uuid,
                                              loop_id=loopid,
                                              motif_id=motifgroup)
-
-        # print('Line 522')
 
         if len(rbl) == 0:
             return HttpResponse("Query %s,%s,%s has no results by loop" % (uuid,loopid,motifgroup))
@@ -538,8 +729,6 @@ def single_result(request, uuid, loopid, motifgroup):
         # only keep sequences with status = 0, meaning they have enough letters in each strand
         seqs = Query_sequences.objects.filter(query_id=uuid, loop_id=loopid, status=0)
 
-        # print('Line 535')
-
         # bulk fetch all correspondence results for this loop
         # this is the slowest part of preparing the alignment
         all_ids = [res.id for res in seq_res]
@@ -549,8 +738,6 @@ def single_result(request, uuid, loopid, motifgroup):
             # add this key and value being an empty list, then append the current value
             result_id_to_corrs.setdefault(corr.result_instance_id, []).append(corr)
 
-        # print('Line 545')
-
         # bulk fetch all input sequence names
         # name = Query_sequences.objects.filter(query_id=uuid, seq_id=res.seq_id, loop_id=loopid)[0].user_seq_id
         rows = Query_sequences.objects.filter(query_id=uuid, loop_id=loopid)
@@ -559,8 +746,6 @@ def single_result(request, uuid, loopid, motifgroup):
             seq_id = row.seq_id
             name = row.user_seq_id
             seq_id_to_name[seq_id] = name
-
-        # print('Line 556')
 
         # Build a dictionary for sequences by seq_id
         seqs_dict = {seq.seq_id: seq for seq in seqs}
@@ -615,8 +800,6 @@ def single_result(request, uuid, loopid, motifgroup):
                 rows.append(line_base + ' has_cutoff_value ' + cutoff)
                 rows.append(line_base + ' has_cutoff_score ' + str(res.cutoff_score))
 
-        # print('Line 611')
-
         # /var/www/html/data/jar3d/models/IL/3.48/lib/IL_01239.1_correspondences.txt
         # https://rna.bgsu.edu/data/jar3d/models/IL/3.48/lib/IL_01239.1_correspondences.txt
         # https://rna.bgsu.edu/data/jar3d/models/IL/3.48/lib/IL_34907.1_correspondences.txt
@@ -627,8 +810,6 @@ def single_result(request, uuid, loopid, motifgroup):
         with open(filenamewithpath, "r") as f:
             model_text = f.readlines()
         # model_text has the alignment information for the motif instances, rows for the input sequences
-
-        # print('Line 624')
 
         header, motifalig, sequencealig = align_sequences_and_instances_from_text(model_text, rows)
         seq_text = '\n'.join(rows)
@@ -694,8 +875,6 @@ def single_result(request, uuid, loopid, motifgroup):
         edit_lines = []
         color_dict['0'] = '#ffffff'
 
-        # print('Line 690')
-
         # add loops from motif group
         for key in mkeys:
             line = motifalig[key]
@@ -720,8 +899,6 @@ def single_result(request, uuid, loopid, motifgroup):
             edit_lines.append(ed_line)
             motif_lines.append(line)
         motif_data = zip(motif_names, motif_lines, edit_lines)
-
-        # print('Line 717')
 
         # filenamewithpath = settings.MODELS + '/IL/'+version+'/lib/' + motifgroup + '_interactions.txt'
         filenamewithpath = os.path.join(settings.MODELS,loop_type,version,'lib', motifgroup + '_interactions.txt')
@@ -770,6 +947,10 @@ class JAR3DValidator():
         }
 
     def validate(self, request_raw):
+        """
+        Here, version needs to be 3.48 or 3.98
+        Information about which secondary structure to use is stored in request["secondary"]
+        """
 
         if type(request_raw) == str:
             if re.match(r'^RF[0-9]{5}-[0-9]+\.[0-9]+$', request_raw):
@@ -780,8 +961,21 @@ class JAR3DValidator():
                 query_id = request_raw
 
                 request = {}
-                request["parsed_input"] = request_raw.split('-')[0]
+                request["rfam_family"] = request_raw.split('-')[0]
                 request["version"] = request_raw.split('-')[1]
+                request["secondary"] = ""
+                request["query_type"] = "isRfamFamily"
+                if not request["version"] in ["3.48","3.98"]:
+                    request["version"] = "3.98"
+            elif re.match(r'^RF[0-9]{5}-CCF-[0-9]+\.[0-9]+$', request_raw):
+                # url like https://rna.bgsu.edu/jar3d/result/RF00003-CCF-3.48/
+                # requests that we use the CaCoFold secondary structure
+                query_id = request_raw
+
+                request = {}
+                request["rfam_family"] = request_raw.split('-')[0]
+                request["version"] = request_raw.split('-')[2]
+                request["secondary"] = "CCF"
                 request["query_type"] = "isRfamFamily"
                 if not request["version"] in ["3.48","3.98"]:
                     request["version"] = "3.98"
@@ -793,28 +987,41 @@ class JAR3DValidator():
             parsed_input = request.get('parsed_input', '')
 
             if re.match(r'^RF[0-9]{5}$', parsed_input):
-                # typed and Rfam family like RF01234 in the input box and hit submit
-                if not request.get("version","3.48") in ["3.48","3.98"]:
+                # typed an Rfam family like RF01234 in the input box and hit submit
+                if not request.get("version","3.98") in ["3.48","3.98"]:
                     request["version"] = "3.98"
+                request["rfam_family"] = parsed_input
+                request["secondary"] = ""
+                request["query_type"] = "isRfamFamily"
+                query_id = parsed_input + '-' + request["version"]
+            elif re.match(r'^RF[0-9]{5}-CCF$', parsed_input):
+                # typed an Rfam family like RF01234-CCF in the input box and hit submit
+                if not request.get("version","3.98") in ["3.48","3.98"]:
+                    request["version"] = "3.98"
+                request["rfam_family"] = parsed_input.split("-")[0]
+                request["secondary"] = "CCF"
+                request["query_type"] = "isRfamFamily"
                 query_id = parsed_input + '-' + request["version"]
             else:
                 # create a new query id in the format 97f3fbcb-4f1d-4ab4-b179-3d1bce3c4595
                 query_id = str(uuid.uuid4())
 
         version = request.get('version','3.98')
+        secondary = request.get('secondary','')
 
-        # redirect_url = reverse('app.views.result', args=[query_id])
         redirect_url = reverse('result', args=[query_id])
 
         if request.get('query_type', '') == 'isRfamFamily':
-            rfam_family = request.get('parsed_input', '')
-            print("JAR3D is processing %s with %s" % (rfam_family,version))
+            rfam_family = request["rfam_family"]
 
             group_set='IL' + version + '/HL' + version
 
-            # query table jar3d_query_info for an entry where the email column
-            # is equal to the rfam_family and the version matches as well
-            q = Query_info.objects.filter(email=rfam_family,group_set=group_set).first()
+            print('JAR3D validate querying for %s and %s and %s' % (rfam_family,secondary,group_set))
+
+            # q = Query_info.objects.filter(email=email_query,group_set=group_set).first()
+            q = Query_info.objects.filter(query_id=query_id).first()
+
+            redirect_url = reverse('result', args=[query_id])
             if q:
                 q_id = q.query_id
                 redirect_url = reverse('result', args=[q_id])
@@ -822,7 +1029,9 @@ class JAR3DValidator():
                 return self.respond(redirect_url, 'redirect')
             else:
                 # process this Rfam family for the first time
-                fasta_all, title = process_rfam_alignment(rfam_family)
+                fasta_all, title = process_rfam_alignment(rfam_family,secondary)
+
+                print("JAR3D is processing %s with %s and %s for the first time" % (rfam_family,secondary,version))
 
                 if not fasta_all:
                     print("Processed Rfam alignment, got %s and %s" % (fasta_all,title))
@@ -831,22 +1040,14 @@ class JAR3DValidator():
                 lines = fasta_all.split('\n')
                 ss = lines[0]
 
-                # print("Secondary structure: %s" % ss)
-
-                if not ss:
-                    return self.respond("Could not find secondary structure, got %s and title %s" % (ss,title))
-
-                if len(ss) == 0:
+                if not ss or len(ss) == 0:
                     return self.respond("Could not find secondary structure, got %s and title %s" % (ss,title))
 
                 # header lines starting with entry 1 and taking every other line
                 fasta = lines[1::2]
 
-                # print("Fasta: %s" % fasta)
                 # sequence lines starting with entry 2 and taking every other line
                 data = lines[2::2]
-
-                # print("Data: %s" % data)
 
                 # single text string separated by \n
                 parsed_input = fasta_all
@@ -870,6 +1071,8 @@ class JAR3DValidator():
         data = [x.upper().replace('T', 'U') for x in data]
         query_type = request.get('query_type', 'Unknown query type')
 
+        print("JAR3D validate query_type %s" % (query_type))
+
         if query_type in self.query_types['UNAfold_extract_loops']:
             try:
                 loops, indices = self.UNAfold_extract_loops(data)
@@ -882,6 +1085,7 @@ class JAR3DValidator():
 
         elif query_type in self.query_types['isfolded_extract_loops']:
             # the main case, where the user provides a secondary structure
+            # includes isRfamFamily
             try:
                 loops, indices = self.isfolded_extract_loops(ss, data, query_type)
             except fold.FoldingTimeOutError:
@@ -936,18 +1140,9 @@ class JAR3DValidator():
         # persist the entries in the database starting with sequences
         # query_sequences, query_positions, mins = zip(*sort_sequences(query_positions, query_sequences))
         try:
-            if query_type == "isRfamFamily":
-                for seq in query_sequences:
-                    # save all the sequences
-                    seq.save()
-
-                    # if sequence is defective in some way, then don't save the sequence
-                    # if seq.status != -1:
-                    #     seq.save()
-            else:
-                for seq in query_sequences:
-                    seq.save()
-
+            for seq in query_sequences:
+                # save all the sequences
+                seq.save()
         except:
             return self.respond("Could not save query_sequences")
         try:
@@ -970,16 +1165,13 @@ class JAR3DValidator():
         else:
             # sleep for 2 seconds and then redirect
             time.sleep(2)
+            print('JAR3D: trouble with scoring sequences %s' % exit_status)
             return self.respond(redirect_url, 'redirect')
-
-            logger.debug('views.py: exit_status not 0, figure that scoring went wrong')
-            return self.respond("Could not score the loops in the query")
 
 
     def make_query_sequences(self, loops, fasta, query_id):
         query_sequences = []
         loop_types = ['internal', 'hairpin', 'J3', 'J4']
-        loop_pattern = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])?$)'
         internal_id = 0
         for id_tuple, loop in loops.items():
             (loop_type, seq_id, loop_id) = id_tuple
@@ -1004,10 +1196,6 @@ class JAR3DValidator():
             # print('make_query_sequences: internal_id: %s' % internal_id)
 
             # check to see if the sequence can make the indicated type of loop
-            # old, which did not entirely work
-            # HL_pattern = '(^[acgu](.+)?[acgu])'
-            # IL_pattern = '(^[acgu](.+)?[acgu](\*[acgu](.+)?[acgu])?$)'
-
             # HL pattern: At least two characters that are ACGU and not '-'
             HL_pattern = r'^(?=(.*[ACGU]){2})[ACGU-]+$'
 
@@ -1104,8 +1292,8 @@ class JAR3DValidator():
                 loop_types.append(loop_type)
 
         # print to error_log for debugging
-        print('indices', indices)
-        print('loop_types', loop_types)
+        # print('indices', indices)
+        # print('loop_types', loop_types)
 
         # accumulate the tuples of column indices in the same order as they were stored
         loop_id = 0        # original loop id according to the parser
@@ -1251,8 +1439,7 @@ class JAR3DValidator():
         parser = Dot.Parser(dot_string)
         indices = parser.indices(flanking=True)
 
-        # figure out what we get with J3, J4
-        print("indices from dot bracket %s" % indices)
+        # print("indices from dot bracket %s" % indices)
 
         # loop over every input sequence, keeping the sequences in order
         results = dict()
@@ -1323,7 +1510,7 @@ class ResultsMaker():
     def __init__(self, query_id=None, loop=-1, num=10):
         self.query_id = query_id
         self.loop_id = loop
-        self.loops = []
+        self.loops = []               # list of lists of results objects
         self.input_stats = dict()
         self.problem_loops = []
         self.TOPRESULTS = num         # maximum number of matches to show for each loop
@@ -1335,169 +1522,210 @@ class ResultsMaker():
         self.indices = []
         self.unit_ids = []
 
-    def get_loop_results(self, version, rfam_family = ""):
+    def get_loop_results(self, version, rfam_family = "", secondary = ""):
+
         if self.loop_id == -1:
-            # showing summary across all loops
+            # show summary across all loops
             ignore_cutoff = False   # Only show results with cutoff precent > 0
             results = Results_by_loop.objects.filter(query_id=self.query_id) \
                                              .order_by('loop_id',
                                                        '-cutoff_percent',
                                                        '-mean_cutoff_score')
+
+            # query to get all sequences and all loop ids; this also tells us all loop_ids
+            all_query_seqs = Query_sequences.objects.filter(query_id=self.query_id).order_by('loop_id','seq_id')
+            all_loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id).order_by('loop_id','column_index')
+
         else:
-            # showing all results for a specific loop
+            # show all results for a specific loop
             ignore_cutoff = True   # Show results for all motif groups regardless of cutoff
             results = Results_by_loop.objects.filter(query_id=self.query_id, loop_id=self.loop_id) \
                                              .order_by('-cutoff_percent',
                                                        '-mean_cutoff_score')
-        if results:
-            """
-            build a 2d list
-            loops[1][0] = result 0 for loop 1
-            loops[1][1] = result 1 for loop 1
-            """
 
-            motif_id_to_annotation = get_motif_annotations(version)
+            # query to get all sequences and all loop ids; this also tells us all loop_ids
+            all_query_seqs = Query_sequences.objects.filter(query_id=self.query_id, loop_id=self.loop_id).order_by('seq_id')
+            all_loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id, loop_id=self.loop_id).order_by('column_index')
 
-            loop_ids = []     # all the loop ids returned by the result
-            res_list = set()  # List of tuples, to avoid duplicate entries
-            for result in results:
-                # if int(self.loop_id) >= 0:
-                #     # showing all results for a specific loop
-                #     count_id = 0
+        # store mapping from loop_id to sequences
+        loop_id_to_query_seqs = {}
+        for query_seqs in all_query_seqs:
+            loop_id = query_seqs.loop_id
+            if not loop_id in loop_id_to_query_seqs:
+                loop_id_to_query_seqs[loop_id] = []
+            loop_id_to_query_seqs[loop_id].append(query_seqs)
+
+        loop_ids = sorted(loop_id_to_query_seqs)
+
+        # store mapping from loop_id to loop indices
+        loop_id_to_loop_inds = {}
+        for loop_inds in all_loop_inds:
+            loop_id = loop_inds.loop_id
+            if not loop_id in loop_id_to_loop_inds:
+                loop_id_to_loop_inds[loop_id] = []
+            loop_id_to_loop_inds[loop_id].append(loop_inds)
+
+        motif_id_to_annotation = get_motif_annotations(version)
+
+        # if all sequences in a loop are defective, too short, then there will be no entries for that
+        # loop_id in the results list
+        # But the sequences are still there and should be shown.
+
+        loop_id_to_results = {}  # dictionary of lists
+        res_list = set()  # List of tuples, to avoid duplicate entries
+        for result in results:
+            # avoid duplicating results; sometimes an Rfam family was run twice
+            tup = (result.loop_id, result.motif_id)
+            if tup in res_list:
+                continue
+            else:
+                res_list.add(tup)
+
+            loop_id = result.loop_id
+
+            result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
+            result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
+            result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
+            result.annotation = motif_id_to_annotation.get(result.motif_id, 'No annotation')
+
+            if not loop_id in loop_id_to_results:
+                # new loop_id found
+                loop_id_to_results[loop_id] = []
+
+                # if result.cutoff_percent > 0 or ignore_cutoff:
+                #     # for main results page, display when acceptance rate is > 0
+                #     # start a new list with results
+                #     loop_id_to_results[loop_id].append(result)
+                #     self.loops.append([result])
                 # else:
-                #     # showing top results for all loops
-                #     count_id = result.loop_id
+                #     # start a new list with no results
+                #     self.loops.append([])
+            # else:
+                # self.loops is going to be a list of lists of length up to TOPRESULTS
+                # this is where the number of matches for a loop is limited to 0,
+                # or to acceptance rate > 0
+                # acceptance rate = cutoff_percent
 
-                tup = (result.loop_id, result.motif_id)
-                if tup in res_list:
-                    continue
-                else:
-                    res_list.add(tup)
+                # if ignore_cutoff or (len(self.loops[-1]) < self.TOPRESULTS and result.cutoff_percent > 0):
+                #     # when the last list is not already too long, add to it
+                #     self.loops[-1].append(result)
 
-                result.motif_url = self.RNA3DHUBURL + 'motif/view/' + result.motif_id
-                result.align_url = '/jar3d/result/%s/%s/' % (result.query_id, result.loop_id)
-                result.ssurl = self.SSURL + result.motif_id[0:2] + version + '/' + result.motif_id + '.png'
-                result.annotation = motif_id_to_annotation.get(result.motif_id, 'No annotation')
+            if ignore_cutoff or (len(loop_id_to_results[loop_id]) < self.TOPRESULTS and result.cutoff_percent > 0):
+                # when the last list is not already too long, add to it
+                loop_id_to_results[loop_id].append(result)
 
-                if not result.loop_id in loop_ids:
-                    # new loop_id found
-                    loop_ids.append(result.loop_id)
-                    if result.cutoff_percent > 0 or ignore_cutoff:
-                        # start a new list with results
-                        self.loops.append([result])
-                    else:
-                        # start a new list with no results
-                        self.loops.append([])
-                else:
-                    # self.loops is going to be a list of lists of length up to TOPRESULTS
-                    # this is where the number of matches for a loop is limited to 0,
-                    # or to acceptance rate > 0
-                    # acceptance rate = cutoff_percent
-                    if ignore_cutoff or (len(self.loops[-1]) < self.TOPRESULTS and result.cutoff_percent > 0):
-                        # when the last list is not already too long, add to it
-                        self.loops[-1].append(result)
-
-            # for Rfam families with a 3D structure, map seed alignment column to unit ids
-            seed_column_to_unit_ids = {}
-            num_3D_structures = 0
-            if rfam_family:
-                # look for and read file mapping seed alignment columns to unit ids
-                rfam_to_unit_id_path = "/usr/local/pipeline/alignments/alignments"
+        # for Rfam families with a 3D structure, map seed alignment column to unit ids
+        seed_column_to_unit_ids = {}
+        num_3D_structures = 0
+        if rfam_family:
+            # look for and read file mapping seed alignment columns to unit ids
+            rfam_to_unit_id_path = "/usr/local/pipeline/alignments/alignments"
+            if secondary == "":
                 seed_column_to_unit_ids_filename = os.path.join(rfam_to_unit_id_path,"%s_%s_column_to_unit_id.txt" % (rfam_family,rfam_release))
-                if os.path.exists(seed_column_to_unit_ids_filename):
-                    with open(seed_column_to_unit_ids_filename,'rt') as f:
-                        lines = f.readlines()
+            else:
+                seed_column_to_unit_ids_filename = os.path.join(rfam_to_unit_id_path,"%s_%s_%s_column_to_unit_id.txt" % (rfam_family,rfam_release,secondary))
+            if os.path.exists(seed_column_to_unit_ids_filename):
+                with open(seed_column_to_unit_ids_filename,'rt') as f:
+                    lines = f.readlines()
 
-                    num_3D_structures = len(lines[0].split("\t"))-1
-                    for line in lines[1:]:
-                        fields = line.rstrip("\n").split("\t")
-                        seed_column = int(fields[0])
-                        unit_ids = fields[1:]
-                        seed_column_to_unit_ids[seed_column] = unit_ids
+                num_3D_structures = len(lines[0].split("\t"))-1
+                for line in lines[1:]:
+                    fields = line.rstrip("\n").split("\t")
+                    seed_column = int(fields[0])
+                    unit_ids = fields[1:]
+                    seed_column_to_unit_ids[seed_column] = unit_ids
 
-            # retrieve information about sequences and indices for the loops seen here
-            for loop_id in loop_ids:
-                query_seqs = Query_sequences.objects.filter(query_id=self.query_id, loop_id=loop_id).order_by('seq_id')
-                loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id, loop_id=loop_id).order_by('loop_id','column_index')
+        # retrieve information about sequences and indices for the loops seen here
+        for loop_id in loop_ids:
+            # query_seqs = Query_sequences.objects.filter(query_id=self.query_id, loop_id=loop_id).order_by('seq_id')
+            # loop_inds = Query_loop_positions.objects.filter(query_id=self.query_id, loop_id=loop_id).order_by('loop_id','column_index')
 
-                if rfam_family:
-                    # summarize the sequences, set aside defective ones
-                    seqs = summarize_sequences(query_seqs)
-                else:
-                    seqs = []
-                    for entries in query_seqs:
-                        seqs.append(entries.loop_sequence)
+            query_seqs = loop_id_to_query_seqs[loop_id]
+            loop_inds = loop_id_to_loop_inds[loop_id]
 
-                # self.sequences is a list of lists of sequences
-                self.sequences.append(seqs)
+            if rfam_family:
+                # summarize the sequences, set aside defective ones
+                seqs = summarize_sequences(query_seqs)
+            else:
+                seqs = []
+                for entries in query_seqs:
+                    seqs.append(entries.loop_sequence)
 
-                inds = []
-                for ind in loop_inds:
-                    if not ind.column_index in inds:
-                        inds.append(ind.column_index)
+            # self.loops is a list of lists of results
+            if loop_id in loop_id_to_results:
+                results = loop_id_to_results[loop_id]
+            else:
+                results = []
+            self.loops.append(results)
 
-                # suddenly these are not coming out sorted, so sort here
-                inds = sorted(inds)
+            # self.sequences is a list of lists of sequences
+            self.sequences.append(seqs)
 
-                # Convert inds to ranges, adding 1 to convert from internal numbering
-                # that starts at 0 to website numbering of columns that starts at 1
-                ranges = []
-                last = -2
-                start = -1
-                for item in inds:
-                    if item != last+1:
-                        if start != -1:
-                            if start != last:
-                                ranges.append(str(start+1)+"-"+str(last+1))
-                            else:
-                                ranges.append(str(start+1))
-                        start = item
-                    last = item
-                if start != last:
-                    ranges.append(str(start+1)+"-"+str(last+1))
-                else:
-                    ranges.append(str(start+1))
-                self.indices.append(", ".join(ranges))
+            inds = []
+            for ind in loop_inds:
+                if not ind.column_index in inds:
+                    inds.append(ind.column_index)
 
-                # make unit id lists for 3D structures for this loop
-                structure_counter_to_unit_ids = {}
-                for structure_counter in range(num_3D_structures):
-                    structure_counter_to_unit_ids[structure_counter] = []
-                for seed_column in inds:
-                    # inds starts at 0 but seed column in the file we read starts at 1
-                    if seed_column+1 in seed_column_to_unit_ids:
-                        structure_to_unit_id = seed_column_to_unit_ids[seed_column+1]
-                        for structure_counter in range(num_3D_structures):
-                            # avoid empty string and "NULL", make sure it's a valid unit id
-                            if len(structure_to_unit_id[structure_counter].split("|")) >= 5:
-                                structure_counter_to_unit_ids[structure_counter].append(structure_to_unit_id[structure_counter])
+            # suddenly these are not coming out sorted, so sort here
+            inds = sorted(inds)
 
-                # full unit ids can make the URL too long, so make shorter versions when
-                # all unit ids have just five fields, no insertion code, no symmetry, etc.
-                all_set_list = []
-                for unit_id_set in structure_counter_to_unit_ids.values():
-                    if len(unit_id_set) > 0:
-                        fields = unit_id_set[0].split("|")
-                        pdb_id = fields[0]
-                        chain = fields[2]
-                        all_five_fields = True
-                        number_list = []
-                        for unit_id in unit_id_set:
-                            fields = unit_id.split("|")
-                            if len(fields) > 5:
-                                all_five_fields = False
-                            number_list.append(fields[4])
-                        if all_five_fields:
-                            set_text = "%s_%s_%s" % (pdb_id,chain,"_".join(number_list))
+            # Convert inds to ranges, adding 1 to convert from internal numbering
+            # that starts at 0 to website numbering of columns that starts at 1
+            ranges = []
+            last = -2
+            start = -1
+            for item in inds:
+                if item != last+1:
+                    if start != -1:
+                        if start != last:
+                            ranges.append(str(start+1)+"-"+str(last+1))
                         else:
-                            set_text = ",".join(unit_id_set)
-                        all_set_list.append(set_text)
+                            ranges.append(str(start+1))
+                    start = item
+                last = item
+            if start != last:
+                ranges.append(str(start+1)+"-"+str(last+1))
+            else:
+                ranges.append(str(start+1))
+            self.indices.append(", ".join(ranges))
 
-                unit_id_string = ";".join(all_set_list)
+            # make unit id lists for 3D structures for this loop
+            structure_counter_to_unit_ids = {}
+            for structure_counter in range(num_3D_structures):
+                structure_counter_to_unit_ids[structure_counter] = []
+            for seed_column in inds:
+                # inds starts at 0 but seed column in the file we read starts at 1
+                if seed_column+1 in seed_column_to_unit_ids:
+                    structure_to_unit_id = seed_column_to_unit_ids[seed_column+1]
+                    for structure_counter in range(num_3D_structures):
+                        # avoid empty string and "NULL", make sure it's a valid unit id
+                        if len(structure_to_unit_id[structure_counter].split("|")) >= 5:
+                            structure_counter_to_unit_ids[structure_counter].append(structure_to_unit_id[structure_counter])
 
-                self.unit_ids.append(unit_id_string)
-        else:
-            pass
+            # full unit ids can make the URL too long, so make shorter versions when
+            # all unit ids have just five fields, no insertion code, no symmetry, etc.
+            all_set_list = []
+            for unit_id_set in structure_counter_to_unit_ids.values():
+                if len(unit_id_set) > 0:
+                    fields = unit_id_set[0].split("|")
+                    pdb_id = fields[0]
+                    chain = fields[2]
+                    all_five_fields = True
+                    number_list = []
+                    for unit_id in unit_id_set:
+                        fields = unit_id.split("|")
+                        if len(fields) > 5:
+                            all_five_fields = False
+                        number_list.append(fields[4])
+                    if all_five_fields:
+                        set_text = "%s_%s_%s" % (pdb_id,chain,"_".join(number_list))
+                    else:
+                        set_text = ",".join(unit_id_set)
+                    all_set_list.append(set_text)
+
+            unit_id_string = ";".join(all_set_list)
+
+            self.unit_ids.append(unit_id_string)
 
     def get_problem_loops(self):
         """
@@ -1753,9 +1981,28 @@ def sort_loops(loops, indices, sequences):
 
 def zip_loop_results(loops, indices, sequences, unit_ids):
     mins = []
+    loop_type = []
+    loop_type_long = []
     for ranges in indices:
         mins.append(ranges.replace(',', '-').split("-")[0])
-    unsorted_lists = list(zip(loops, sequences, indices, mins, unit_ids))
+        num_strands = len(ranges.split(","))
+        if num_strands == 1:
+            loop_type.append('HL')
+            loop_type_long.append('Hairpin loop')
+        elif num_strands == 2:
+            loop_type.append('IL')
+            loop_type_long.append('Internal loop')
+        elif num_strands == 3:
+            loop_type.append('J3')
+            loop_type_long.append('3-way junction loop')
+        elif num_strands == 4:
+            loop_type.append('J4')
+            loop_type_long.append('4-way junction loop')
+        else:
+            loop_type.append('JL')
+            loop_type_long.append('Junction loop')
+
+    unsorted_lists = list(zip(loops, sequences, indices, mins, unit_ids, loop_type, loop_type_long))
     return unsorted_lists
 
 
