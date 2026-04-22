@@ -12,10 +12,13 @@
   {{ block.super }}
   Query {{ query_info.query_id }} completed
   <br>
-  {% if query_info.group_set|length == 13 %}
-  Run on Motif Atlas Version {{ query_info.group_set|slice:"2:6" }}
-  {% else %}
-  Run on Motif Atlas Version {{ query_info.group_set|slice:"2:5" }}
+  Run on Motif Atlas Version {{ version }}
+  {% if rfam_family %}
+    {% if secondary %}
+      using the CaCoFold secondary structure. <a href="https://rna.bgsu.edu/jar3d/result/{{ rfam_family }}-{{ version}}">Run with the Rfam secondary structure.</a>
+    {% else %}
+      using the Rfam secondary structure. <a href="https://rna.bgsu.edu/jar3d/result/{{ rfam_family }}-CCF-{{ version}}">Run with the CaCoFold secondary structure.</a>
+    {% endif %}
   {% endif %}
 {% endblock page_subtitle %}
 
@@ -89,15 +92,13 @@
 {% endif %}
 
 {% if results|length > 1 %}
-<div class="row">
-  <div class="span12">
-    <h4>View results for:</h4>
-    <ul class="margin-top-5px">
-    {% for loop,sequences,indices,mins,unit_ids in results %}
-      <li><a href="#loop-{{forloop.counter}}">Loop {{ forloop.counter }}</a> Column numbers: {{ indices }}</li>
+<div>
+    <h4>Jump to results for:</h4>
+    <ul class="gridlist">
+    {% for loop,sequences,indices,mins,unit_ids,loop_type,loop_type_long in results %}
+      <li><span><a href="#loop-{{forloop.counter}}">Loop {{ forloop.counter }}</a></span><span>{{loop_type}}</span> <span>Column numbers: {{ indices }}</span> </li>
     {% endfor %}
     </ul>
-  </div>
 </div>
 {% endif %}
 
@@ -106,16 +107,16 @@
 {% endif %}
 
 <div class="row">
-{% for loop,sequences,indices,mins,unit_ids in results %}
+{% for loop,sequences,indices,mins,unit_ids,loop_type,loop_type_long in results %}
     <div class="span8 loop-result-container">
     <h3 id="loop-{{ forloop.counter }}" class="loop-result-title">
     {% if not compress %}
-    Loop {{ forloop.counter }}
+    Loop {{ forloop.counter }} {{loop_type_long}}
     {% else %}
-    Loop {{ loop_id }}
+    Loop {{ loop_id }} {{loop_type_long}}
     {% endif %}
     </h3>
-    Column Numbers: {{ indices }}
+    Column numbers: {{ indices }}
     {% if unit_ids|length > 0 %}
       - <a href="https://rna.bgsu.edu/rna3dhub/display3D/multiple/{{unit_ids}}" target="_blank">View nucleotides in PDB file(s)</a>
     {% elif rfam_pdb_chains|length > 0 %}
@@ -161,7 +162,8 @@
               Basepair signature:<br>{{ result.signature }}
             </p>
             <p>
-            <a class='btn btn-default margin-top-5px' href="{{result.align_url}}{{result.motif_id}}/" target="_blank">Align sequences to group</a>
+            <!-- generate the link only after clicking on the button; less likely that bots will do this -->
+            <button class="alignBtn btn btn-default margin-top-5px" data-url="{{result.align_url}}" data-id="{{result.motif_id}}">Align sequences to group</button>
           </p>
         </td>
         <td>{{ result.cutoff_percent|floatformat:2 }}</td>

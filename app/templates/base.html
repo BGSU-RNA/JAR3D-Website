@@ -54,6 +54,16 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="{% static 'js/bootstrap-dropdown.js' %}"></script>
 
+    <script>
+    document.addEventListener("click", function (e) {
+        const btn = e.target.closest(".alignBtn");
+        if (!btn) return;
+
+        const url = btn.dataset.url + btn.dataset.id + "/";
+        window.open(url, "_blank");
+    });
+    </script>
+
     {% block page_specific_js %}
     {% endblock page_specific_js %}
 
