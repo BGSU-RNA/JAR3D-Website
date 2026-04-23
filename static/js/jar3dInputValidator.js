@@ -407,9 +407,12 @@ var jar3dInputValidator = (function($) {
 
         isRfamFamily: function( str ) {
             // if lines[0] starts with 'RF' and is followed by 5 digits,
+            // optionally ending with -CCF,
             // then it's a Rfam ID
             const pattern = /^RF\d{5}$/;
-            return pattern.test(str.toUpperCase());
+            const patternCCF = /^RF\d{5}-CCF$/;
+
+            return (pattern.test(str.toUpperCase()) || patternCCF.test(str.toUpperCase()));
         },
 
 
@@ -537,7 +540,8 @@ var jar3dInputValidator = (function($) {
             if ( response.query_type ) {
                 response.valid = true;
                 if (response.query_type == 'isRfamFamily') {
-                    response.data = lines;
+                    response.data = lines.map(line => line.toUpperCase());
+                    response.parsed_input = response.parsed_input.toUpperCase();
                 } else if ( !response.query_type.match(/NoFasta/) && lines.length > 1 ) {
                     $.each(lines, function(ind, line) {
                         if ( ind % 2 == 0 ) {

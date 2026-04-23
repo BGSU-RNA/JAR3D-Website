@@ -58,6 +58,7 @@ var Examples = {
                                'GGUAGGAGUGAAAUCCUGUAAUC'].join('\n'),
 
     isRfamFamily: 'RF03064',
+    isRfamFamilyCCF: 'RF03064-CCF',
 
 };
 

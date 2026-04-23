@@ -56,6 +56,7 @@ var Examples_3_98 = {
         submit   = $('#submit'),
         message  = $('#message'),
         version  = $('#version'),
+        secondary= $('#secondary'),
         clear    = $('#clear'),
         examples = $('.examples');
 
@@ -94,10 +95,15 @@ var Examples_3_98 = {
             console.log(response);
             showMessage(response);
 
-            //if response is valid, redirect to results page
+            // if response is valid, redirect to results page
             if (response.valid) {
+                if ($('#secondary').val() === 'Rfam') {
+                    s = "";
+                } else {
+                    s = "CCF-";
+                }
                 setTimeout(function() {
-                    window.location.href = 'https://rna.bgsu.edu/jar3d/rfam/' + $('#version').val() + '/' + response.data.join(',');
+                    window.location.href = 'https://rna.bgsu.edu/jar3d/rfam/' + s + $('#version').val() + '/' + response.data.join(',');
                 }, 2000);
             }
 
