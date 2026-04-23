@@ -3,11 +3,15 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Q
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.utils.encoding import force_str
 
 # from django.http import JsonResponse
 # from django.template import RequestContext
 
 from collections import defaultdict
+import gzip
 import html
 import json
 import logging
@@ -606,6 +610,18 @@ def single_result(request, uuid, loopid, motifgroup):
         if value:
             return HttpResponse(value)
 
+    cache_filename = "%s-%s-%s.html.gz" % (uuid,loopid,motifgroup)
+    cache_path_filename = os.path.join('/var/www/jar3d/cache',cache_filename)
+
+    # if this page has already been made and cached, read the cache and send that back
+    if os.path.exists(cache_path_filename):
+        with gzip.open(cache_path_filename, "rt", encoding="utf-8") as f:
+            html = f.read()
+
+        response = HttpResponse(html, content_type="text/html; charset=utf-8")
+        response["X-Cache"] = "HIT"
+        return response
+
     java_loopid = loopid
 
     # these alignments are made separately from the screening that was done earlier
@@ -904,12 +920,28 @@ def single_result(request, uuid, loopid, motifgroup):
         filenamewithpath = os.path.join(settings.MODELS,loop_type,version,'lib', motifgroup + '_interactions.txt')
         with open(filenamewithpath, "r") as f:
             interaction_text = f.read().replace(' ', '\t')
-        return render(request,'base_result_loop_done.html',
+
+
+        html = render_to_string('base_result_loop_done.html',
                                   {'query_info': qi, 'header_zip': header_zip,
                                    'loopnum': loopid, 'motifid': motifgroup,
                                    'seq_zip': seq_zip, 'motif_data': motif_data, 'seq_text': seq_text,
                                    'model_text': model_text, 'inter_text': interaction_text,
-                                   'rotation': rotation})
+                                   'rotation': rotation},request=request)
+
+        html = force_str(html)  # ensure it's a proper string
+
+        # write to temporary file to avoid read/write collisions
+        tmp_path = cache_path_filename.replace(".html",".tmp")
+        with gzip.open(tmp_path, "wt", encoding="utf-8") as f:
+            f.write(html)
+
+        # move to cache for reading again later
+        os.replace(tmp_path, cache_path_filename)
+
+        response = HttpResponse(html, content_type="text/html; charset=utf-8")
+        response["X-Cache"] = "MISS"
+        return response
 
 
 @csrf_exempt
