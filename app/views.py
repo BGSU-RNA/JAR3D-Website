@@ -722,6 +722,7 @@ def single_result(request, uuid, loopid, motifgroup):
 
         # retrieve alignment results for each sequence, this loop in the 2d, against this motif group
         # this query can only supply cutoff score, edit distance, not a specific mapping
+        # added an index to the database to speed up this query, which was dragging down the server from bots
         seq_res = Results_by_loop_instance.objects.filter(query_id=uuid) \
                                           .filter(loop_id=java_loopid).filter(motif_id=motifgroup).order_by('seq_id')
 
